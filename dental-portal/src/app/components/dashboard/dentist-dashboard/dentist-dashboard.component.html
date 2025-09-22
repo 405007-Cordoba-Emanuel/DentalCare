@@ -1,0 +1,277 @@
+<!-- Header con Material Toolbar -->
+<mat-toolbar class="dashboard-header">
+  <div class="header-content">
+    <div class="header-left">
+      <div class="logo-section">
+        <div class="logo-container">
+          <app-icon name="shield" size="24" class="logo-icon"></app-icon>
+        </div>
+        <h1 class="brand-title">DentalCare Pro</h1>
+      </div>
+      <span class="dashboard-subtitle">Panel del Dentista</span>
+    </div>
+    <div class="header-right">
+      <button 
+        mat-raised-button 
+        color="primary"
+        (click)="createNewAppointment()"
+        class="new-appointment-btn"
+      >
+        <mat-icon>add</mat-icon>
+        + Nueva Cita
+      </button>
+      <button 
+        mat-icon-button
+        class="notification-btn"
+        matTooltip="Notificaciones"
+      >
+        <mat-icon>notifications</mat-icon>
+      </button>
+      <button 
+        mat-icon-button
+        (click)="logout()"
+        class="profile-btn"
+        matTooltip="Perfil"
+      >
+        <div class="profile-avatar">DP</div>
+      </button>
+    </div>
+  </div>
+</mat-toolbar>
+
+<!-- Layout Principal con Sidebar Izquierdo -->
+<div class="dashboard-layout">
+  <!-- Sidebar Izquierdo -->
+  <div class="sidebar-left">
+    <!-- Navegación Principal -->
+    <nav class="main-navigation">
+      <div class="nav-section">
+        <h3 class="nav-title">Navegación</h3>
+        <a href="#" class="nav-item active">
+          <mat-icon>dashboard</mat-icon>
+          <span>Vista General</span>
+        </a>
+        <a href="#" class="nav-item">
+          <mat-icon>schedule</mat-icon>
+          <span>Citas</span>
+        </a>
+        <a href="#" class="nav-item">
+          <mat-icon>people</mat-icon>
+          <span>Pacientes</span>
+        </a>
+        <a href="#" class="nav-item">
+          <mat-icon>message</mat-icon>
+          <span>Mensajes</span>
+          <div class="badge">3</div>
+        </a>
+        <a href="#" class="nav-item">
+          <mat-icon>photo_camera</mat-icon>
+          <span>Fotos de Progreso</span>
+        </a>
+        <a href="#" class="nav-item">
+          <mat-icon>folder</mat-icon>
+          <span>Archivos</span>
+        </a>
+        <a href="#" class="nav-item">
+          <mat-icon>receipt</mat-icon>
+          <span>Recetas</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- Acciones Rápidas -->
+    <div class="quick-actions-section">
+      <h3 class="nav-title">Acciones Rápidas</h3>
+      <button 
+        mat-stroked-button 
+        color="primary"
+        class="action-btn"
+      >
+        <mat-icon>calendar_today</mat-icon>
+        Ver Agenda
+      </button>
+      
+      <button 
+        mat-stroked-button 
+        color="primary"
+        class="action-btn"
+      >
+        <mat-icon>add_person</mat-icon>
+        Nuevo Paciente
+      </button>
+      
+      <button 
+        mat-stroked-button 
+        color="primary"
+        class="action-btn"
+      >
+        <mat-icon>assessment</mat-icon>
+        Reportes
+      </button>
+      
+      <button 
+        mat-stroked-button 
+        color="primary"
+        class="action-btn"
+      >
+        <mat-icon>settings</mat-icon>
+        Configuración
+      </button>
+    </div>
+  </div>
+
+  <!-- Contenido Principal -->
+  <div class="main-content">
+    <div class="content-header">
+      <h2 class="content-title">Vista General</h2>
+    </div>
+
+    <!-- Estadísticas Principales -->
+    <div class="stats-grid">
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon-container appointments">
+              <mat-icon class="stat-icon">schedule</mat-icon>
+            </div>
+            <div class="stat-info">
+              <h3 class="stat-number">{{ stats.appointmentsToday }}</h3>
+              <p class="stat-label">Citas Hoy</p>
+              <p class="stat-subtitle">5 completadas</p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon-container patients">
+              <mat-icon class="stat-icon">people</mat-icon>
+            </div>
+            <div class="stat-info">
+              <h3 class="stat-number">{{ stats.totalPatients }}</h3>
+              <p class="stat-label">Total Pacientes</p>
+              <p class="stat-subtitle">Pacientes activos</p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon-container messages">
+              <mat-icon class="stat-icon">message</mat-icon>
+            </div>
+            <div class="stat-info">
+              <h3 class="stat-number">{{ stats.pendingReports }}</h3>
+              <p class="stat-label">Mensajes</p>
+              <p class="stat-subtitle">Mensajes pendientes</p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon-container completed">
+              <mat-icon class="stat-icon">check_circle</mat-icon>
+            </div>
+            <div class="stat-info">
+              <h3 class="stat-number">5</h3>
+              <p class="stat-label">Completadas</p>
+              <p class="stat-subtitle">Citas de hoy</p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Contenido de Listas -->
+    <div class="lists-container">
+      <!-- Citas Próximas -->
+      <mat-card class="list-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="card-title-icon">schedule</mat-icon>
+            Próximas Citas
+          </mat-card-title>
+          <mat-card-subtitle>Citas programadas para hoy</mat-card-subtitle>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div class="appointments-list">
+            <div 
+              *ngFor="let appointment of upcomingAppointments" 
+              class="appointment-item"
+            >
+              <div class="appointment-time">
+                <mat-icon class="time-icon">access_time</mat-icon>
+                <span class="time-text">{{ appointment.time }}</span>
+              </div>
+              
+              <div class="appointment-details">
+                <h4 class="patient-name">{{ appointment.patientName }}</h4>
+                <p class="appointment-type">{{ appointment.type }}</p>
+              </div>
+              
+              <div class="appointment-status">
+                <mat-chip 
+                  [color]="appointment.status === 'Confirmada' ? 'primary' : 'warn'"
+                  selected
+                  class="status-chip"
+                >
+                  {{ appointment.status }}
+                </mat-chip>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Pacientes Recientes -->
+      <mat-card class="list-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="card-title-icon">people</mat-icon>
+            Pacientes Recientes
+          </mat-card-title>
+          <mat-card-subtitle>Actividad reciente de pacientes</mat-card-subtitle>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div class="patients-list">
+            <div 
+              *ngFor="let patient of recentPatients; let i = index" 
+              class="patient-item"
+              (click)="viewPatientDetails(i + 1)"
+            >
+              <div class="patient-avatar">
+                <mat-icon class="avatar-icon">person</mat-icon>
+              </div>
+              
+              <div class="patient-info">
+                <h4 class="patient-name">{{ patient.name }}</h4>
+                <p class="patient-dates">
+                  Última visita: {{ patient.lastVisit | date:'shortDate' }}
+                </p>
+              </div>
+              
+              <div class="patient-status">
+                <mat-chip 
+                  color="primary"
+                  selected
+                  class="status-chip"
+                >
+                  {{ i === 0 ? 'Activo' : 'Seguimiento' }}
+                </mat-chip>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

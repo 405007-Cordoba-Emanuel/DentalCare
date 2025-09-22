@@ -1,0 +1,366 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header con Material Toolbar -->
+  <mat-toolbar class="dashboard-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="logo-section">
+          <div class="logo-container">
+            <app-icon name="shield" size="24" class="logo-icon"></app-icon>
+          </div>
+          <h1 class="brand-title">DentalCare Pro</h1>
+        </div>
+        <span class="dashboard-subtitle">Panel del Paciente</span>
+      </div>
+      <div class="header-right">
+        <button 
+          mat-raised-button 
+          color="primary"
+          (click)="scheduleAppointment()"
+          class="schedule-btn"
+        >
+          <mat-icon>event</mat-icon>
+          + Agendar Cita
+        </button>
+        <button 
+          mat-icon-button
+          class="notification-btn"
+          matTooltip="Notificaciones"
+        >
+          <mat-icon>notifications</mat-icon>
+        </button>
+        <button 
+          mat-icon-button
+          (click)="logout()"
+          class="profile-btn"
+          matTooltip="Perfil"
+        >
+          <div class="profile-avatar">MG</div>
+        </button>
+      </div>
+    </div>
+  </mat-toolbar>
+
+  <!-- Layout Principal con Sidebar Izquierdo -->
+  <div class="dashboard-layout">
+    <!-- Sidebar Izquierdo -->
+    <div class="sidebar-left">
+      <!-- Navegación Principal -->
+      <nav class="main-navigation">
+        <div class="nav-section">
+          <h3 class="nav-title">Navegación</h3>
+          <a href="#" class="nav-item active">
+            <mat-icon>dashboard</mat-icon>
+            <span>Vista General</span>
+          </a>
+          <a href="#" class="nav-item">
+            <mat-icon>person</mat-icon>
+            <span>Mi Perfil</span>
+          </a>
+          <a href="#" class="nav-item">
+            <mat-icon>schedule</mat-icon>
+            <span>Mis Citas</span>
+          </a>
+          <a href="#" class="nav-item">
+            <mat-icon>history</mat-icon>
+            <span>Historial</span>
+          </a>
+          <a href="#" class="nav-item">
+            <mat-icon>photo_camera</mat-icon>
+            <span>Fotos de Progreso</span>
+          </a>
+          <a href="#" class="nav-item">
+            <mat-icon>payment</mat-icon>
+            <span>Pagos</span>
+          </a>
+          <a href="#" class="nav-item">
+            <mat-icon>message</mat-icon>
+            <span>Chat</span>
+            <div class="badge">2</div>
+          </a>
+          <a href="#" class="nav-item">
+            <mat-icon>help</mat-icon>
+            <span>Ayuda</span>
+          </a>
+        </div>
+      </nav>
+
+      <!-- Acciones Rápidas -->
+      <div class="quick-actions-section">
+        <h3 class="nav-title">Acciones Rápidas</h3>
+        <button 
+          mat-stroked-button 
+          color="primary"
+          class="action-btn"
+          (click)="scheduleAppointment()"
+        >
+          <mat-icon>event</mat-icon>
+          Agendar Cita
+        </button>
+        
+        <button 
+          mat-stroked-button 
+          color="primary"
+          class="action-btn"
+          (click)="sendMessage()"
+        >
+          <mat-icon>send</mat-icon>
+          Contactar Dentista
+        </button>
+        
+        <button 
+          mat-stroked-button 
+          color="primary"
+          class="action-btn"
+        >
+          <mat-icon>description</mat-icon>
+          Ver Documentos
+        </button>
+        
+        <button 
+          mat-stroked-button 
+          color="primary"
+          class="action-btn"
+        >
+          <mat-icon>photo_camera</mat-icon>
+          Subir Fotos
+        </button>
+      </div>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="main-content">
+      <div class="content-header">
+        <h2 class="content-title">Vista General</h2>
+      </div>
+
+      <!-- Información del Paciente -->
+      <mat-card class="patient-info-card">
+        <mat-card-content>
+          <div class="patient-header">
+            <div class="patient-avatar">
+              <mat-icon class="avatar-icon">person</mat-icon>
+            </div>
+            <div class="patient-details">
+              <h2 class="patient-name">{{ patientInfo.name }}</h2>
+              <p class="patient-age">Edad: {{ patientInfo.age }} años</p>
+              <p class="patient-last-visit">
+                Última visita: {{ patientInfo.lastVisit | date:'longDate' }}
+              </p>
+            </div>
+            <div class="patient-actions">
+              <button 
+                mat-stroked-button 
+                color="primary"
+                class="action-btn"
+              >
+                <mat-icon>edit</mat-icon>
+                Editar Perfil
+              </button>
+            </div>
+          </div>
+          
+          <div class="treatment-progress">
+            <div class="progress-header">
+              <h3>Progreso del Tratamiento</h3>
+              <span class="progress-percentage">{{ patientInfo.treatmentProgress }}%</span>
+            </div>
+            <mat-progress-bar 
+              mode="determinate" 
+              [value]="patientInfo.treatmentProgress"
+              class="progress-bar"
+            ></mat-progress-bar>
+            <p class="progress-description">
+              {{ patientInfo.treatmentProgress }}% del tratamiento completado
+            </p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Estadísticas y Contenido -->
+      <div class="content-grid">
+        <!-- Próxima Cita -->
+        <mat-card class="next-appointment-card">
+          <mat-card-header>
+            <mat-card-title>Próxima Cita</mat-card-title>
+          </mat-card-header>
+          
+          <mat-card-content>
+            <div class="next-appointment-info">
+              <div class="appointment-date-large">
+                <span class="day-large">{{ patientInfo.nextAppointment | date:'d' }}</span>
+                <span class="month-large">{{ patientInfo.nextAppointment | date:'MMM' }}</span>
+              </div>
+              
+              <div class="appointment-details-large">
+                <h3 class="appointment-type-large">Limpieza Dental</h3>
+                <p class="appointment-time-large">
+                  <mat-icon>access_time</mat-icon>
+                  10:00 AM
+                </p>
+                <p class="appointment-dentist-large">
+                  <mat-icon>medical_services</mat-icon>
+                  Dr. Carlos Rodríguez
+                </p>
+              </div>
+              
+              <button 
+                mat-raised-button 
+                color="primary"
+                class="reschedule-btn"
+              >
+                <mat-icon>edit_calendar</mat-icon>
+                Reagendar
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Mensajes Recientes -->
+        <mat-card class="messages-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon class="card-title-icon">message</mat-icon>
+              Mensajes Recientes
+            </mat-card-title>
+          </mat-card-header>
+          
+          <mat-card-content>
+            <div class="messages-list">
+              <div 
+                *ngFor="let message of recentMessages" 
+                class="message-item"
+                [class.unread]="message.unread"
+              >
+                <div class="message-avatar">
+                  <mat-icon class="message-avatar-icon">
+                    {{ message.from === 'Sistema' ? 'notifications' : 'medical_services' }}
+                  </mat-icon>
+                </div>
+                
+                <div class="message-content">
+                  <div class="message-header">
+                    <h4 class="message-from">{{ message.from }}</h4>
+                    <span class="message-time">{{ message.time }}</span>
+                  </div>
+                  <p class="message-text">{{ message.message }}</p>
+                </div>
+                
+                <div class="message-indicator" *ngIf="message.unread">
+                  <div class="unread-dot"></div>
+                </div>
+              </div>
+            </div>
+            
+            <button 
+              mat-stroked-button 
+              color="primary"
+              class="send-message-btn"
+              (click)="sendMessage()"
+            >
+              <mat-icon>send</mat-icon>
+              Enviar Mensaje
+            </button>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Contenido de Listas -->
+      <div class="lists-container">
+        <!-- Citas Próximas -->
+        <mat-card class="list-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon class="card-title-icon">schedule</mat-icon>
+              Próximas Citas
+            </mat-card-title>
+            <mat-card-subtitle>Citas programadas</mat-card-subtitle>
+          </mat-card-header>
+          
+          <mat-card-content>
+            <div class="appointments-list">
+              <div 
+                *ngFor="let appointment of upcomingAppointments" 
+                class="appointment-item"
+              >
+                <div class="appointment-date">
+                  <div class="date-container">
+                    <span class="day">{{ appointment.date | date:'d' }}</span>
+                    <span class="month">{{ appointment.date | date:'MMM' }}</span>
+                  </div>
+                </div>
+                
+                <div class="appointment-details">
+                  <h4 class="appointment-type">{{ appointment.type }}</h4>
+                  <p class="appointment-time">
+                    <mat-icon class="time-icon">access_time</mat-icon>
+                    {{ appointment.time }}
+                  </p>
+                  <p class="appointment-dentist">
+                    <mat-icon class="dentist-icon">medical_services</mat-icon>
+                    {{ appointment.dentist }}
+                  </p>
+                </div>
+                
+                <div class="appointment-status">
+                  <mat-chip 
+                    [color]="appointment.status === 'Confirmada' ? 'primary' : 'warn'"
+                    selected
+                    class="status-chip"
+                  >
+                    {{ appointment.status }}
+                  </mat-chip>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Historial de Tratamientos -->
+        <mat-card class="list-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon class="card-title-icon">history</mat-icon>
+              Historial de Tratamientos
+            </mat-card-title>
+            <mat-card-subtitle>Tratamientos recientes</mat-card-subtitle>
+          </mat-card-header>
+          
+          <mat-card-content>
+            <div class="history-list">
+              <div 
+                *ngFor="let treatment of treatmentHistory; let i = index" 
+                class="treatment-item"
+                (click)="viewTreatmentDetails(i + 1)"
+              >
+                <div class="treatment-date">
+                  <span class="date-text">{{ treatment.date | date:'shortDate' }}</span>
+                </div>
+                
+                <div class="treatment-info">
+                  <h4 class="treatment-procedure">{{ treatment.procedure }}</h4>
+                  <p class="treatment-dentist">{{ treatment.dentist }}</p>
+                </div>
+                
+                <div class="treatment-cost">
+                  <span class="cost-amount">${{ treatment.cost }}</span>
+                </div>
+                
+                <div class="treatment-status">
+                  <mat-chip 
+                    [color]="getStatusColor(treatment.status)"
+                    selected
+                    [class]="'status-chip ' + treatment.status.toLowerCase()"
+                  >
+                    {{ treatment.status }}
+                  </mat-chip>
+                </div>
+                
+                <mat-icon class="arrow-icon">chevron_right</mat-icon>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</div>

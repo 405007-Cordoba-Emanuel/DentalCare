@@ -1,0 +1,299 @@
+@import '@angular/material/prebuilt-themes/azure-blue.css';
+
+/* Estilos base personalizados para DentalCare Pro */
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
+}
+
+/* Utilidades personalizadas */
+.dental-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+}
+
+.dental-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
+}
+
+.dental-gradient {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+}
+
+.dental-gradient-accent {
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+}
+
+.dental-text-gradient {
+  background: linear-gradient(135deg, #2196f3 0%, #4caf50 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Animaciones personalizadas */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+/* Estilos para botones personalizados */
+.dental-btn-primary {
+  background: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.dental-btn-primary:hover {
+  background: #1976d2;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.dental-btn-secondary {
+  background: transparent;
+  color: #2196f3;
+  border: 2px solid #2196f3;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dental-btn-secondary:hover {
+  background: #2196f3;
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* Estilos para inputs personalizados */
+.dental-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  background: #ffffff;
+}
+
+.dental-input:focus {
+  outline: none;
+  border-color: #2196f3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+/* Estilos para badges personalizados */
+.dental-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dental-badge-primary {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.dental-badge-accent {
+  background: #e8f5e8;
+  color: #388e3c;
+}
+
+.dental-badge-warn {
+  background: #ffebee;
+  color: #c62828;
+}
+
+/* Estilos para cards de estadísticas */
+.stats-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-left: 4px solid #2196f3;
+  transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.stats-card.accent {
+  border-left-color: #4caf50;
+}
+
+.stats-card.warn {
+  border-left-color: #f44336;
+}
+
+/* Estilos para navegación */
+.dental-nav {
+  background: #ffffff;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dental-nav-item {
+  padding: 12px 20px;
+  color: #64748b;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  margin: 0 4px;
+}
+
+.dental-nav-item:hover {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.dental-nav-item.active {
+  background: #2196f3;
+  color: white;
+}
+
+/* Estilos para tablas personalizadas */
+.dental-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.dental-table th {
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.dental-table td {
+  padding: 16px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #1e293b;
+}
+
+.dental-table tr:hover {
+  background: #f8fafc;
+}
+
+/* Estilos para modales personalizados */
+.dental-modal {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e2e8f0;
+}
+
+.dental-modal-header {
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 20px 24px;
+  border-radius: 16px 16px 0 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Estilos para formularios personalizados */
+.dental-form-group {
+  margin-bottom: 20px;
+}
+
+.dental-form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.dental-form-error {
+  color: #f44336;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+/* Estilos para loading y estados */
+.dental-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #64748b;
+}
+
+.dental-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #2196f3;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Estilos responsive */
+@media (max-width: 768px) {
+  .dental-card {
+    border-radius: 8px;
+    margin: 8px;
+  }
+  
+  .stats-card {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  
+  .dental-btn-primary,
+  .dental-btn-secondary {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+}

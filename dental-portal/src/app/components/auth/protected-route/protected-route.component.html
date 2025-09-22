@@ -1,0 +1,5 @@
+<div *ngIf="authService.loading$ | async" class="spinner-container">
+  <div class="spinner"></div>
+</div>
+
+<ng-content *ngIf="!(authService.loading$ | async)"></ng-content>
