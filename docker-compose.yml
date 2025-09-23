@@ -56,6 +56,21 @@ services:
     networks:
       - dental-network
 
+  be-core:
+    build: ./be-core
+    container_name: be-core
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql_core:3307/dental_core
+      SPRING_DATASOURCE_USERNAME: dental_core
+      SPRING_DATASOURCE_PASSWORD: dental_core
+    depends_on:
+      mysql_core:
+        condition: service_healthy
+    networks:
+      - dental-network
+
   gateway:
     build: ./gateway
     container_name: gateway
@@ -68,6 +83,7 @@ services:
       - "8080:8080"
     depends_on:
       - user-service
+      - be-core
     networks:
       - dental-network
 
