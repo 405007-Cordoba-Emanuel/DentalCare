@@ -1,0 +1,81 @@
+services:
+  mysql_users:
+    image: mysql:8.0
+    container_name: mysql_users
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: dental_users
+      MYSQL_USER: dental_user
+      MYSQL_PASSWORD: dental_pass
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_users_data:/var/lib/mysql
+    networks:
+      - dental-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "dental_user", "-pdental_pass"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql_core:
+    image: mysql:8.0
+    container_name: mysql_core
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: dental_core
+      MYSQL_USER: dental_core
+      MYSQL_PASSWORD: dental_core
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_core_data:/var/lib/mysql
+    networks:
+      - dental-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "dental_core", "-pdental_core"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  user-service:
+    build: ./users
+    container_name: user-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql_users:3306/dental_users
+      SPRING_DATASOURCE_USERNAME: dental_user
+      SPRING_DATASOURCE_PASSWORD: dental_pass
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_OAUTH_SCOPES: ${GOOGLE_OAUTH_SCOPES}
+    depends_on:
+      mysql_users:
+        condition: service_healthy
+    networks:
+      - dental-network
+
+  gateway:
+    build: ./gateway
+    container_name: gateway
+    environment:
+      SPRING_CLOUD_GATEWAY_CORS_ALLOWED_ORIGINS: "*"
+      SPRING_CLOUD_GATEWAY_CORS_ALLOWED_METHODS: "GET,POST,PUT,DELETE,OPTIONS"
+      SPRING_CLOUD_GATEWAY_CORS_ALLOWED_HEADERS: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+      USER_SERVICE_URL: http://user-service:8082
+    ports:
+      - "8080:8080"
+    depends_on:
+      - user-service
+    networks:
+      - dental-network
+
+volumes:
+  mysql_users_data:
+  mysql_core_data:
+
+networks:
+  dental-network:
+    driver: bridge
