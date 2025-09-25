@@ -1,6 +1,6 @@
 package com.dentalCare.be_core.config.mapper;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-@RequiredArgsConstructor
 public class ModelMapperUtils {
 
-    private final ModelMapper modelMapper;
+    @Autowired
+    private ModelMapper modelMapper;
 
     public <D, T> D map(final T entity, Class<D> outClass) {
         return modelMapper.map(entity, outClass);
@@ -28,5 +28,4 @@ public class ModelMapperUtils {
         modelMapper.map(source, destination);
         return destination;
     }
-
 }
