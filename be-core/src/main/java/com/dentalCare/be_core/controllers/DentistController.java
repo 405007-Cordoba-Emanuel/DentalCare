@@ -3,10 +3,13 @@ package com.dentalCare.be_core.controllers;
 import com.dentalCare.be_core.dtos.request.dentist.DentistRequestDto;
 import com.dentalCare.be_core.dtos.request.dentist.DentistUpdateRequestDto;
 import com.dentalCare.be_core.dtos.request.patient.PatientRequestDto;
+import com.dentalCare.be_core.dtos.request.prescription.PrescriptionRequestDto;
 import com.dentalCare.be_core.dtos.response.dentist.DentistResponseDto;
 import com.dentalCare.be_core.dtos.response.dentist.DentistPatientsResponseDto;
 import com.dentalCare.be_core.dtos.response.patient.PatientResponseDto;
+import com.dentalCare.be_core.dtos.response.prescription.PrescriptionResponseDto;
 import com.dentalCare.be_core.services.DentistService;
+import com.dentalCare.be_core.services.PrescriptionService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -28,6 +31,9 @@ public class DentistController {
 
     @Autowired
     private DentistService dentistService;
+
+    @Autowired
+    private PrescriptionService prescriptionService;
 
     @PostMapping("/create")
     public ResponseEntity<DentistResponseDto> postDentist(@RequestBody DentistRequestDto dentistRequestDto) {
@@ -127,5 +133,83 @@ public class DentistController {
         } catch (Exception e) {
             throw new RuntimeException("Internal error creating patient for dentist", e);
         }
+    }
+
+    @PostMapping("/{id}/prescriptions")
+    public ResponseEntity<PrescriptionResponseDto> createPrescriptionForDentist(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Valid @RequestBody PrescriptionRequestDto prescriptionRequestDto) {
+        try {
+            PrescriptionResponseDto createdPrescription = prescriptionService.createPrescriptionForDentist(id, prescriptionRequestDto);
+            return ResponseEntity.ok(createdPrescription);
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Internal error creating prescription for dentist", e);
+        }
+    }
+
+    @GetMapping("/{id}/prescriptions")
+    public ResponseEntity<List<PrescriptionResponseDto>> getPrescriptionsByDentistId(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id) {
+        List<PrescriptionResponseDto> prescriptions = prescriptionService.getPrescriptionsByDentistId(id);
+        return ResponseEntity.ok(prescriptions);
+    }
+
+    @GetMapping("/{id}/prescriptions/patient/{patientId}")
+    public ResponseEntity<List<PrescriptionResponseDto>> getPrescriptionsByDentistIdAndPatientId(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long patientId) {
+        List<PrescriptionResponseDto> prescriptions = prescriptionService.getPrescriptionsByDentistIdAndPatientId(id, patientId);
+        return ResponseEntity.ok(prescriptions);
+    }
+
+    @GetMapping("/{id}/prescriptions/{prescriptionId}")
+    public ResponseEntity<PrescriptionResponseDto> getPrescriptionByIdAndDentistId(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Prescription ID", required = true)
+            @PathVariable Long prescriptionId) {
+        PrescriptionResponseDto prescription = prescriptionService.getPrescriptionByIdAndDentistId(prescriptionId, id);
+        return ResponseEntity.ok(prescription);
+    }
+
+    @PutMapping("/{id}/prescriptions/{prescriptionId}")
+    public ResponseEntity<PrescriptionResponseDto> updatePrescription(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Prescription ID", required = true)
+            @PathVariable Long prescriptionId,
+            @Valid @RequestBody PrescriptionRequestDto prescriptionRequestDto) {
+        try {
+            PrescriptionResponseDto updatedPrescription = prescriptionService.updatePrescription(prescriptionId, id, prescriptionRequestDto);
+            return ResponseEntity.ok(updatedPrescription);
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Internal error updating prescription", e);
+        }
+    }
+
+    @DeleteMapping("/{id}/prescriptions/{prescriptionId}")
+    public ResponseEntity<Void> deletePrescription(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Prescription ID", required = true)
+            @PathVariable Long prescriptionId) {
+        prescriptionService.deletePrescription(prescriptionId, id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/prescriptions/count")
+    public ResponseEntity<Long> countPrescriptionsByDentistId(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id) {
+        long count = prescriptionService.countPrescriptionsByDentistId(id);
+        return ResponseEntity.ok(count);
     }
 }

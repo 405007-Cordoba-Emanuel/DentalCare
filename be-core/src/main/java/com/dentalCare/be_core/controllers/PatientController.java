@@ -2,7 +2,9 @@ package com.dentalCare.be_core.controllers;
 
 import com.dentalCare.be_core.dtos.request.patient.PatientUpdateRequestDto;
 import com.dentalCare.be_core.dtos.response.patient.PatientResponseDto;
+import com.dentalCare.be_core.dtos.response.prescription.PrescriptionResponseDto;
 import com.dentalCare.be_core.services.PatientService;
+import com.dentalCare.be_core.services.PrescriptionService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -24,6 +26,9 @@ public class PatientController {
 
     @Autowired
     private PatientService patientService;
+
+    @Autowired
+    private PrescriptionService prescriptionService;
 
 
     @GetMapping("/getById/{id}")
@@ -72,6 +77,32 @@ public class PatientController {
     @GetMapping("/countActive")
     public ResponseEntity<Long> countActivePatient() {
         long count = patientService.countActivePatient();
+        return ResponseEntity.ok(count);
+    }
+
+    @GetMapping("/{id}/prescriptions")
+    public ResponseEntity<List<PrescriptionResponseDto>> getPrescriptionsByPatientId(
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long id) {
+        List<PrescriptionResponseDto> prescriptions = prescriptionService.getPrescriptionsByPatientId(id);
+        return ResponseEntity.ok(prescriptions);
+    }
+
+    @GetMapping("/{id}/prescriptions/{prescriptionId}")
+    public ResponseEntity<PrescriptionResponseDto> getPrescriptionByIdAndPatientId(
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Prescription ID", required = true)
+            @PathVariable Long prescriptionId) {
+        PrescriptionResponseDto prescription = prescriptionService.getPrescriptionByIdAndPatientId(prescriptionId, id);
+        return ResponseEntity.ok(prescription);
+    }
+
+    @GetMapping("/{id}/prescriptions/count")
+    public ResponseEntity<Long> countPrescriptionsByPatientId(
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long id) {
+        long count = prescriptionService.countPrescriptionsByPatientId(id);
         return ResponseEntity.ok(count);
     }
 }

@@ -1,7 +1,6 @@
 package com.dentalCare.be_core.services.impl;
 
 import com.dentalCare.be_core.config.mapper.ModelMapperUtils;
-import com.dentalCare.be_core.dtos.request.patient.PatientRequestDto;
 import com.dentalCare.be_core.dtos.request.patient.PatientUpdateRequestDto;
 import com.dentalCare.be_core.dtos.response.patient.PatientResponseDto;
 import com.dentalCare.be_core.entities.Patient;
