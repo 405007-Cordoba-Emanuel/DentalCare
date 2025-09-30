@@ -66,6 +66,9 @@ public class Dentist{
     @OneToMany(mappedBy = "dentist", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Prescription> prescriptions;
 
+    @OneToMany(mappedBy = "dentist", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<MedicalHistory> medicalHistories;
+
     /**
      * Gets the dentist's full name
      * @return concatenated full name

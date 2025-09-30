@@ -3,21 +3,26 @@ package com.dentalCare.be_core.controllers;
 import com.dentalCare.be_core.dtos.request.dentist.DentistRequestDto;
 import com.dentalCare.be_core.dtos.request.dentist.DentistUpdateRequestDto;
 import com.dentalCare.be_core.dtos.request.patient.PatientRequestDto;
+import com.dentalCare.be_core.dtos.request.medicalhistory.MedicalHistoryRequestDto;
 import com.dentalCare.be_core.dtos.request.prescription.PrescriptionRequestDto;
 import com.dentalCare.be_core.dtos.response.dentist.DentistResponseDto;
 import com.dentalCare.be_core.dtos.response.dentist.DentistPatientsResponseDto;
+import com.dentalCare.be_core.dtos.response.medicalhistory.MedicalHistoryResponseDto;
 import com.dentalCare.be_core.dtos.response.patient.PatientResponseDto;
 import com.dentalCare.be_core.dtos.response.prescription.PrescriptionResponseDto;
 import com.dentalCare.be_core.services.DentistService;
+import com.dentalCare.be_core.services.MedicalHistoryService;
 import com.dentalCare.be_core.services.PrescriptionService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -35,6 +40,14 @@ public class DentistController {
     @Autowired
     private PrescriptionService prescriptionService;
 
+    @Autowired
+    private MedicalHistoryService medicalHistoryService;
+
+    /**
+     * Alta de Dentista
+     * Crea un nuevo dentista en el sistema con todos sus datos personales y profesionales.
+     * Valida que no exista otro dentista con la misma matrícula o email.
+     */
     @PostMapping("/create")
     public ResponseEntity<DentistResponseDto> postDentist(@RequestBody DentistRequestDto dentistRequestDto) {
         try {
@@ -47,6 +60,11 @@ public class DentistController {
         }
     }
 
+    /**
+     * Consultar Dentista por ID
+     * Obtiene la información completa de un dentista específico mediante su ID único.
+     * Retorna todos los datos personales y profesionales del dentista.
+     */
     @GetMapping("/getById/{id}")
     public ResponseEntity<DentistResponseDto> getById(
             @Parameter(description = "Dentist ID", required = true)
@@ -55,6 +73,11 @@ public class DentistController {
         return ResponseEntity.ok(dentist);
     }
 
+    /**
+     * Buscar Dentista por Matrícula
+     * Permite buscar un dentista utilizando su número de matrícula profesional.
+     * Útil para verificar la existencia y validez de una matrícula.
+     */
     @GetMapping("/licenseNumber/{licenseNumber}")
     public ResponseEntity<DentistResponseDto> getByLicenseNumber(
             @Parameter(description = "Dentist's License Number", required = true)
@@ -64,12 +87,22 @@ public class DentistController {
         return ResponseEntity.ok(dentistResponseDto);
     }
 
+    /**
+     * Listar Todos los Dentistas Activos
+     * Retorna una lista completa de todos los dentistas que están activos en el sistema.
+     * Los dentistas se ordenan alfabéticamente por nombre y apellido.
+     */
     @GetMapping("/getAllActive")
     public ResponseEntity<List<DentistResponseDto>> getAllActive() {
         List<DentistResponseDto> dentistResponseDtoList = dentistService.findAllActive();
         return ResponseEntity.ok(dentistResponseDtoList);
     }
 
+    /**
+     * Buscar Dentistas por Especialidad
+     * Filtra y retorna todos los dentistas activos que tienen una especialidad específica.
+     * Por ejemplo: Ortodoncia, Endodoncia, Periodoncia, etc.
+     */
     @GetMapping("/specialty/{specialty}")
     public ResponseEntity<List<DentistResponseDto>> getBySpecialty(
             @Parameter(description = "Specialty to look for", required = true)
@@ -79,6 +112,11 @@ public class DentistController {
         return ResponseEntity.ok(dentistResponseDtoList);
     }
 
+    /**
+     * Modificar Datos de Dentista
+     * Actualiza la información de un dentista existente (datos personales, contacto, especialidad, etc.).
+     * Valida que no se duplique matrícula o email con otros dentistas.
+     */
     @PutMapping("/update/{id}")
     public ResponseEntity<DentistResponseDto> updateDentist(
             @Parameter(description = "Dentist ID to update", required = true)
@@ -90,6 +128,11 @@ public class DentistController {
         return ResponseEntity.ok(dentistResponseDto);
     }
 
+    /**
+     * Eliminar Dentista
+     * Elimina físicamente un dentista del sistema.
+     * IMPORTANTE: Esto es una eliminación permanente, no es eliminación lógica.
+     */
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteDentist(
             @Parameter(description = "Dentist ID to delete", required = true)
@@ -98,12 +141,22 @@ public class DentistController {
         dentistService.deleteDentist(id);
         return ResponseEntity.noContent().build();
     }
+    /**
+     * Contar Dentistas Activos
+     * Retorna el número total de dentistas que están activos en el sistema.
+     * Útil para estadísticas y dashboards.
+     */
     @GetMapping("/countActive")
     public ResponseEntity<Long> countActiveDentist() {
         long count = dentistService.countActiveDentist();
         return ResponseEntity.ok(count);
     }
 
+    /**
+     * Ver Todos los Pacientes de un Dentista
+     * Retorna la lista completa de pacientes asignados a un dentista específico.
+     * Incluye tanto pacientes activos como inactivos.
+     */
     @GetMapping("/{id}/patients")
     public ResponseEntity<DentistPatientsResponseDto> getPatientsByDentistId(
             @Parameter(description = "Dentist ID", required = true)
@@ -112,6 +165,11 @@ public class DentistController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Ver Pacientes Activos de un Dentista
+     * Retorna solamente los pacientes que están activos de un dentista específico.
+     * Filtra los pacientes inactivos o dados de baja.
+     */
     @GetMapping("/{id}/patients/active")
     public ResponseEntity<DentistPatientsResponseDto> getActivePatientsByDentistId(
             @Parameter(description = "Dentist ID", required = true)
@@ -120,6 +178,11 @@ public class DentistController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Alta de Paciente por el Dentista
+     * El dentista da de alta un nuevo paciente en el sistema, asignándolo automáticamente a él.
+     * El paciente queda vinculado al dentista desde su creación.
+     */
     @PostMapping("/{id}/patients")
     public ResponseEntity<PatientResponseDto> createPatientForDentist(
             @Parameter(description = "Dentist ID", required = true)
@@ -135,6 +198,11 @@ public class DentistController {
         }
     }
 
+    /**
+     * Emitir Receta Médica
+     * El dentista crea una receta/prescripción médica para un paciente específico.
+     * Incluye medicamentos, observaciones y fecha de emisión.
+     */
     @PostMapping("/{id}/prescriptions")
     public ResponseEntity<PrescriptionResponseDto> createPrescriptionForDentist(
             @Parameter(description = "Dentist ID", required = true)
@@ -150,6 +218,11 @@ public class DentistController {
         }
     }
 
+    /**
+     * Ver Todas las Recetas del Dentista
+     * Retorna todas las recetas emitidas por un dentista específico.
+     * Las recetas se ordenan por fecha de emisión descendente (más recientes primero).
+     */
     @GetMapping("/{id}/prescriptions")
     public ResponseEntity<List<PrescriptionResponseDto>> getPrescriptionsByDentistId(
             @Parameter(description = "Dentist ID", required = true)
@@ -158,6 +231,11 @@ public class DentistController {
         return ResponseEntity.ok(prescriptions);
     }
 
+    /**
+     * Ver Recetas de un Paciente Específico
+     * Retorna todas las recetas que el dentista ha emitido para un paciente en particular.
+     * Útil para ver el historial de prescripciones de un paciente.
+     */
     @GetMapping("/{id}/prescriptions/patient/{patientId}")
     public ResponseEntity<List<PrescriptionResponseDto>> getPrescriptionsByDentistIdAndPatientId(
             @Parameter(description = "Dentist ID", required = true)
@@ -168,6 +246,11 @@ public class DentistController {
         return ResponseEntity.ok(prescriptions);
     }
 
+    /**
+     * Ver Detalle de una Receta
+     * Obtiene la información completa de una receta específica emitida por el dentista.
+     * Incluye datos del paciente, medicamentos, observaciones y fecha.
+     */
     @GetMapping("/{id}/prescriptions/{prescriptionId}")
     public ResponseEntity<PrescriptionResponseDto> getPrescriptionByIdAndDentistId(
             @Parameter(description = "Dentist ID", required = true)
@@ -178,6 +261,11 @@ public class DentistController {
         return ResponseEntity.ok(prescription);
     }
 
+    /**
+     * Modificar Receta Existente
+     * Actualiza los datos de una receta previamente emitida (medicamentos, observaciones, etc.).
+     * Solo el dentista que emitió la receta puede modificarla.
+     */
     @PutMapping("/{id}/prescriptions/{prescriptionId}")
     public ResponseEntity<PrescriptionResponseDto> updatePrescription(
             @Parameter(description = "Dentist ID", required = true)
@@ -195,6 +283,11 @@ public class DentistController {
         }
     }
 
+    /**
+     * Eliminar Receta
+     * Elimina físicamente una receta del sistema.
+     * IMPORTANTE: Esta es una eliminación permanente.
+     */
     @DeleteMapping("/{id}/prescriptions/{prescriptionId}")
     public ResponseEntity<Void> deletePrescription(
             @Parameter(description = "Dentist ID", required = true)
@@ -205,6 +298,11 @@ public class DentistController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Contar Recetas del Dentista
+     * Retorna el número total de recetas activas emitidas por el dentista.
+     * Útil para estadísticas y reportes.
+     */
     @GetMapping("/{id}/prescriptions/count")
     public ResponseEntity<Long> countPrescriptionsByDentistId(
             @Parameter(description = "Dentist ID", required = true)
@@ -212,4 +310,123 @@ public class DentistController {
         long count = prescriptionService.countPrescriptionsByDentistId(id);
         return ResponseEntity.ok(count);
     }
+
+    /**
+     * Crear Entrada en Historia Clínica
+     * El dentista registra una nueva entrada en la historia clínica del paciente.
+     * Incluye descripción, fecha, opcionalmente receta y archivo adjunto (foto/PDF).
+     * Los campos se envían como form-data individual compatible con Swagger.
+     */
+    @PostMapping(value = "/{id}/patients/{patientId}/medical-history", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MedicalHistoryResponseDto> createMedicalHistoryEntry(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long patientId,
+            @Parameter(description = "Entry date (format: yyyy-MM-dd)", required = true)
+            @RequestParam("entryDate") String entryDate,
+            @Parameter(description = "Description", required = true)
+            @RequestParam("description") String description,
+            @Parameter(description = "Prescription ID", required = false)
+            @RequestParam(value = "prescriptionId", required = false) Long prescriptionId,
+            @Parameter(description = "File attachment (JPG, PNG, PDF)", required = false)
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+        try {
+            MedicalHistoryRequestDto requestDto = new MedicalHistoryRequestDto();
+            requestDto.setPatientId(patientId);
+            requestDto.setEntryDate(java.time.LocalDate.parse(entryDate));
+            requestDto.setDescription(description);
+            requestDto.setPrescriptionId(prescriptionId);
+            
+            MedicalHistoryResponseDto response = medicalHistoryService.createMedicalHistoryEntry(id, requestDto, file);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Internal error creating medical history entry", e);
+        }
+    }
+
+    /**
+     * Ver Historia Clínica Completa de un Paciente
+     * Retorna todas las entradas de la historia clínica de un paciente específico.
+     * Las entradas se ordenan por fecha descendente (más recientes primero).
+     */
+    @GetMapping("/{id}/patients/{patientId}/medical-history")
+    public ResponseEntity<List<MedicalHistoryResponseDto>> getMedicalHistoryByPatient(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long patientId) {
+        List<MedicalHistoryResponseDto> history = medicalHistoryService.getMedicalHistoryByDentistAndPatient(id, patientId);
+        return ResponseEntity.ok(history);
+    }
+
+    /**
+     * Ver Detalle de Entrada de Historia Clínica
+     * Obtiene la información completa de una entrada específica de la historia clínica.
+     * Incluye descripción, fecha, receta asociada e información del archivo adjunto si existe.
+     */
+    @GetMapping("/{id}/medical-history/{entryId}")
+    public ResponseEntity<MedicalHistoryResponseDto> getMedicalHistoryEntry(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Entry ID", required = true)
+            @PathVariable Long entryId) {
+        MedicalHistoryResponseDto entry = medicalHistoryService.getMedicalHistoryEntryById(entryId, id);
+        return ResponseEntity.ok(entry);
+    }
+
+    /**
+     * Modificar Entrada de Historia Clínica
+     * Actualiza una entrada existente de la historia clínica (descripción, fecha, archivo, etc.).
+     * Si se envía un nuevo archivo, reemplaza el anterior. Los campos se envían individualmente.
+     */
+    @PutMapping(value = "/{id}/medical-history/{entryId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MedicalHistoryResponseDto> updateMedicalHistoryEntry(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Entry ID", required = true)
+            @PathVariable Long entryId,
+            @Parameter(description = "Patient ID", required = true)
+            @RequestParam("patientId") Long patientId,
+            @Parameter(description = "Entry date (format: yyyy-MM-dd)", required = true)
+            @RequestParam("entryDate") String entryDate,
+            @Parameter(description = "Description", required = true)
+            @RequestParam("description") String description,
+            @Parameter(description = "Prescription ID", required = false)
+            @RequestParam(value = "prescriptionId", required = false) Long prescriptionId,
+            @Parameter(description = "File attachment (JPG, PNG, PDF)", required = false)
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+        try {
+            MedicalHistoryRequestDto requestDto = new MedicalHistoryRequestDto();
+            requestDto.setPatientId(patientId);
+            requestDto.setEntryDate(java.time.LocalDate.parse(entryDate));
+            requestDto.setDescription(description);
+            requestDto.setPrescriptionId(prescriptionId);
+            
+            MedicalHistoryResponseDto response = medicalHistoryService.updateMedicalHistoryEntry(entryId, id, requestDto, file);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Internal error updating medical history entry", e);
+        }
+    }
+
+    /**
+     * Eliminar Entrada de Historia Clínica
+     * Realiza una eliminación lógica de una entrada (campo active = false).
+     * La entrada no se borra físicamente, solo se marca como inactiva.
+     */
+    @DeleteMapping("/{id}/medical-history/{entryId}")
+    public ResponseEntity<Void> deleteMedicalHistoryEntry(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Entry ID", required = true)
+            @PathVariable Long entryId) {
+        medicalHistoryService.deleteMedicalHistoryEntry(entryId, id);
+        return ResponseEntity.noContent().build();
+    }
+
 }
