@@ -72,9 +72,10 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
 
         MedicalHistory savedEntry = medicalHistoryRepository.save(medicalHistory);
 
+        // ✅ Manejo de archivo con Cloudinary
         if (file != null && !file.isEmpty()) {
-            String filePath = fileStorageService.storeFile(file, patient.getId(), savedEntry.getId());
-            savedEntry.setFilePath(filePath);
+            String fileUrl = fileStorageService.storeFile(file, patient.getId(), savedEntry.getId());
+            savedEntry.setFileUrl(fileUrl);
             savedEntry.setFileName(file.getOriginalFilename());
             savedEntry.setFileType(file.getContentType());
             savedEntry = medicalHistoryRepository.save(savedEntry);
@@ -86,8 +87,8 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
     @Override
     @Transactional(readOnly = true)
     public List<MedicalHistoryResponseDto> getMedicalHistoryByPatient(Long patientId) {
-        List<MedicalHistory> entries = medicalHistoryRepository.findByPatientIdAndActiveTrue(patientId);
-        return entries.stream()
+        return medicalHistoryRepository.findByPatientIdAndActiveTrue(patientId)
+                .stream()
                 .map(this::mapToResponseDto)
                 .collect(Collectors.toList());
     }
@@ -95,8 +96,8 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
     @Override
     @Transactional(readOnly = true)
     public List<MedicalHistoryResponseDto> getMedicalHistoryByDentistAndPatient(Long dentistId, Long patientId) {
-        List<MedicalHistory> entries = medicalHistoryRepository.findByDentistIdAndPatientIdAndActiveTrue(dentistId, patientId);
-        return entries.stream()
+        return medicalHistoryRepository.findByDentistIdAndPatientIdAndActiveTrue(dentistId, patientId)
+                .stream()
                 .map(this::mapToResponseDto)
                 .collect(Collectors.toList());
     }
@@ -141,12 +142,13 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
             entry.setPrescription(null);
         }
 
+        // ✅ Si se reemplaza el archivo
         if (file != null && !file.isEmpty()) {
-            if (entry.getFilePath() != null) {
-                fileStorageService.deleteFile(entry.getFilePath());
+            if (entry.getFileUrl() != null) {
+                fileStorageService.deleteFile(entry.getFileUrl());
             }
-            String filePath = fileStorageService.storeFile(file, patient.getId(), entry.getId());
-            entry.setFilePath(filePath);
+            String fileUrl = fileStorageService.storeFile(file, patient.getId(), entry.getId());
+            entry.setFileUrl(fileUrl);
             entry.setFileName(file.getOriginalFilename());
             entry.setFileType(file.getContentType());
         }
@@ -159,7 +161,18 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
     public void deleteMedicalHistoryEntry(Long entryId, Long dentistId) {
         MedicalHistory entry = medicalHistoryRepository.findByIdAndDentistIdAndActiveTrue(entryId, dentistId)
                 .orElseThrow(() -> new IllegalArgumentException("No medical history entry found with ID: " + entryId));
+
+        // ✅ Marcamos como inactivo
         entry.setActive(false);
+
+        // ✅ Eliminamos archivo de Cloudinary si existía
+        if (entry.getFileUrl() != null) {
+            fileStorageService.deleteFile(entry.getFileUrl());
+            entry.setFileUrl(null);
+            entry.setFileName(null);
+            entry.setFileType(null);
+        }
+
         medicalHistoryRepository.save(entry);
     }
 
@@ -180,7 +193,8 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
             dto.setPrescriptionSummary("Prescription dated " + entry.getPrescription().getPrescriptionDate());
         }
 
-        dto.setHasFile(entry.getFilePath() != null);
+        dto.setHasFile(entry.getFileUrl() != null);
+        dto.setFileUrl(entry.getFileUrl());
         dto.setFileName(entry.getFileName());
         dto.setFileType(entry.getFileType());
         dto.setActive(entry.getActive());

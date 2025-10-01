@@ -31,6 +31,7 @@ public class MedicalHistoryResponseDto {
     private String prescriptionSummary;
 
     private Boolean hasFile;
+    private String fileUrl;
     private String fileName;
     private String fileType;
     

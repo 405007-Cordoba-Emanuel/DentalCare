@@ -1,32 +1,29 @@
 package com.dentalCare.be_core.services.impl;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.dentalCare.be_core.services.FileStorageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
 public class FileStorageServiceImpl implements FileStorageService {
 
-    private final Path fileStorageLocation = Paths.get("uploads/medical-history").toAbsolutePath().normalize();
-    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
-    private static final List<String> ALLOWED_FILE_TYPES = Arrays.asList("image/jpeg", "image/jpg", "image/png", "application/pdf");
+    private final Cloudinary cloudinary;
 
-    public FileStorageServiceImpl() {
-        try {
-            Files.createDirectories(this.fileStorageLocation);
-        } catch (Exception ex) {
-            throw new RuntimeException("Could not create the directory where the uploaded files will be stored.", ex);
-        }
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+    private static final List<String> ALLOWED_FILE_TYPES =
+            Arrays.asList("image/jpeg", "image/jpg", "image/png", "application/pdf");
+
+    public FileStorageServiceImpl(Cloudinary cloudinary) {
+        this.cloudinary = cloudinary;
     }
 
     @Override
@@ -44,34 +41,41 @@ public class FileStorageServiceImpl implements FileStorageService {
         }
 
         try {
-            String originalFileName = file.getOriginalFilename();
-            if (originalFileName == null || originalFileName.isEmpty()) {
-                throw new IllegalArgumentException("File name is invalid");
-            }
-            String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
-            String fileName = patientId + "_" + entryId + "_" + System.currentTimeMillis() + fileExtension;
+            Map uploadResult = cloudinary.uploader().upload(
+                    file.getBytes(),
+                    ObjectUtils.asMap(
+                            "folder", "dental-care/patient_" + patientId + "/entry_" + entryId,
+                            "public_id", System.currentTimeMillis() + "_" + file.getOriginalFilename(),
+                            "resource_type", "auto" // ✅ permite imágenes, pdf, videos
+                    )
+            );
 
-            Path patientDir = this.fileStorageLocation.resolve(patientId.toString());
-            Files.createDirectories(patientDir);
-
-            Path targetLocation = patientDir.resolve(fileName);
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-
-            return patientId + "/" + fileName;
+            return uploadResult.get("secure_url").toString(); // ✅ URL de Cloudinary
         } catch (IOException ex) {
-            throw new RuntimeException("Could not store file. Please try again!", ex);
+            throw new RuntimeException("Could not upload file to Cloudinary", ex);
         }
     }
 
-
     @Override
-    public void deleteFile(String filePath) {
+    public void deleteFile(String fileUrl) {
         try {
-            Path file = this.fileStorageLocation.resolve(filePath).normalize();
-            Files.deleteIfExists(file);
-        } catch (IOException ex) {
-            log.error("Could not delete file " + filePath, ex);
+            String publicId = extractPublicId(fileUrl);
+            if (publicId != null) {
+                cloudinary.uploader().destroy(publicId, ObjectUtils.asMap("resource_type", "auto"));
+            }
+        } catch (Exception e) {
+            log.error("Could not delete file from Cloudinary: {}", fileUrl, e);
         }
+    }
+
+    private String extractPublicId(String url) {
+        if (url == null) return null;
+
+        // ejemplo: https://res.cloudinary.com/demo/image/upload/v123456789/folder/file.png
+        String[] parts = url.split("/");
+        String fileName = parts[parts.length - 1]; // file.png
+        String folderPath = parts[parts.length - 2]; // folder
+        return folderPath + "/" + fileName.split("\\.")[0];
     }
 
     @Override

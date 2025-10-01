@@ -45,8 +45,11 @@ public class MedicalHistory {
     @JoinColumn(name = "prescription_id")
     private Prescription prescription;
 
-    @Column(name = "file_path", length = 500)
-    private String filePath;
+    @Column(name = "file_url", length = 500)
+    private String fileUrl;
+
+//    @Column(name = "file_public_id", length = 255)
+//    private String filePublicId;
 
     @Column(name = "file_name", length = 255)
     private String fileName;
