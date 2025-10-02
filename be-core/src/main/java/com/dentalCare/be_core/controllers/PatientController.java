@@ -4,9 +4,12 @@ import com.dentalCare.be_core.dtos.request.patient.PatientUpdateRequestDto;
 import com.dentalCare.be_core.dtos.response.medicalhistory.MedicalHistoryResponseDto;
 import com.dentalCare.be_core.dtos.response.patient.PatientResponseDto;
 import com.dentalCare.be_core.dtos.response.prescription.PrescriptionResponseDto;
+import com.dentalCare.be_core.dtos.response.treatment.TreatmentDetailResponseDto;
+import com.dentalCare.be_core.dtos.response.treatment.TreatmentResponseDto;
 import com.dentalCare.be_core.services.MedicalHistoryService;
 import com.dentalCare.be_core.services.PatientService;
 import com.dentalCare.be_core.services.PrescriptionService;
+import com.dentalCare.be_core.services.TreatmentService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -34,6 +37,9 @@ public class PatientController {
 
     @Autowired
     private MedicalHistoryService medicalHistoryService;
+
+    @Autowired
+    private TreatmentService treatmentService;
 
 
     /**
@@ -182,6 +188,35 @@ public class PatientController {
             @PathVariable Long entryId) {
         MedicalHistoryResponseDto entry = medicalHistoryService.getMedicalHistoryEntryByIdForPatient(entryId, id);
         return ResponseEntity.ok(entry);
+    }
+
+    /**
+     * Ver Tratamientos del Paciente
+     * El paciente consulta todos los tratamientos que tiene activos.
+     * Muestra nombre, estado, fechas y porcentaje de progreso de cada tratamiento.
+     */
+    @GetMapping("/{id}/treatments")
+    public ResponseEntity<List<TreatmentResponseDto>> getTreatmentsByPatient(
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long id) {
+        List<TreatmentResponseDto> treatments = treatmentService.getTreatmentsByPatient(id);
+        return ResponseEntity.ok(treatments);
+    }
+
+    /**
+     * Ver Detalle Completo de un Tratamiento
+     * El paciente consulta el detalle de un tratamiento específico incluyendo TODAS las sesiones.
+     * Muestra el progreso completo con todas las entradas de historia clínica relacionadas.
+     * Permite ver fotos, recetas y descripciones de cada sesión del tratamiento.
+     */
+    @GetMapping("/{id}/treatments/{treatmentId}")
+    public ResponseEntity<TreatmentDetailResponseDto> getTreatmentDetail(
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Treatment ID", required = true)
+            @PathVariable Long treatmentId) {
+        TreatmentDetailResponseDto treatment = treatmentService.getTreatmentDetailByIdForPatient(treatmentId, id);
+        return ResponseEntity.ok(treatment);
     }
 
 }

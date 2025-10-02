@@ -30,6 +30,9 @@ public class MedicalHistoryResponseDto {
     private Long prescriptionId;
     private String prescriptionSummary;
 
+    private Long treatmentId;
+    private String treatmentName;
+
     private Boolean hasFile;
     private String fileUrl;
     private String fileName;

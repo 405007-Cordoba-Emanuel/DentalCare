@@ -45,6 +45,10 @@ public class MedicalHistory {
     @JoinColumn(name = "prescription_id")
     private Prescription prescription;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "treatment_id")
+    private Treatment treatment;
+
     @Column(name = "file_url", length = 500)
     private String fileUrl;
 

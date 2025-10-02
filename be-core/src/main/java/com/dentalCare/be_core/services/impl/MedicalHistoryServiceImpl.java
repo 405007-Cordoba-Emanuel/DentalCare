@@ -6,6 +6,7 @@ import com.dentalCare.be_core.entities.Dentist;
 import com.dentalCare.be_core.entities.MedicalHistory;
 import com.dentalCare.be_core.entities.Patient;
 import com.dentalCare.be_core.entities.Prescription;
+import com.dentalCare.be_core.entities.Treatment;
 import com.dentalCare.be_core.repositories.DentistRepository;
 import com.dentalCare.be_core.repositories.MedicalHistoryRepository;
 import com.dentalCare.be_core.repositories.PatientRepository;
@@ -39,6 +40,9 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
     private PrescriptionRepository prescriptionRepository;
 
     @Autowired
+    private com.dentalCare.be_core.repositories.TreatmentRepository treatmentRepository;
+
+    @Autowired
     private FileStorageService fileStorageService;
 
     @Override
@@ -68,6 +72,18 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
             Prescription prescription = prescriptionRepository.findById(requestDto.getPrescriptionId())
                     .orElseThrow(() -> new IllegalArgumentException("No prescription found with ID: " + requestDto.getPrescriptionId()));
             medicalHistory.setPrescription(prescription);
+        }
+
+        if (requestDto.getTreatmentId() != null) {
+            Treatment treatment = treatmentRepository.findById(requestDto.getTreatmentId())
+                    .orElseThrow(() -> new IllegalArgumentException("No treatment found with ID: " + requestDto.getTreatmentId()));
+            medicalHistory.setTreatment(treatment);
+            
+            if (treatment.getStatus().equals("pendiente")) {
+                treatment.setStatus("en progreso");
+            }
+            treatment.setCompletedSessions(treatment.getCompletedSessions() + 1);
+            treatmentRepository.save(treatment);
         }
 
         MedicalHistory savedEntry = medicalHistoryRepository.save(medicalHistory);
@@ -142,6 +158,14 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
             entry.setPrescription(null);
         }
 
+        if (requestDto.getTreatmentId() != null) {
+            Treatment treatment = treatmentRepository.findById(requestDto.getTreatmentId())
+                    .orElseThrow(() -> new IllegalArgumentException("No treatment found with ID: " + requestDto.getTreatmentId()));
+            entry.setTreatment(treatment);
+        } else {
+            entry.setTreatment(null);
+        }
+
         // ✅ Si se reemplaza el archivo
         if (file != null && !file.isEmpty()) {
             if (entry.getFileUrl() != null) {
@@ -191,6 +215,11 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
         if (entry.getPrescription() != null) {
             dto.setPrescriptionId(entry.getPrescription().getId());
             dto.setPrescriptionSummary("Prescription dated " + entry.getPrescription().getPrescriptionDate());
+        }
+
+        if (entry.getTreatment() != null) {
+            dto.setTreatmentId(entry.getTreatment().getId());
+            dto.setTreatmentName(entry.getTreatment().getName());
         }
 
         dto.setHasFile(entry.getFileUrl() != null);

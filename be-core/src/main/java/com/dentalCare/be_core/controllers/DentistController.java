@@ -5,14 +5,18 @@ import com.dentalCare.be_core.dtos.request.dentist.DentistUpdateRequestDto;
 import com.dentalCare.be_core.dtos.request.patient.PatientRequestDto;
 import com.dentalCare.be_core.dtos.request.medicalhistory.MedicalHistoryRequestDto;
 import com.dentalCare.be_core.dtos.request.prescription.PrescriptionRequestDto;
+import com.dentalCare.be_core.dtos.request.treatment.TreatmentRequestDto;
 import com.dentalCare.be_core.dtos.response.dentist.DentistResponseDto;
 import com.dentalCare.be_core.dtos.response.dentist.DentistPatientsResponseDto;
 import com.dentalCare.be_core.dtos.response.medicalhistory.MedicalHistoryResponseDto;
 import com.dentalCare.be_core.dtos.response.patient.PatientResponseDto;
 import com.dentalCare.be_core.dtos.response.prescription.PrescriptionResponseDto;
+import com.dentalCare.be_core.dtos.response.treatment.TreatmentDetailResponseDto;
+import com.dentalCare.be_core.dtos.response.treatment.TreatmentResponseDto;
 import com.dentalCare.be_core.services.DentistService;
 import com.dentalCare.be_core.services.MedicalHistoryService;
 import com.dentalCare.be_core.services.PrescriptionService;
+import com.dentalCare.be_core.services.TreatmentService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -42,6 +46,9 @@ public class DentistController {
 
     @Autowired
     private MedicalHistoryService medicalHistoryService;
+
+    @Autowired
+    private TreatmentService treatmentService;
 
     /**
      * Alta de Dentista
@@ -329,6 +336,8 @@ public class DentistController {
             @RequestParam("description") String description,
             @Parameter(description = "Prescription ID", required = false)
             @RequestParam(value = "prescriptionId", required = false) Long prescriptionId,
+            @Parameter(description = "Treatment ID", required = false)
+            @RequestParam(value = "treatmentId", required = false) Long treatmentId,
             @Parameter(description = "File attachment (JPG, PNG, PDF)", required = false)
             @RequestPart(value = "file", required = false) MultipartFile file) {
         try {
@@ -337,6 +346,7 @@ public class DentistController {
             requestDto.setEntryDate(java.time.LocalDate.parse(entryDate));
             requestDto.setDescription(description);
             requestDto.setPrescriptionId(prescriptionId);
+            requestDto.setTreatmentId(treatmentId);
             
             MedicalHistoryResponseDto response = medicalHistoryService.createMedicalHistoryEntry(id, requestDto, file);
             return ResponseEntity.ok(response);
@@ -396,6 +406,8 @@ public class DentistController {
             @RequestParam("description") String description,
             @Parameter(description = "Prescription ID", required = false)
             @RequestParam(value = "prescriptionId", required = false) Long prescriptionId,
+            @Parameter(description = "Treatment ID", required = false)
+            @RequestParam(value = "treatmentId", required = false) Long treatmentId,
             @Parameter(description = "File attachment (JPG, PNG, PDF)", required = false)
             @RequestPart(value = "file", required = false) MultipartFile file) {
         try {
@@ -404,6 +416,7 @@ public class DentistController {
             requestDto.setEntryDate(java.time.LocalDate.parse(entryDate));
             requestDto.setDescription(description);
             requestDto.setPrescriptionId(prescriptionId);
+            requestDto.setTreatmentId(treatmentId);
             
             MedicalHistoryResponseDto response = medicalHistoryService.updateMedicalHistoryEntry(entryId, id, requestDto, file);
             return ResponseEntity.ok(response);
@@ -426,6 +439,121 @@ public class DentistController {
             @Parameter(description = "Entry ID", required = true)
             @PathVariable Long entryId) {
         medicalHistoryService.deleteMedicalHistoryEntry(entryId, id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Crear Nuevo Tratamiento
+     * El dentista crea un nuevo tratamiento para un paciente (Ej: Ortodoncia, Implante dental).
+     * Define el nombre, descripción, fechas estimadas y número de sesiones planificadas.
+     * El estado inicial es "pending" hasta que se registre la primera sesión.
+     */
+    @PostMapping("/{id}/patients/{patientId}/treatments")
+    public ResponseEntity<TreatmentResponseDto> createTreatment(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Valid @RequestBody TreatmentRequestDto requestDto) {
+        try {
+            TreatmentResponseDto response = treatmentService.createTreatment(id, requestDto);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Internal error creating treatment", e);
+        }
+    }
+
+    /**
+     * Ver Tratamientos de un Paciente
+     * Retorna todos los tratamientos activos de un paciente específico.
+     * Incluye información de progreso, fechas y estado de cada tratamiento.
+     */
+    @GetMapping("/{id}/patients/{patientId}/treatments")
+    public ResponseEntity<List<TreatmentResponseDto>> getTreatmentsByPatient(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long patientId) {
+        List<TreatmentResponseDto> treatments = treatmentService.getTreatmentsByDentistAndPatient(id, patientId);
+        return ResponseEntity.ok(treatments);
+    }
+
+    /**
+     * Ver Detalle Completo de un Tratamiento
+     * Retorna la información detallada de un tratamiento incluyendo TODAS las sesiones.
+     * Las sesiones son entradas de historia clínica vinculadas a este tratamiento.
+     * Muestra progreso, fechas, estado y el listado completo de sesiones realizadas.
+     */
+    @GetMapping("/{id}/treatments/{treatmentId}")
+    public ResponseEntity<TreatmentDetailResponseDto> getTreatmentDetail(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Treatment ID", required = true)
+            @PathVariable Long treatmentId) {
+        TreatmentDetailResponseDto treatment = treatmentService.getTreatmentDetailById(treatmentId, id);
+        return ResponseEntity.ok(treatment);
+    }
+
+    /**
+     * Modificar Tratamiento
+     * Actualiza la información general de un tratamiento existente.
+     * Permite cambiar nombre, descripción, fechas estimadas, número de sesiones y notas.
+     * NO cambia el estado ni las sesiones completadas.
+     */
+    @PutMapping("/{id}/treatments/{treatmentId}")
+    public ResponseEntity<TreatmentResponseDto> updateTreatment(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Treatment ID", required = true)
+            @PathVariable Long treatmentId,
+            @Valid @RequestBody TreatmentRequestDto requestDto) {
+        try {
+            TreatmentResponseDto response = treatmentService.updateTreatment(treatmentId, id, requestDto);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Internal error updating treatment", e);
+        }
+    }
+
+    /**
+     * Cambiar Estado del Tratamiento
+     * Actualiza únicamente el estado de un tratamiento.
+     * Estados válidos: "pendiente", "en progreso", "completado", "cancelado".
+     * Si se marca como "completado", automáticamente se establece la fecha real de fin.
+     */
+    @PutMapping("/{id}/treatments/{treatmentId}/status")
+    public ResponseEntity<TreatmentResponseDto> updateTreatmentStatus(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Treatment ID", required = true)
+            @PathVariable Long treatmentId,
+            @Parameter(description = "New status", required = true)
+            @RequestParam("status") String status) {
+        try {
+            TreatmentResponseDto response = treatmentService.updateTreatmentStatus(treatmentId, id, status);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Internal error updating treatment status", e);
+        }
+    }
+
+    /**
+     * Eliminar Tratamiento
+     * Realiza una eliminación lógica de un tratamiento (campo active = false).
+     * El tratamiento no se borra físicamente, solo se marca como inactivo.
+     * Las sesiones (entradas de historia clínica) NO se eliminan.
+     */
+    @DeleteMapping("/{id}/treatments/{treatmentId}")
+    public ResponseEntity<Void> deleteTreatment(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Treatment ID", required = true)
+            @PathVariable Long treatmentId) {
+        treatmentService.deleteTreatment(treatmentId, id);
         return ResponseEntity.noContent().build();
     }
 

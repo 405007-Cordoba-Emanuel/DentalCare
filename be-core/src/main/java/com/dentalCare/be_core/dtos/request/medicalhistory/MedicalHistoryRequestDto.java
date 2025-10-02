@@ -28,4 +28,6 @@ public class MedicalHistoryRequestDto {
     private String description;
 
     private Long prescriptionId;
+
+    private Long treatmentId;
 }
