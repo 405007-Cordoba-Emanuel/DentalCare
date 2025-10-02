@@ -2,6 +2,7 @@ package com.dentalCare.be_core.services;
 
 import com.dentalCare.be_core.dtos.request.prescription.PrescriptionRequestDto;
 import com.dentalCare.be_core.dtos.response.prescription.PrescriptionResponseDto;
+import com.dentalCare.be_core.entities.Prescription;
 
 import java.util.List;
 
@@ -26,4 +27,6 @@ public interface PrescriptionService {
     long countPrescriptionsByDentistId(Long dentistId);
 
     long countPrescriptionsByPatientId(Long patientId);
+
+    Prescription getPrescriptionEntityById(Long prescriptionId, Long dentistId);
 }

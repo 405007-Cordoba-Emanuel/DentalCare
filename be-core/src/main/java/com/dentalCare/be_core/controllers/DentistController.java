@@ -15,6 +15,7 @@ import com.dentalCare.be_core.dtos.response.treatment.TreatmentDetailResponseDto
 import com.dentalCare.be_core.dtos.response.treatment.TreatmentResponseDto;
 import com.dentalCare.be_core.services.DentistService;
 import com.dentalCare.be_core.services.MedicalHistoryService;
+import com.dentalCare.be_core.services.PrescriptionPdfService;
 import com.dentalCare.be_core.services.PrescriptionService;
 import com.dentalCare.be_core.services.TreatmentService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -49,6 +50,9 @@ public class DentistController {
 
     @Autowired
     private TreatmentService treatmentService;
+
+    @Autowired
+    private PrescriptionPdfService prescriptionPdfService;
 
     /**
      * Alta de Dentista
@@ -316,6 +320,42 @@ public class DentistController {
             @PathVariable Long id) {
         long count = prescriptionService.countPrescriptionsByDentistId(id);
         return ResponseEntity.ok(count);
+    }
+
+    /**
+     * Descargar Receta en Formato PDF
+     * Genera y descarga una receta médica en formato PDF profesional listo para imprimir.
+     * Incluye membrete del consultorio, datos del paciente, medicamentos y espacio para firma.
+     * El dentista puede imprimir y firmar la receta para entregar al paciente.
+     */
+    @GetMapping("/{id}/prescriptions/{prescriptionId}/download-pdf")
+    public ResponseEntity<byte[]> downloadPrescriptionPdf(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Prescription ID", required = true)
+            @PathVariable Long prescriptionId) {
+        try {
+            com.dentalCare.be_core.entities.Prescription prescription = 
+                prescriptionService.getPrescriptionEntityById(prescriptionId, id);
+            
+            byte[] pdfBytes = prescriptionPdfService.generatePrescriptionPdf(prescription);
+            
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.setContentType(org.springframework.http.MediaType.APPLICATION_PDF);
+            headers.setContentDisposition(
+                org.springframework.http.ContentDisposition.attachment()
+                    .filename("Receta: " + prescriptionId + " " + prescription.getPatient().getFirstName() + " - " + prescription.getPatient().getLastName() + ".pdf")
+                    .build()
+            );
+            
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(pdfBytes);
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Internal error generating prescription PDF", e);
+        }
     }
 
     /**

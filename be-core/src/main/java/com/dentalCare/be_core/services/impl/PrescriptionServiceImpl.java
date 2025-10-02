@@ -146,6 +146,13 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         return prescriptionRepository.countByPatientIdAndActiveTrue(patientId);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Prescription getPrescriptionEntityById(Long prescriptionId, Long dentistId) {
+        return prescriptionRepository.findByIdAndDentistIdAndActiveTrue(prescriptionId, dentistId)
+                .orElseThrow(() -> new IllegalArgumentException("No prescription found with ID: " + prescriptionId));
+    }
+
     private PrescriptionResponseDto mapToResponseDto(Prescription prescription) {
         PrescriptionResponseDto responseDto = modelMapperUtils.map(prescription, PrescriptionResponseDto.class);
         
