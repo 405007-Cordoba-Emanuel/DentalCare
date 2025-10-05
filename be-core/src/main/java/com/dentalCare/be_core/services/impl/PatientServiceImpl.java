@@ -110,4 +110,29 @@ public class PatientServiceImpl implements PatientService {
         return patientRepository.countActivePatient();
     }
 
+        @Override
+    public Patient validatePatientOwnershipAndActive(Long patientId, Long dentistId) {
+        // Get patient entity
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new IllegalArgumentException("No patient found with ID: " + patientId));
+
+        // Validate patient ownership
+        if (!patient.getDentist().getId().equals(dentistId)) {
+            throw new IllegalArgumentException("Patient does not belong to this dentist");
+        }
+
+        // Validate patient is active
+        if (patient.getActive() == null || !patient.getActive()) {
+            throw new IllegalArgumentException("The patient is not active");
+        }
+        
+        return patient;
+    }
+
+    @Override
+    public Patient getPatientEntityById(Long patientId) {
+        return patientRepository.findById(patientId)
+                .orElseThrow(() -> new IllegalArgumentException("No patient found with ID: " + patientId));
+    }
+
 }

@@ -167,4 +167,11 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         
         return responseDto;
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Prescription getPrescriptionEntityById(Long prescriptionId) {
+        return prescriptionRepository.findById(prescriptionId)
+                .orElseThrow(() -> new IllegalArgumentException("No prescription found with ID: " + prescriptionId));
+    }
 }

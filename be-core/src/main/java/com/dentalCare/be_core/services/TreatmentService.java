@@ -25,4 +25,15 @@ public interface TreatmentService {
     void deleteTreatment(Long treatmentId, Long dentistId);
 
     List<TreatmentResponseDto> getTreatmentsByPatientAndStatus(Long patientId, String status);
+
+    /**
+     * Increments the completed sessions count for a treatment
+     * Used when a medical history entry is created with this treatment
+     */
+    void incrementTreatmentSessions(Long treatmentId);
+
+    /**
+     * Gets treatment entity by ID for cross-service relationships
+     */
+    com.dentalCare.be_core.entities.Treatment getTreatmentEntityById(Long treatmentId);
 }

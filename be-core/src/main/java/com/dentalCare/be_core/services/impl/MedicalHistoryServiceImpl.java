@@ -7,12 +7,13 @@ import com.dentalCare.be_core.entities.MedicalHistory;
 import com.dentalCare.be_core.entities.Patient;
 import com.dentalCare.be_core.entities.Prescription;
 import com.dentalCare.be_core.entities.Treatment;
-import com.dentalCare.be_core.repositories.DentistRepository;
 import com.dentalCare.be_core.repositories.MedicalHistoryRepository;
-import com.dentalCare.be_core.repositories.PatientRepository;
-import com.dentalCare.be_core.repositories.PrescriptionRepository;
+import com.dentalCare.be_core.services.DentistService;
 import com.dentalCare.be_core.services.FileStorageService;
 import com.dentalCare.be_core.services.MedicalHistoryService;
+import com.dentalCare.be_core.services.PatientService;
+import com.dentalCare.be_core.services.PrescriptionService;
+import com.dentalCare.be_core.services.TreatmentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,35 +32,25 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
     private MedicalHistoryRepository medicalHistoryRepository;
 
     @Autowired
-    private DentistRepository dentistRepository;
+    private DentistService dentistService;
 
     @Autowired
-    private PatientRepository patientRepository;
+    private PatientService patientService;
 
     @Autowired
-    private PrescriptionRepository prescriptionRepository;
+    private TreatmentService treatmentService;
 
     @Autowired
-    private com.dentalCare.be_core.repositories.TreatmentRepository treatmentRepository;
+    private PrescriptionService prescriptionService;
 
     @Autowired
     private FileStorageService fileStorageService;
 
+
     @Override
     public MedicalHistoryResponseDto createMedicalHistoryEntry(Long dentistId, MedicalHistoryRequestDto requestDto, MultipartFile file) {
-        Dentist dentist = dentistRepository.findById(dentistId)
-                .orElseThrow(() -> new IllegalArgumentException("No dentist found with ID: " + dentistId));
-
-        Patient patient = patientRepository.findById(requestDto.getPatientId())
-                .orElseThrow(() -> new IllegalArgumentException("No patient found with ID: " + requestDto.getPatientId()));
-
-        if (!patient.getDentist().getId().equals(dentistId)) {
-            throw new IllegalArgumentException("Patient does not belong to this dentist");
-        }
-
-        if (patient.getActive() == null || !patient.getActive()) {
-            throw new IllegalArgumentException("The patient is not active");
-        }
+        Dentist dentist = dentistService.findDentistById(dentistId);
+        Patient patient = patientService.validatePatientOwnershipAndActive(requestDto.getPatientId(), dentistId);
 
         MedicalHistory medicalHistory = new MedicalHistory();
         medicalHistory.setPatient(patient);
@@ -68,33 +59,25 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
         medicalHistory.setDescription(requestDto.getDescription());
         medicalHistory.setActive(true);
 
+        // Handle prescription if provided
         if (requestDto.getPrescriptionId() != null) {
-            Prescription prescription = prescriptionRepository.findById(requestDto.getPrescriptionId())
-                    .orElseThrow(() -> new IllegalArgumentException("No prescription found with ID: " + requestDto.getPrescriptionId()));
+            Prescription prescription = prescriptionService.getPrescriptionEntityById(requestDto.getPrescriptionId());
             medicalHistory.setPrescription(prescription);
         }
 
+        // Handle treatment if provided
         if (requestDto.getTreatmentId() != null) {
-            Treatment treatment = treatmentRepository.findById(requestDto.getTreatmentId())
-                    .orElseThrow(() -> new IllegalArgumentException("No treatment found with ID: " + requestDto.getTreatmentId()));
+            Treatment treatment = treatmentService.getTreatmentEntityById(requestDto.getTreatmentId());
             medicalHistory.setTreatment(treatment);
-            
-            if (treatment.getStatus().equals("pendiente")) {
-                treatment.setStatus("en progreso");
-            }
-            treatment.setCompletedSessions(treatment.getCompletedSessions() + 1);
-            treatmentRepository.save(treatment);
+            // Update treatment progress
+            treatmentService.incrementTreatmentSessions(requestDto.getTreatmentId());
         }
 
         MedicalHistory savedEntry = medicalHistoryRepository.save(medicalHistory);
 
-        // ✅ Manejo de archivo con Cloudinary
+        // Handle file upload if provided
         if (file != null && !file.isEmpty()) {
-            String fileUrl = fileStorageService.storeFile(file, patient.getId(), savedEntry.getId());
-            savedEntry.setFileUrl(fileUrl);
-            savedEntry.setFileName(file.getOriginalFilename());
-            savedEntry.setFileType(file.getContentType());
-            savedEntry = medicalHistoryRepository.save(savedEntry);
+            savedEntry = handleFileUpload(savedEntry, file, patient.getId());
         }
 
         return mapToResponseDto(savedEntry);
@@ -121,60 +104,45 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
     @Override
     @Transactional(readOnly = true)
     public MedicalHistoryResponseDto getMedicalHistoryEntryById(Long entryId, Long dentistId) {
-        MedicalHistory entry = medicalHistoryRepository.findByIdAndDentistIdAndActiveTrue(entryId, dentistId)
-                .orElseThrow(() -> new IllegalArgumentException("No medical history entry found with ID: " + entryId));
+        MedicalHistory entry = findMedicalHistoryEntryByIdAndDentist(entryId, dentistId);
         return mapToResponseDto(entry);
     }
 
     @Override
     @Transactional(readOnly = true)
     public MedicalHistoryResponseDto getMedicalHistoryEntryByIdForPatient(Long entryId, Long patientId) {
-        MedicalHistory entry = medicalHistoryRepository.findByIdAndPatientIdAndActiveTrue(entryId, patientId)
-                .orElseThrow(() -> new IllegalArgumentException("No medical history entry found with ID: " + entryId));
+        MedicalHistory entry = findMedicalHistoryEntryByIdAndPatient(entryId, patientId);
         return mapToResponseDto(entry);
     }
 
     @Override
     public MedicalHistoryResponseDto updateMedicalHistoryEntry(Long entryId, Long dentistId, MedicalHistoryRequestDto requestDto, MultipartFile file) {
-        MedicalHistory entry = medicalHistoryRepository.findByIdAndDentistIdAndActiveTrue(entryId, dentistId)
-                .orElseThrow(() -> new IllegalArgumentException("No medical history entry found with ID: " + entryId));
-
-        Patient patient = patientRepository.findById(requestDto.getPatientId())
-                .orElseThrow(() -> new IllegalArgumentException("No patient found with ID: " + requestDto.getPatientId()));
-
-        if (!patient.getDentist().getId().equals(dentistId)) {
-            throw new IllegalArgumentException("Patient does not belong to this dentist");
-        }
+        MedicalHistory entry = findMedicalHistoryEntryByIdAndDentist(entryId, dentistId);
+        Patient patient = patientService.validatePatientOwnershipAndActive(requestDto.getPatientId(), dentistId);
 
         entry.setPatient(patient);
         entry.setEntryDate(requestDto.getEntryDate());
         entry.setDescription(requestDto.getDescription());
 
+        // Handle prescription
         if (requestDto.getPrescriptionId() != null) {
-            Prescription prescription = prescriptionRepository.findById(requestDto.getPrescriptionId())
-                    .orElseThrow(() -> new IllegalArgumentException("No prescription found with ID: " + requestDto.getPrescriptionId()));
+            Prescription prescription = prescriptionService.getPrescriptionEntityById(requestDto.getPrescriptionId());
             entry.setPrescription(prescription);
         } else {
             entry.setPrescription(null);
         }
 
+        // Handle treatment
         if (requestDto.getTreatmentId() != null) {
-            Treatment treatment = treatmentRepository.findById(requestDto.getTreatmentId())
-                    .orElseThrow(() -> new IllegalArgumentException("No treatment found with ID: " + requestDto.getTreatmentId()));
+            Treatment treatment = treatmentService.getTreatmentEntityById(requestDto.getTreatmentId());
             entry.setTreatment(treatment);
         } else {
             entry.setTreatment(null);
         }
 
-        // ✅ Si se reemplaza el archivo
+        // Handle file replacement if provided
         if (file != null && !file.isEmpty()) {
-            if (entry.getFileUrl() != null) {
-                fileStorageService.deleteFile(entry.getFileUrl());
-            }
-            String fileUrl = fileStorageService.storeFile(file, patient.getId(), entry.getId());
-            entry.setFileUrl(fileUrl);
-            entry.setFileName(file.getOriginalFilename());
-            entry.setFileType(file.getContentType());
+            entry = handleFileReplacement(entry, file, patient.getId());
         }
 
         MedicalHistory updatedEntry = medicalHistoryRepository.save(entry);
@@ -183,20 +151,14 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
 
     @Override
     public void deleteMedicalHistoryEntry(Long entryId, Long dentistId) {
-        MedicalHistory entry = medicalHistoryRepository.findByIdAndDentistIdAndActiveTrue(entryId, dentistId)
-                .orElseThrow(() -> new IllegalArgumentException("No medical history entry found with ID: " + entryId));
-
-        // ✅ Marcamos como inactivo
+        MedicalHistory entry = findMedicalHistoryEntryByIdAndDentist(entryId, dentistId);
+        
+        // Mark as inactive
         entry.setActive(false);
-
-        // ✅ Eliminamos archivo de Cloudinary si existía
-        if (entry.getFileUrl() != null) {
-            fileStorageService.deleteFile(entry.getFileUrl());
-            entry.setFileUrl(null);
-            entry.setFileName(null);
-            entry.setFileType(null);
-        }
-
+        
+        // Delete file if exists
+        handleFileDeletion(entry);
+        
         medicalHistoryRepository.save(entry);
     }
 
@@ -229,5 +191,59 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
         dto.setActive(entry.getActive());
 
         return dto;
+    }
+
+    
+    /**
+     * Finds a medical history entry by ID and dentist ID
+     */
+    private MedicalHistory findMedicalHistoryEntryByIdAndDentist(Long entryId, Long dentistId) {
+        return medicalHistoryRepository.findByIdAndDentistIdAndActiveTrue(entryId, dentistId)
+                .orElseThrow(() -> new IllegalArgumentException("No medical history entry found with ID: " + entryId));
+    }
+    
+    /**
+     * Finds a medical history entry by ID and patient ID
+     */
+    private MedicalHistory findMedicalHistoryEntryByIdAndPatient(Long entryId, Long patientId) {
+        return medicalHistoryRepository.findByIdAndPatientIdAndActiveTrue(entryId, patientId)
+                .orElseThrow(() -> new IllegalArgumentException("No medical history entry found with ID: " + entryId));
+    }
+    
+    /**
+     * Handles file upload for medical history entry
+     */
+    private MedicalHistory handleFileUpload(MedicalHistory entry, MultipartFile file, Long patientId) {
+        String fileUrl = fileStorageService.storeFile(file, patientId, entry.getId());
+        entry.setFileUrl(fileUrl);
+        entry.setFileName(file.getOriginalFilename());
+        entry.setFileType(file.getContentType());
+        return medicalHistoryRepository.save(entry);
+    }
+    
+    /**
+     * Handles file replacement for medical history entry
+     */
+    private MedicalHistory handleFileReplacement(MedicalHistory entry, MultipartFile file, Long patientId) {
+        if (entry.getFileUrl() != null) {
+            fileStorageService.deleteFile(entry.getFileUrl());
+        }
+        String fileUrl = fileStorageService.storeFile(file, patientId, entry.getId());
+        entry.setFileUrl(fileUrl);
+        entry.setFileName(file.getOriginalFilename());
+        entry.setFileType(file.getContentType());
+        return entry;
+    }
+    
+    /**
+     * Handles file deletion for medical history entry
+     */
+    private void handleFileDeletion(MedicalHistory entry) {
+        if (entry.getFileUrl() != null) {
+            fileStorageService.deleteFile(entry.getFileUrl());
+            entry.setFileUrl(null);
+            entry.setFileName(null);
+            entry.setFileType(null);
+        }
     }
 }

@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.Optional;
 
 
 @Service
@@ -38,16 +37,8 @@ public class DentistServiceImpl implements DentistService {
 
     @Override
     public DentistResponseDto createDentist(DentistRequestDto dentistRequestDto) {
-        if (existsByLicense(dentistRequestDto.getLicenseNumber())) {
-            throw new IllegalArgumentException("There is already a dentist with the license: "
-                    + dentistRequestDto.getLicenseNumber());
-        }
-        if (dentistRequestDto.getEmail() != null && !dentistRequestDto.getEmail().trim().isEmpty()) {
-            if (existsByEmail(dentistRequestDto.getEmail())) {
-                throw new IllegalArgumentException("There is already a dentist with the email: "
-                        + dentistRequestDto.getEmail());
-            }
-        }
+        validateLicenseNumber(dentistRequestDto.getLicenseNumber());
+        validateEmailIfPresent(dentistRequestDto.getEmail());
 
         // Mapear DTO a Entity
         Dentist dentist = modelMapperUtils.map(dentistRequestDto, Dentist.class);
@@ -55,18 +46,13 @@ public class DentistServiceImpl implements DentistService {
         // Guardar en BD
         Dentist dentistGuardado = dentistRepository.save(dentist);
         // Mapear Entity a Response DTO
-        DentistResponseDto responseDto = modelMapperUtils.map(dentistGuardado, DentistResponseDto.class);
-        return responseDto;
+		return modelMapperUtils.map(dentistGuardado, DentistResponseDto.class);
     }
 
     @Override
     @Transactional(readOnly = true)
     public DentistResponseDto searchById(Long id) {
-        Dentist dentist = dentistRepository.findById(id)
-                .orElseThrow(() -> {
-                    return new IllegalArgumentException("No dentist found with ID: "+ id);
-                });
-
+        Dentist dentist = findDentistById(id);
         return modelMapperUtils.map(dentist, DentistResponseDto.class);
     }
 
@@ -103,23 +89,10 @@ public class DentistServiceImpl implements DentistService {
 
     @Override
     public DentistResponseDto updateDentist(Long id, DentistUpdateRequestDto dentistUpdateRequestDto) {
-        Dentist dentistExisting = dentistRepository.findById(id)
-                .orElseThrow(() -> {
-                    return new IllegalArgumentException("No dentist found with ID: " + id);
-                });
+        Dentist dentistExisting = findDentistById(id);
 
-        if (!dentistExisting.getLicenseNumber().equals(dentistUpdateRequestDto.getLicenseNumber())) {
-            if (existsByLicense(dentistUpdateRequestDto.getLicenseNumber())) {
-                throw new IllegalArgumentException("There is already a dentist with the license: " + dentistUpdateRequestDto.getLicenseNumber());
-            }
-        }
-
-        if (dentistUpdateRequestDto.getEmail() != null && !dentistUpdateRequestDto.getEmail().trim().isEmpty()) {
-            if (!dentistUpdateRequestDto.getEmail().equals(dentistExisting.getEmail()) &&
-                existsByEmail(dentistUpdateRequestDto.getEmail())) {
-                throw new IllegalArgumentException("There is already a dentist with the email: " + dentistUpdateRequestDto.getEmail());
-            }
-        }
+        validateLicenseNumberForUpdate(dentistExisting.getLicenseNumber(), dentistUpdateRequestDto.getLicenseNumber());
+        validateEmailForUpdate(dentistExisting.getEmail(), dentistUpdateRequestDto.getEmail());
 
         dentistExisting.setFirstName(dentistUpdateRequestDto.getFirstName());
         dentistExisting.setLastName(dentistUpdateRequestDto.getLastName());
@@ -136,10 +109,7 @@ public class DentistServiceImpl implements DentistService {
 
     @Override
     public void deleteDentist(Long id) {
-        Dentist dentist = dentistRepository.findById(id)
-                .orElseThrow(() -> {
-                    return new IllegalArgumentException("No dentist found with ID: " + id);
-                });
+        Dentist dentist = findDentistById(id);
         dentistRepository.delete(dentist);
     }
     @Override
@@ -164,74 +134,20 @@ public class DentistServiceImpl implements DentistService {
     @Override
     @Transactional(readOnly = true)
     public DentistPatientsResponseDto getPatientsByDentistId(Long dentistId) {
-        Optional<Dentist> dentistOpt = dentistRepository.findByIdWithPatients(dentistId);
-        if (dentistOpt.isEmpty()) {
-            throw new IllegalArgumentException("No dentist found with ID: " + dentistId);
-        }
-        
-        Dentist dentist = dentistOpt.get();
-        DentistPatientsResponseDto response = new DentistPatientsResponseDto();
-        response.setDentistId(dentist.getId());
-        response.setDentistName(dentist.getFullName());
-        response.setLicenseNumber(dentist.getLicenseNumber());
-        response.setSpecialty(dentist.getSpecialty());
-        
-        List<DentistPatientsResponseDto.PatientSummaryDto> patients = dentist.getPatients().stream()
-                .map(patient -> {
-                    DentistPatientsResponseDto.PatientSummaryDto patientDto = new DentistPatientsResponseDto.PatientSummaryDto();
-                    patientDto.setId(patient.getId());
-                    patientDto.setFirstName(patient.getFirstName());
-                    patientDto.setLastName(patient.getLastName());
-                    patientDto.setDni(patient.getDni());
-                    patientDto.setEmail(patient.getEmail());
-                    patientDto.setPhone(patient.getPhone());
-                    patientDto.setActive(patient.getActive());
-                    return patientDto;
-                })
-                .collect(Collectors.toList());
-        
-        response.setPatients(patients);
-        return response;
+        Dentist dentist = findDentistByIdWithPatients(dentistId);
+        return buildDentistPatientsResponse(dentist, false);
     }
 
     @Override
     @Transactional(readOnly = true)
     public DentistPatientsResponseDto getActivePatientsByDentistId(Long dentistId) {
-        Optional<Dentist> dentistOpt = dentistRepository.findByIdWithActivePatients(dentistId);
-        if (dentistOpt.isEmpty()) {
-            throw new IllegalArgumentException("No dentist found with ID: " + dentistId);
-        }
-        
-        Dentist dentist = dentistOpt.get();
-        DentistPatientsResponseDto response = new DentistPatientsResponseDto();
-        response.setDentistId(dentist.getId());
-        response.setDentistName(dentist.getFullName());
-        response.setLicenseNumber(dentist.getLicenseNumber());
-        response.setSpecialty(dentist.getSpecialty());
-        
-        List<DentistPatientsResponseDto.PatientSummaryDto> patients = dentist.getPatients().stream()
-                .filter(patient -> Boolean.TRUE.equals(patient.getActive()))
-                .map(patient -> {
-                    DentistPatientsResponseDto.PatientSummaryDto patientDto = new DentistPatientsResponseDto.PatientSummaryDto();
-                    patientDto.setId(patient.getId());
-                    patientDto.setFirstName(patient.getFirstName());
-                    patientDto.setLastName(patient.getLastName());
-                    patientDto.setDni(patient.getDni());
-                    patientDto.setEmail(patient.getEmail());
-                    patientDto.setPhone(patient.getPhone());
-                    patientDto.setActive(patient.getActive());
-                    return patientDto;
-                })
-                .collect(Collectors.toList());
-        
-        response.setPatients(patients);
-        return response;
+        Dentist dentist = findDentistByIdWithActivePatients(dentistId);
+        return buildDentistPatientsResponse(dentist, true);
     }
 
     @Override
     public PatientResponseDto createPatientForDentist(Long dentistId, PatientRequestDto patientRequestDto) {
-        Dentist dentist = dentistRepository.findById(dentistId)
-                .orElseThrow(() -> new IllegalArgumentException("No dentist found with ID: " + dentistId));
+        Dentist dentist = findDentistById(dentistId);
 
         if (patientRepository.existsByDni(patientRequestDto.getDni())) {
             throw new IllegalArgumentException("There is already a patient with the DNI: " + patientRequestDto.getDni());
@@ -251,5 +167,103 @@ public class DentistServiceImpl implements DentistService {
         Patient savedPatient = patientRepository.save(patient);
         return modelMapperUtils.map(savedPatient, PatientResponseDto.class);
     }
-
+    
+    /**
+     * Finds a dentist by ID or throws an exception if not found
+     */
+    @Override
+    public Dentist findDentistById(Long id) {
+        return dentistRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("No dentist found with ID: " + id));
+    }
+    
+    /**
+     * Finds a dentist by ID with patients or throws an exception if not found
+     */
+    private Dentist findDentistByIdWithPatients(Long id) {
+        return dentistRepository.findByIdWithPatients(id)
+                .orElseThrow(() -> new IllegalArgumentException("No dentist found with ID: " + id));
+    }
+    
+    /**
+     * Finds a dentist by ID with active patients or throws an exception if not found
+     */
+    private Dentist findDentistByIdWithActivePatients(Long id) {
+        return dentistRepository.findByIdWithActivePatients(id)
+                .orElseThrow(() -> new IllegalArgumentException("No dentist found with ID: " + id));
+    }
+    
+    /**
+     * Validates that a license number is unique
+     */
+    private void validateLicenseNumber(String licenseNumber) {
+        if (existsByLicense(licenseNumber)) {
+            throw new IllegalArgumentException("There is already a dentist with the license: " + licenseNumber);
+        }
+    }
+    
+    /**
+     * Validates email if present and not empty
+     */
+    private void validateEmailIfPresent(String email) {
+        if (email != null && !email.trim().isEmpty()) {
+            if (existsByEmail(email)) {
+                throw new IllegalArgumentException("There is already a dentist with the email: " + email);
+            }
+        }
+    }
+    
+    /**
+     * Validates license number for update (only if different from existing)
+     */
+    private void validateLicenseNumberForUpdate(String existingLicense, String newLicense) {
+        if (!existingLicense.equals(newLicense)) {
+            validateLicenseNumber(newLicense);
+        }
+    }
+    
+    /**
+     * Validates email for update (only if different from existing and not empty)
+     */
+    private void validateEmailForUpdate(String existingEmail, String newEmail) {
+        if (newEmail != null && !newEmail.trim().isEmpty() && !newEmail.equals(existingEmail)) {
+            if (existsByEmail(newEmail)) {
+                throw new IllegalArgumentException("There is already a dentist with the email: " + newEmail);
+            }
+        }
+    }
+    
+    /**
+     * Maps a patient entity to PatientSummaryDto
+     */
+    private DentistPatientsResponseDto.PatientSummaryDto mapPatientToSummaryDto(Patient patient) {
+        DentistPatientsResponseDto.PatientSummaryDto patientDto = new DentistPatientsResponseDto.PatientSummaryDto();
+        patientDto.setId(patient.getId());
+        patientDto.setFirstName(patient.getFirstName());
+        patientDto.setLastName(patient.getLastName());
+        patientDto.setDni(patient.getDni());
+        patientDto.setEmail(patient.getEmail());
+        patientDto.setPhone(patient.getPhone());
+        patientDto.setActive(patient.getActive());
+        return patientDto;
+    }
+    
+    /**
+     * Builds DentistPatientsResponseDto from dentist and optionally filters for active patients only
+     */
+    private DentistPatientsResponseDto buildDentistPatientsResponse(Dentist dentist, boolean activeOnly) {
+        DentistPatientsResponseDto response = new DentistPatientsResponseDto();
+        response.setDentistId(dentist.getId());
+        response.setDentistName(dentist.getFullName());
+        response.setLicenseNumber(dentist.getLicenseNumber());
+        response.setSpecialty(dentist.getSpecialty());
+        
+        List<DentistPatientsResponseDto.PatientSummaryDto> patients = dentist.getPatients().stream()
+                .filter(patient -> !activeOnly || Boolean.TRUE.equals(patient.getActive()))
+                .map(this::mapPatientToSummaryDto)
+                .collect(Collectors.toList());
+        
+        response.setPatients(patients);
+        return response;
+    }
 }

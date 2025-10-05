@@ -29,4 +29,10 @@ public interface PrescriptionService {
     long countPrescriptionsByPatientId(Long patientId);
 
     Prescription getPrescriptionEntityById(Long prescriptionId, Long dentistId);
+
+    /**
+     * Gets prescription entity by ID for cross-service relationships
+     * Note: This bypasses dentist validation for internal service use
+     */
+    Prescription getPrescriptionEntityById(Long prescriptionId);
 }

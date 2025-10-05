@@ -242,4 +242,25 @@ public class TreatmentServiceImpl implements TreatmentService {
 
         return dto;
     }
+
+    @Override
+    public void incrementTreatmentSessions(Long treatmentId) {
+        Treatment treatment = treatmentRepository.findById(treatmentId)
+                .orElseThrow(() -> new IllegalArgumentException("No treatment found with ID: " + treatmentId));
+        
+        // Update status if it's pending
+        if (treatment.getStatus().equals("pendiente")) {
+            treatment.setStatus("en progreso");
+        }
+        
+        // Increment completed sessions
+        treatment.setCompletedSessions(treatment.getCompletedSessions() + 1);
+        treatmentRepository.save(treatment);
+    }
+
+    @Override
+    public Treatment getTreatmentEntityById(Long treatmentId) {
+        return treatmentRepository.findById(treatmentId)
+                .orElseThrow(() -> new IllegalArgumentException("No treatment found with ID: " + treatmentId));
+    }
 }

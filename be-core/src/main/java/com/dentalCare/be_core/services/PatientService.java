@@ -2,6 +2,7 @@ package com.dentalCare.be_core.services;
 
 import com.dentalCare.be_core.dtos.request.patient.PatientUpdateRequestDto;
 import com.dentalCare.be_core.dtos.response.patient.PatientResponseDto;
+import com.dentalCare.be_core.entities.Patient;
 
 import java.util.List;
 
@@ -27,4 +28,14 @@ public interface PatientService {
 
     long countActivePatient();
 
+    /**
+     * Validates that a patient belongs to a specific dentist and is active
+     * Returns the patient entity for further use
+     */
+    Patient validatePatientOwnershipAndActive(Long patientId, Long dentistId);
+
+    /**
+     * Gets patient entity by ID for cross-service relationships
+     */
+    Patient getPatientEntityById(Long patientId);
 }
