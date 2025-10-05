@@ -9,7 +9,6 @@ import { MatTableModule } from '@angular/material/table';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
-import { IconComponent } from '../../../shared/icon/icon.component';
 
 @Component({
   selector: 'app-dentist-dashboard',
@@ -23,8 +22,7 @@ import { IconComponent } from '../../../shared/icon/icon.component';
     MatTableModule,
     MatBadgeModule,
     MatChipsModule,
-    MatDividerModule,
-    IconComponent
+    MatDividerModule
   ],
   templateUrl: './dentist-dashboard.component.html',
   styleUrl: './dentist-dashboard.component.css'

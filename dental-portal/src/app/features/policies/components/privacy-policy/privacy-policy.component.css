@@ -1,0 +1,41 @@
+/* Estilos específicos para política de privacidad */
+.privacy-content {
+  line-height: 1.8;
+}
+
+.privacy-content h2 {
+  color: #1f2937;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0.5rem;
+}
+
+.privacy-content h3 {
+  color: #374151;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.privacy-content ul {
+  margin-left: 1rem;
+}
+
+.privacy-content li {
+  margin-bottom: 0.5rem;
+}
+
+.privacy-content strong {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .privacy-content {
+    padding: 1rem;
+  }
+  
+  .privacy-content h2 {
+    font-size: 1.5rem;
+  }
+}

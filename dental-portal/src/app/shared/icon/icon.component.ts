@@ -7,21 +7,25 @@ import { Icons } from '../icons';
   selector: 'app-icon',
   standalone: true,
   imports: [CommonModule],
-  template: '<span [innerHTML]="iconHtml"></span>',
-  styles: ['span { display: inline-block; }']
+  template: `
+    <span [innerHTML]="getSafeIcon()" [class]="iconClass"></span>
+  `
 })
 export class IconComponent {
-  @Input() name: keyof typeof Icons = 'shield';
-  @Input() size: string = '24';
-  
+  @Input() name!: keyof typeof Icons;
+  @Input() class: string = '';
+
   constructor(private sanitizer: DomSanitizer) {}
-  
-  get iconHtml(): SafeHtml {
-    const icon = Icons[this.name];
-    if (!icon) return '';
-    
-    // Ajustar el tamaño del icono
-    const sizedIcon = icon.replace(/width="24"/, `width="${this.size}"`).replace(/height="24"/, `height="${this.size}"`);
-    return this.sanitizer.bypassSecurityTrustHtml(sizedIcon);
+
+  get iconClass(): string {
+    return `inline-block ${this.class}`;
+  }
+
+  getSafeIcon(): SafeHtml {
+    if (!this.name || !Icons[this.name]) {
+      console.warn(`Icon "${this.name}" not found`);
+      return this.sanitizer.bypassSecurityTrustHtml('');
+    }
+    return this.sanitizer.bypassSecurityTrustHtml(Icons[this.name]);
   }
 }

@@ -1,129 +1,31 @@
-<!-- Header con Material Toolbar -->
-<mat-toolbar class="dashboard-header">
-  <div class="header-content">
-    <div class="header-left">
-      <div class="logo-section">
-        <div class="logo-container">
-          <app-icon name="shield" size="24" class="logo-icon"></app-icon>
+<!-- Contenido Principal del Dashboard -->
+<div class="dashboard-content">
+    <!-- Header del Dashboard -->
+    <div class="content-header mb-6">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="content-title text-2xl font-bold text-blue-800">Vista General</h2>
+          <p class="text-gray-600 mt-1">Panel del Dentista - Resumen de actividades</p>
         </div>
-        <h1 class="brand-title">DentalCare Pro</h1>
+        <div class="flex gap-3">
+          <button 
+            mat-raised-button 
+            color="primary"
+            (click)="createNewAppointment()"
+            class="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <mat-icon>add</mat-icon>
+            Nueva Cita
+          </button>
+          <button 
+            mat-icon-button
+            class="text-blue-600 hover:bg-blue-50"
+            matTooltip="Notificaciones"
+          >
+            <mat-icon>notifications</mat-icon>
+          </button>
+        </div>
       </div>
-      <span class="dashboard-subtitle">Panel del Dentista</span>
-    </div>
-    <div class="header-right">
-      <button 
-        mat-raised-button 
-        color="primary"
-        (click)="createNewAppointment()"
-        class="new-appointment-btn"
-      >
-        <mat-icon>add</mat-icon>
-        + Nueva Cita
-      </button>
-      <button 
-        mat-icon-button
-        class="notification-btn"
-        matTooltip="Notificaciones"
-      >
-        <mat-icon>notifications</mat-icon>
-      </button>
-      <button 
-        mat-icon-button
-        (click)="logout()"
-        class="profile-btn"
-        matTooltip="Perfil"
-      >
-        <div class="profile-avatar">DP</div>
-      </button>
-    </div>
-  </div>
-</mat-toolbar>
-
-<!-- Layout Principal con Sidebar Izquierdo -->
-<div class="dashboard-layout">
-  <!-- Sidebar Izquierdo -->
-  <div class="sidebar-left">
-    <!-- Navegación Principal -->
-    <nav class="main-navigation">
-      <div class="nav-section">
-        <h3 class="nav-title">Navegación</h3>
-        <a href="#" class="nav-item active">
-          <mat-icon>dashboard</mat-icon>
-          <span>Vista General</span>
-        </a>
-        <a href="#" class="nav-item">
-          <mat-icon>schedule</mat-icon>
-          <span>Citas</span>
-        </a>
-        <a href="#" class="nav-item">
-          <mat-icon>people</mat-icon>
-          <span>Pacientes</span>
-        </a>
-        <a href="#" class="nav-item">
-          <mat-icon>message</mat-icon>
-          <span>Mensajes</span>
-          <div class="badge">3</div>
-        </a>
-        <a href="#" class="nav-item">
-          <mat-icon>photo_camera</mat-icon>
-          <span>Fotos de Progreso</span>
-        </a>
-        <a href="#" class="nav-item">
-          <mat-icon>folder</mat-icon>
-          <span>Archivos</span>
-        </a>
-        <a href="#" class="nav-item">
-          <mat-icon>receipt</mat-icon>
-          <span>Recetas</span>
-        </a>
-      </div>
-    </nav>
-
-    <!-- Acciones Rápidas -->
-    <div class="quick-actions-section">
-      <h3 class="nav-title">Acciones Rápidas</h3>
-      <button 
-        mat-stroked-button 
-        color="primary"
-        class="action-btn"
-      >
-        <mat-icon>calendar_today</mat-icon>
-        Ver Agenda
-      </button>
-      
-      <button 
-        mat-stroked-button 
-        color="primary"
-        class="action-btn"
-      >
-        <mat-icon>add_person</mat-icon>
-        Nuevo Paciente
-      </button>
-      
-      <button 
-        mat-stroked-button 
-        color="primary"
-        class="action-btn"
-      >
-        <mat-icon>assessment</mat-icon>
-        Reportes
-      </button>
-      
-      <button 
-        mat-stroked-button 
-        color="primary"
-        class="action-btn"
-      >
-        <mat-icon>settings</mat-icon>
-        Configuración
-      </button>
-    </div>
-  </div>
-
-  <!-- Contenido Principal -->
-  <div class="main-content">
-    <div class="content-header">
-      <h2 class="content-title">Vista General</h2>
     </div>
 
     <!-- Estadísticas Principales -->
@@ -273,5 +175,4 @@
         </mat-card-content>
       </mat-card>
     </div>
-  </div>
 </div>

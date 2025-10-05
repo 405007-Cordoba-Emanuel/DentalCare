@@ -1,0 +1,237 @@
+<aside
+  [class]="
+    'fixed top-0 left-0 bottom-0 z-50 w-64 bg-gradient-to-b from-stone-50 to-blue-50 text-stone-800 border-r border-blue-200 transform transition-all duration-300 ease-out shadow-2xl' +
+    ((isSidebarOpen$ | async)
+      ? ' translate-x-0 opacity-100'
+      : ' -translate-x-full opacity-0')
+  "
+>
+  <div class="py-4 pl-4 h-full flex flex-col animate-slideInFromLeft">
+    <!-- Header del Sidebar -->
+    <div class="flex items-center justify-between mb-6 animate-fadeInUp">
+      <h1
+        class="text-xl font-semibold text-traslasierra-primary"
+      >
+        DentalCare Pro
+      </h1>
+      <button
+        (click)="toggleSidebar()"
+        class="p-2 mr-2 rounded-lg hover:bg-blue-100 hover-lift transition-all duration-200 cursor-pointer"
+        aria-label="Cerrar sidebar"
+      >
+        <mat-icon
+          class="group-hover:rotate-90 transition-transform duration-200 text-stone-600"
+          >close</mat-icon
+        >
+      </button>
+    </div>
+
+    <!-- Contenido del Sidebar con Scroll -->
+    <div
+      class="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-transparent"
+    >
+      <!-- Navegación Principal -->
+      <div class="mb-6 animate-fadeInUp" style="animation-delay: 0.1s;">
+        <h2
+          class="text-sm font-semibold uppercase mt-2 text-blue-700 tracking-wider mb-3"
+        >
+          Navegación
+        </h2>
+        <div class="space-y-2">
+          <!-- Dashboard -->
+          <a
+            routerLink="/dentist-dashboard"
+            routerLinkActive="bg-blue-100 text-blue-800 border-blue-300 shadow-blue-100"
+            class="w-full px-3 py-3 text-left rounded-xl transition-all duration-200 flex items-center hover:bg-blue-50 hover:border-blue-200 hover-lift border border-transparent group relative overflow-hidden"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-transparent via-blue-50/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"
+            ></div>
+            <mat-icon
+              class="group-hover:scale-110 transition-transform duration-200 relative z-10 text-stone-600 group-hover:text-blue-700"
+              >dashboard</mat-icon
+            >
+            <span class="ml-3 font-medium relative z-10">Vista General</span>
+          </a>
+
+          <!-- Citas -->
+          <a
+            routerLink="/appointments"
+            routerLinkActive="bg-blue-100 text-blue-800 border-blue-300 shadow-blue-100"
+            class="w-full px-3 py-3 text-left rounded-xl transition-all duration-200 flex items-center hover:bg-blue-50 hover:border-blue-200 hover-lift border border-transparent group relative overflow-hidden"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-transparent via-blue-50/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"
+            ></div>
+            <mat-icon
+              class="group-hover:scale-110 transition-transform duration-200 relative z-10 text-stone-600 group-hover:text-blue-700"
+              >schedule</mat-icon
+            >
+            <span class="ml-3 font-medium relative z-10">Citas</span>
+          </a>
+
+          <!-- Pacientes -->
+          <a
+            routerLink="/patients"
+            routerLinkActive="bg-blue-100 text-blue-800 border-blue-300 shadow-blue-100"
+            class="w-full px-3 py-3 text-left rounded-xl transition-all duration-200 flex items-center hover:bg-blue-50 hover:border-blue-200 hover-lift border border-transparent group relative overflow-hidden"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-transparent via-blue-50/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"
+            ></div>
+            <mat-icon
+              class="group-hover:scale-110 transition-transform duration-200 relative z-10 text-stone-600 group-hover:text-blue-700"
+              >people</mat-icon
+            >
+            <span class="ml-3 font-medium relative z-10">Pacientes</span>
+          </a>
+
+          <!-- Mensajes -->
+          <a
+            routerLink="/messages"
+            routerLinkActive="bg-blue-100 text-blue-800 border-blue-300 shadow-blue-100"
+            class="w-full px-3 py-3 text-left rounded-xl transition-all duration-200 flex items-center hover:bg-blue-50 hover:border-blue-200 hover-lift border border-transparent group relative overflow-hidden"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-transparent via-blue-50/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"
+            ></div>
+            <mat-icon
+              class="group-hover:scale-110 transition-transform duration-200 relative z-10 text-stone-600 group-hover:text-blue-700"
+              >message</mat-icon
+            >
+            <span class="ml-3 font-medium relative z-10">Mensajes</span>
+            <div class="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1">3</div>
+          </a>
+
+          <!-- Fotos de Progreso -->
+          <a
+            routerLink="/progress-photos"
+            routerLinkActive="bg-blue-100 text-blue-800 border-blue-300 shadow-blue-100"
+            class="w-full px-3 py-3 text-left rounded-xl transition-all duration-200 flex items-center hover:bg-blue-50 hover:border-blue-200 hover-lift border border-transparent group relative overflow-hidden"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-transparent via-blue-50/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"
+            ></div>
+            <mat-icon
+              class="group-hover:scale-110 transition-transform duration-200 relative z-10 text-stone-600 group-hover:text-blue-700"
+              >photo_camera</mat-icon
+            >
+            <span class="ml-3 font-medium relative z-10">Fotos de Progreso</span>
+          </a>
+
+          <!-- Archivos -->
+          <a
+            routerLink="/files"
+            routerLinkActive="bg-blue-100 text-blue-800 border-blue-300 shadow-blue-100"
+            class="w-full px-3 py-3 text-left rounded-xl transition-all duration-200 flex items-center hover:bg-blue-50 hover:border-blue-200 hover-lift border border-transparent group relative overflow-hidden"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-transparent via-blue-50/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"
+            ></div>
+            <mat-icon
+              class="group-hover:scale-110 transition-transform duration-200 relative z-10 text-stone-600 group-hover:text-blue-700"
+              >folder</mat-icon
+            >
+            <span class="ml-3 font-medium relative z-10">Archivos</span>
+          </a>
+
+          <!-- Recetas -->
+          <a
+            routerLink="/prescriptions"
+            routerLinkActive="bg-blue-100 text-blue-800 border-blue-300 shadow-blue-100"
+            class="w-full px-3 py-3 text-left rounded-xl transition-all duration-200 flex items-center hover:bg-blue-50 hover:border-blue-200 hover-lift border border-transparent group relative overflow-hidden"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-transparent via-blue-50/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"
+            ></div>
+            <mat-icon
+              class="group-hover:scale-110 transition-transform duration-200 relative z-10 text-stone-600 group-hover:text-blue-700"
+              >receipt</mat-icon
+            >
+            <span class="ml-3 font-medium relative z-10">Recetas</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Acciones Rápidas -->
+      <div class="mb-6 animate-fadeInUp" style="animation-delay: 0.2s;">
+        <h2
+          class="text-sm font-semibold uppercase mt-2 text-blue-700 tracking-wider mb-3"
+        >
+          Acciones Rápidas
+        </h2>
+        <div class="space-y-2">
+          <!-- Ver Agenda -->
+          <a
+            routerLink="/calendar"
+            class="w-full px-3 py-3 text-left rounded-xl transition-all duration-200 flex items-center hover:bg-blue-50 hover:border-blue-200 hover-lift border border-transparent group relative overflow-hidden"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-transparent via-blue-50/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"
+            ></div>
+            <mat-icon
+              class="group-hover:scale-110 transition-transform duration-200 relative z-10 text-stone-600 group-hover:text-blue-700"
+              >calendar_today</mat-icon
+            >
+            <span class="ml-3 font-medium relative z-10">Ver Agenda</span>
+          </a>
+
+          <!-- Nuevo Paciente -->
+          <a
+            routerLink="/patients/new"
+            class="w-full px-3 py-3 text-left rounded-xl transition-all duration-200 flex items-center hover:bg-blue-50 hover:border-blue-200 hover-lift border border-transparent group relative overflow-hidden"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-transparent via-blue-50/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"
+            ></div>
+            <mat-icon
+              class="group-hover:scale-110 transition-transform duration-200 relative z-10 text-stone-600 group-hover:text-blue-700"
+              >add_person</mat-icon
+            >
+            <span class="ml-3 font-medium relative z-10">Nuevo Paciente</span>
+          </a>
+
+          <!-- Reportes -->
+          <a
+            routerLink="/reports"
+            class="w-full px-3 py-3 text-left rounded-xl transition-all duration-200 flex items-center hover:bg-blue-50 hover:border-blue-200 hover-lift border border-transparent group relative overflow-hidden"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-transparent via-blue-50/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"
+            ></div>
+            <mat-icon
+              class="group-hover:scale-110 transition-transform duration-200 relative z-10 text-stone-600 group-hover:text-blue-700"
+              >assessment</mat-icon
+            >
+            <span class="ml-3 font-medium relative z-10">Reportes</span>
+          </a>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer del Sidebar -->
+    <div class="pt-4 border-t border-blue-200 animate-fadeInUp" style="animation-delay: 0.3s;">
+      <div class="space-y-2">
+        <!-- Perfil -->
+        <a
+          routerLink="/profile"
+          routerLinkActive="bg-blue-100 text-blue-800 border-blue-300 shadow-blue-100"
+          class="w-full px-3 py-2 text-left rounded-lg transition-all duration-200 flex items-center hover:bg-blue-50 hover:border-blue-200 hover-lift border border-transparent group relative overflow-hidden"
+        >
+          <mat-icon class="text-stone-500 group-hover:text-blue-700 transition-colors duration-200">person</mat-icon>
+          <span class="ml-3 text-sm">Perfil</span>
+        </a>
+
+        <!-- Cerrar Sesión -->
+        <button 
+          (click)="logout()"
+          class="cursor-pointer w-full px-3 py-2 text-left rounded-lg transition-all duration-200 flex items-center hover:bg-red-50 hover:border-red-200 hover-lift border border-transparent text-red-600 group"
+        >
+          <mat-icon class="group-hover:scale-110 transition-transform duration-200">logout</mat-icon>
+          <span class="ml-3 text-sm">Cerrar Sesión</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</aside>

@@ -1,0 +1,220 @@
+<div class="flex flex-col">
+  <!-- Header -->
+  <div class="mb-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800">Tratamientos</h1>
+        <p class="text-gray-600 mt-2">Gestiona los tratamientos de tus pacientes</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Selector de paciente -->
+   @if(patients.length > 0) {
+  <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">Seleccionar Paciente</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for(patient of patients; track patient.id) {
+      <button
+        (click)="loadTreatmentsForPatient(patient.id)"
+        [class]="selectedPatientId === patient.id ? 'dental-btn-primary' : 'dental-btn-secondary'"
+        class="flex items-center space-x-3 p-4 rounded-lg transition-all">
+        <app-icon name="user" class="h-5 w-5"></app-icon>
+        <div class="text-left">
+          <div class="font-medium">{{ patient.firstName }} {{ patient.lastName }}</div>
+          <div class="text-sm opacity-75">DNI: {{ patient.dni }}</div>
+        </div>
+      </button>
+      }
+    </div>
+  </div>
+}
+
+  <!-- Lista de tratamientos -->
+  @if(selectedPatientId && !loading) {
+  <div class="bg-white rounded-lg shadow-md">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-800">
+        Tratamientos ({{ treatments.length }})
+      </h2>
+    </div>
+
+    @if(treatments.length === 0) {
+    <div class="text-center py-12">
+      <app-icon name="fileText" class="mx-auto h-12 w-12 text-gray-400"></app-icon>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No hay tratamientos</h3>
+      <p class="mt-1 text-sm text-gray-500">
+        Este paciente no tiene tratamientos asignados.
+      </p>
+    </div>
+    }
+
+    @if(treatments.length > 0) {
+    <div class="divide-y divide-gray-200">
+      @for(treatment of treatments; track treatment.id) {
+      <div 
+           class="p-6 hover:bg-gray-50 transition-colors">
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <div class="flex items-center space-x-3 mb-2">
+              <h3 class="text-lg font-medium text-gray-900">{{ treatment.name }}</h3>
+              <span class="dental-badge" [class]="getStatusColor(treatment.status)">
+                {{ treatment.status }}
+              </span>
+            </div>
+            
+            <p class="text-gray-600 mb-4">{{ treatment.description }}</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div class="flex items-center space-x-2">
+                <app-icon name="calendar" class="h-4 w-4 text-gray-400"></app-icon>
+                <div class="text-sm">
+                  <div class="text-gray-500">Inicio</div>
+                  <div class="font-medium">{{ formatDate(treatment.startDate) }}</div>
+                </div>
+              </div>
+              
+              <div class="flex items-center space-x-2">
+                <app-icon name="clock" class="h-4 w-4 text-gray-400"></app-icon>
+                <div class="text-sm">
+                  <div class="text-gray-500">Fin Estimado</div>
+                  <div class="font-medium">{{ formatDate(treatment.estimatedEndDate) }}</div>
+                </div>
+              </div>
+              
+              <div class="flex items-center space-x-2">
+                <app-icon name="trendingUp" class="h-4 w-4 text-gray-400"></app-icon>
+                <div class="text-sm">
+                  <div class="text-gray-500">Progreso</div>
+                  <div class="font-medium">{{ getProgressPercentage(treatment) }}%</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Barra de progreso -->
+            <div class="mb-4">
+              <div class="flex justify-between text-sm text-gray-600 mb-1">
+                <span>{{ treatment.completedSessions }} de {{ treatment.totalSessions }} sesiones</span>
+                <span>{{ getProgressPercentage(treatment) }}%</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                     [style.width.%]="getProgressPercentage(treatment)"></div>
+              </div>
+            </div>
+
+            <div class="text-sm text-gray-500">
+              <strong>Paciente:</strong> {{ treatment.patient.firstName }} {{ treatment.patient.lastName }} (DNI: {{ treatment.patient.dni }})
+            </div>
+          </div>
+          
+          <div class="ml-6 flex flex-col space-y-2">
+            <button 
+              (click)="viewTreatmentDetail(treatment.id)"
+              class="dental-btn-primary flex items-center space-x-2">
+              <app-icon name="eye" class="h-4 w-4"></app-icon>
+              <span>Ver Detalle</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+    }
+  </div>
+}
+  <!-- Loading state -->
+  @if(loading) {
+  <div class="dental-loading">
+    <div class="dental-spinner"></div>
+    <span class="ml-2">Cargando tratamientos...</span>
+  </div>
+}
+</div>
+
+<!-- Modal de detalle del tratamiento -->
+@if(showTreatmentDetail && selectedTreatment) {
+<div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white"
+       (click)="$event.stopPropagation()">
+    
+    <!-- Header del modal -->
+    <div class="dental-modal-header">
+      <div class="flex justify-between items-center">
+        <h3 class="text-lg font-semibold">{{ selectedTreatment.name }}</h3>
+        <button (click)="closeTreatmentDetail()" 
+                class="text-gray-400 hover:text-gray-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Contenido del modal -->
+    <div class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Información general -->
+        <div>
+          <h4 class="text-md font-semibold text-gray-800 mb-3">Información General</h4>
+          <dl class="space-y-2">
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Descripción</dt>
+              <dd class="text-sm text-gray-900">{{ selectedTreatment.description }}</dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Estado</dt>
+              <dd class="text-sm">
+                <span class="dental-badge" [class]="getStatusColor(selectedTreatment.status)">
+                  {{ selectedTreatment.status }}
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Progreso</dt>
+              <dd class="text-sm text-gray-900">{{ selectedTreatment.progressPercentage }}%</dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- Fechas -->
+        <div>
+          <h4 class="text-md font-semibold text-gray-800 mb-3">Fechas</h4>
+          <dl class="space-y-2">
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Fecha de inicio</dt>
+              <dd class="text-sm text-gray-900">{{ formatDate(selectedTreatment.startDate) }}</dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Fin estimado</dt>
+              <dd class="text-sm text-gray-900">{{ formatDate(selectedTreatment.estimatedEndDate) }}</dd>
+            </div>
+            @if(selectedTreatment.actualEndDate) {
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Fin real</dt>
+              <dd class="text-sm text-gray-900">{{ formatDate(selectedTreatment.actualEndDate) }}</dd>
+            </div>
+            }
+          </dl>
+        </div>
+      </div>
+
+      <!-- Notas -->
+      @if(selectedTreatment.notes) {
+      <div class="mt-6">
+        <h4 class="text-md font-semibold text-gray-800 mb-3">Notas</h4>
+        <p class="text-sm text-gray-900 bg-gray-50 p-4 rounded-lg">{{ selectedTreatment.notes }}</p>
+      </div>
+    }
+    </div>
+
+    <!-- Footer del modal -->
+    <div class="px-6 py-4 border-t border-gray-200 flex justify-end">
+      <button (click)="closeTreatmentDetail()" 
+              class="dental-btn-secondary">
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
+}

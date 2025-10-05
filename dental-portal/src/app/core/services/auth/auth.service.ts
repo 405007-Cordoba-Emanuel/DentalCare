@@ -1,8 +1,12 @@
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthResponse, EmailAuthRequest, EmailRegisterRequest } from '../../../interfaces/auth/auth-response.interface';
 import { BaseAuthService } from './base-auth.service';
 
-export abstract class AuthService extends BaseAuthService {
+@Injectable({
+  providedIn: 'root',
+})
+export class AuthService extends BaseAuthService {
   private apiUrl: string = 'http://localhost:8080/api';
 
   login(loginRequest: EmailAuthRequest): Observable<AuthResponse> {

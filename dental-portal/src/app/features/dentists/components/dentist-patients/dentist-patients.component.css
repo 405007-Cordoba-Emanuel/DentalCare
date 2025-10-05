@@ -1,0 +1,48 @@
+/* Estilos específicos para el componente de pacientes del dentista */
+.patient-card {
+  transition: all 0.3s ease;
+}
+
+.patient-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.search-input {
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  transform: scale(1.02);
+}
+
+.status-badge {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Animación para la lista de pacientes */
+.patient-list-item {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.patient-list-item:nth-child(even) {
+  animation-delay: 0.1s;
+}
+
+.patient-list-item:nth-child(odd) {
+  animation-delay: 0.2s;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
