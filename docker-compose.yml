@@ -39,54 +39,6 @@ services:
       timeout: 5s
       retries: 5
 
-  user-service:
-    build: ./users
-    container_name: user-service
-    ports:
-      - "8082:8082"
-    env_file:
-      - ./users/.env
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql_users:3306/dental_users
-      SPRING_DATASOURCE_USERNAME: dental_user
-      SPRING_DATASOURCE_PASSWORD: dental_pass
-    depends_on:
-      mysql_users:
-        condition: service_healthy
-    networks:
-      - dental-network
-
-  be-core:
-    build: ./be-core
-    container_name: be-core
-    ports:
-      - "8083:8083"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql_core:3307/dental_core
-      SPRING_DATASOURCE_USERNAME: dental_core
-      SPRING_DATASOURCE_PASSWORD: dental_core
-    depends_on:
-      mysql_core:
-        condition: service_healthy
-    networks:
-      - dental-network
-
-  gateway:
-    build: ./gateway
-    container_name: gateway
-    environment:
-      SPRING_CLOUD_GATEWAY_CORS_ALLOWED_ORIGINS: "*"
-      SPRING_CLOUD_GATEWAY_CORS_ALLOWED_METHODS: "GET,POST,PUT,DELETE,OPTIONS"
-      SPRING_CLOUD_GATEWAY_CORS_ALLOWED_HEADERS: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
-      USER_SERVICE_URL: http://user-service:8082
-    ports:
-      - "8080:8080"
-    depends_on:
-      - user-service
-      - be-core
-    networks:
-      - dental-network
-
 volumes:
   mysql_users_data:
   mysql_core_data:

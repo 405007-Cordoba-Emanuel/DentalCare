@@ -1,15 +1,14 @@
-import { Component } from '@angular/core';
-import { AuthService } from '../../../services/auth.service';
-import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { AuthService } from '../../../core/services/auth/auth.service';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-protected-route',
   standalone: true,
-  imports: [CommonModule],
-  templateUrl: './protected-route.component.html',
-  styleUrl: './protected-route.component.css'
+  imports: [AsyncPipe],
+  templateUrl: './protected-route.component.html'
 })
 export class ProtectedRouteComponent {
 
-  constructor(public authService: AuthService) {}
+  authService = inject(AuthService);
 }

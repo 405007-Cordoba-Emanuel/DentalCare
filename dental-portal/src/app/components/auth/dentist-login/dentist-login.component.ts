@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -32,8 +32,7 @@ export class DentistLoginComponent {
   userType = 'Dentista';
   email = '';
   password = '';
-
-  constructor(private router: Router) {}
+  private router = inject(Router);
 
   onSubmit() {
     if (this.email && this.password) {

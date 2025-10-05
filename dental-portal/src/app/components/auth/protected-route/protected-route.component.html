@@ -1,5 +1,7 @@
-<div *ngIf="authService.loading$ | async" class="spinner-container">
+@if (authService.currentUser$ | async) {
+<div class="spinner-container">
   <div class="spinner"></div>
 </div>
-
-<ng-content *ngIf="!(authService.loading$ | async)"></ng-content>
+} @else {
+<ng-content></ng-content>
+}
