@@ -344,7 +344,7 @@ public class DentistController {
             headers.setContentType(org.springframework.http.MediaType.APPLICATION_PDF);
             headers.setContentDisposition(
                 org.springframework.http.ContentDisposition.attachment()
-                    .filename("Receta: " + prescriptionId + " " + prescription.getPatient().getFirstName() + " - " + prescription.getPatient().getLastName() + ".pdf")
+                    .filename("Receta_" + prescriptionId + ".pdf")
                     .build()
             );
             

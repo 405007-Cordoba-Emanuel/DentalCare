@@ -13,14 +13,15 @@ import lombok.Setter;
 public class PatientResponseDto {
 
     private Long id;
+    private Long userId;
     private String firstName;
     private String lastName;
+    private String email;
+    private String phone;
+    private String address;
     private String dni;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private String birthDate;
-    private String phone;
-    private String email;
-    private String address;
     private Boolean active;
 
 }

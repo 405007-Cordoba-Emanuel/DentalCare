@@ -1,6 +1,7 @@
 package com.dentalCare.be_core.services.impl;
 
 import com.dentalCare.be_core.config.mapper.ModelMapperUtils;
+import com.dentalCare.be_core.dtos.external.UserDetailDto;
 import com.dentalCare.be_core.dtos.request.treatment.TreatmentRequestDto;
 import com.dentalCare.be_core.dtos.response.medicalhistory.MedicalHistoryResponseDto;
 import com.dentalCare.be_core.dtos.response.treatment.TreatmentDetailResponseDto;
@@ -14,6 +15,7 @@ import com.dentalCare.be_core.repositories.MedicalHistoryRepository;
 import com.dentalCare.be_core.repositories.PatientRepository;
 import com.dentalCare.be_core.repositories.TreatmentRepository;
 import com.dentalCare.be_core.services.TreatmentService;
+import com.dentalCare.be_core.services.UserServiceClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,9 @@ public class TreatmentServiceImpl implements TreatmentService {
 
     @Autowired
     private MedicalHistoryRepository medicalHistoryRepository;
+
+    @Autowired
+    private UserServiceClient userServiceClient;
 
     @Autowired
     private ModelMapperUtils modelMapperUtils;
@@ -168,10 +173,14 @@ public class TreatmentServiceImpl implements TreatmentService {
 
     private TreatmentResponseDto mapToResponseDto(Treatment treatment) {
         TreatmentResponseDto dto = modelMapperUtils.map(treatment, TreatmentResponseDto.class);
+        
+        UserDetailDto patientUser = userServiceClient.getUserById(treatment.getPatient().getUserId());
+        UserDetailDto dentistUser = userServiceClient.getUserById(treatment.getDentist().getUserId());
+        
         dto.setPatientId(treatment.getPatient().getId());
-        dto.setPatientName(treatment.getPatient().getFirstName() + " " + treatment.getPatient().getLastName());
+        dto.setPatientName(patientUser.getFirstName() + " " + patientUser.getLastName());
         dto.setDentistId(treatment.getDentist().getId());
-        dto.setDentistName(treatment.getDentist().getFirstName() + " " + treatment.getDentist().getLastName());
+        dto.setDentistName(dentistUser.getFirstName() + " " + dentistUser.getLastName());
 
         if (treatment.getTotalSessions() != null && treatment.getTotalSessions() > 0) {
             double progress = (treatment.getCompletedSessions() * 100.0) / treatment.getTotalSessions();
@@ -182,12 +191,15 @@ public class TreatmentServiceImpl implements TreatmentService {
     }
 
     private TreatmentDetailResponseDto mapToDetailResponseDto(Treatment treatment) {
+        UserDetailDto patientUser = userServiceClient.getUserById(treatment.getPatient().getUserId());
+        UserDetailDto dentistUser = userServiceClient.getUserById(treatment.getDentist().getUserId());
+        
         TreatmentDetailResponseDto dto = new TreatmentDetailResponseDto();
         dto.setId(treatment.getId());
         dto.setPatientId(treatment.getPatient().getId());
-        dto.setPatientName(treatment.getPatient().getFirstName() + " " + treatment.getPatient().getLastName());
+        dto.setPatientName(patientUser.getFirstName() + " " + patientUser.getLastName());
         dto.setDentistId(treatment.getDentist().getId());
-        dto.setDentistName(treatment.getDentist().getFirstName() + " " + treatment.getDentist().getLastName());
+        dto.setDentistName(dentistUser.getFirstName() + " " + dentistUser.getLastName());
         dto.setName(treatment.getName());
         dto.setDescription(treatment.getDescription());
         dto.setStartDate(treatment.getStartDate());
@@ -219,13 +231,16 @@ public class TreatmentServiceImpl implements TreatmentService {
     }
 
     private MedicalHistoryResponseDto mapMedicalHistoryToDto(MedicalHistory entry) {
+        UserDetailDto patientUser = userServiceClient.getUserById(entry.getPatient().getUserId());
+        UserDetailDto dentistUser = userServiceClient.getUserById(entry.getDentist().getUserId());
+        
         MedicalHistoryResponseDto dto = new MedicalHistoryResponseDto();
         dto.setId(entry.getId());
         dto.setPatientId(entry.getPatient().getId());
-        dto.setPatientName(entry.getPatient().getFirstName() + " " + entry.getPatient().getLastName());
+        dto.setPatientName(patientUser.getFirstName() + " " + patientUser.getLastName());
         dto.setPatientDni(entry.getPatient().getDni());
         dto.setDentistId(entry.getDentist().getId());
-        dto.setDentistName(entry.getDentist().getFirstName() + " " + entry.getDentist().getLastName());
+        dto.setDentistName(dentistUser.getFirstName() + " " + dentistUser.getLastName());
         dto.setDentistLicenseNumber(entry.getDentist().getLicenseNumber());
         dto.setEntryDate(entry.getEntryDate());
         dto.setDescription(entry.getDescription());

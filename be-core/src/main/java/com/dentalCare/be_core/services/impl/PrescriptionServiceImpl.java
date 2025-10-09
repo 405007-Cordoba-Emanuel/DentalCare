@@ -1,6 +1,7 @@
 package com.dentalCare.be_core.services.impl;
 
 import com.dentalCare.be_core.config.mapper.ModelMapperUtils;
+import com.dentalCare.be_core.dtos.external.UserDetailDto;
 import com.dentalCare.be_core.dtos.request.prescription.PrescriptionRequestDto;
 import com.dentalCare.be_core.dtos.response.prescription.PrescriptionResponseDto;
 import com.dentalCare.be_core.entities.Dentist;
@@ -10,6 +11,7 @@ import com.dentalCare.be_core.repositories.DentistRepository;
 import com.dentalCare.be_core.repositories.PatientRepository;
 import com.dentalCare.be_core.repositories.PrescriptionRepository;
 import com.dentalCare.be_core.services.PrescriptionService;
+import com.dentalCare.be_core.services.UserServiceClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,9 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Autowired
     private PatientRepository patientRepository;
+
+    @Autowired
+    private UserServiceClient userServiceClient;
 
     @Autowired
     private ModelMapperUtils modelMapperUtils;
@@ -156,11 +161,14 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     private PrescriptionResponseDto mapToResponseDto(Prescription prescription) {
         PrescriptionResponseDto responseDto = modelMapperUtils.map(prescription, PrescriptionResponseDto.class);
         
+        UserDetailDto patientUser = userServiceClient.getUserById(prescription.getPatient().getUserId());
+        UserDetailDto dentistUser = userServiceClient.getUserById(prescription.getDentist().getUserId());
+        
         responseDto.setPatientId(prescription.getPatient().getId());
-        responseDto.setPatientName(prescription.getPatient().getFirstName() + " " + prescription.getPatient().getLastName());
+        responseDto.setPatientName(patientUser.getFirstName() + " " + patientUser.getLastName());
         responseDto.setPatientDni(prescription.getPatient().getDni());
         responseDto.setDentistId(prescription.getDentist().getId());
-        responseDto.setDentistName(prescription.getDentist().getFirstName() + " " + prescription.getDentist().getLastName());
+        responseDto.setDentistName(dentistUser.getFirstName() + " " + dentistUser.getLastName());
         responseDto.setDentistLicenseNumber(prescription.getDentist().getLicenseNumber());
         responseDto.setDentistSpecialty(prescription.getDentist().getSpecialty());
         responseDto.setLastUpdatedDatetime(LocalDateTime.now());

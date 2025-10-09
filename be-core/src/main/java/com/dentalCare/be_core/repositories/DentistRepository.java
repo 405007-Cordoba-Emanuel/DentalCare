@@ -15,12 +15,12 @@ public interface DentistRepository extends JpaRepository<Dentist, Long> {
 
     boolean existsByLicenseNumber(String licenseNumber);
 
-    boolean existsByEmail(String email);
+    Optional<Dentist> findByUserId(Long userId);
 
-    @Query("SELECT o FROM Dentist o WHERE o.specialty = :specialty AND o.active = true")
+    @Query("SELECT d FROM Dentist d WHERE d.specialty = :specialty AND d.active = true")
     java.util.List<Dentist> findActiveBySpecialty(@Param("specialty") String specialty);
 
-    @Query("SELECT o FROM Dentist o WHERE o.active = true ORDER BY o.firstName, o.lastName")
+    @Query("SELECT d FROM Dentist d WHERE d.active = true")
     java.util.List<Dentist> findAllActive();
 
     @Query("SELECT COUNT(o) FROM Dentist o WHERE o.active = true")

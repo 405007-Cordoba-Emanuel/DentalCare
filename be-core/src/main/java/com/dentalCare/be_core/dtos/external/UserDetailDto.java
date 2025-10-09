@@ -1,25 +1,23 @@
-package com.dentalCare.be_core.dtos.response.dentist;
+package com.dentalCare.be_core.dtos.external;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
+import java.time.LocalDate;
+
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DentistResponseDto {
-
+public class UserDetailDto {
+    
     private Long id;
-    private Long userId;
     private String firstName;
     private String lastName;
     private String email;
     private String phone;
     private String address;
-    private String licenseNumber;
-    private String specialty;
-    private Boolean active;
-
+    private LocalDate birthDate;
+    private String role;
+    private Boolean isActive;
 }

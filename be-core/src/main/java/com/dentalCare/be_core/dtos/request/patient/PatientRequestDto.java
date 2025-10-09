@@ -15,13 +15,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class PatientRequestDto {
 
-    @NotBlank(message = "First name is required")
-    @Size(max = 100, message = "The first name cannot exceed 100 characters")
-    private String firstName;
-
-    @NotBlank(message = "Last name is required")
-    @Size(max = 100, message = "The last name cannot exceed 100 characters")
-    private String lastName;
+    @NotNull(message = "User ID is required")
+    private Long userId;
 
     @NotBlank(message = "DNI is required")
     @Size(max = 20, message = "DNI cannot exceed 20 characters")
@@ -32,16 +27,6 @@ public class PatientRequestDto {
     @Past(message = "Birth Date must be in the past")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
-
-    @Pattern(regexp = "^[+]?[0-9\\s\\-()]{7,20}$", message = "Invalid phone number format")
-    private String phone;
-
-    @Email(message = "Invalid email format")
-    @Size(max = 150, message = "The email cannot exceed 150 characters")
-    private String email;
-
-    @Size(max = 255, message = "The address cannot exceed 255 characters")
-    private String address;
 
     @NotNull(message = "Dentist ID is required")
     private Long dentistId;

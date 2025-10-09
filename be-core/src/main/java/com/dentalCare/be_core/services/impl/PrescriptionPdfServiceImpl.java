@@ -1,7 +1,9 @@
 package com.dentalCare.be_core.services.impl;
 
+import com.dentalCare.be_core.dtos.external.UserDetailDto;
 import com.dentalCare.be_core.entities.Prescription;
 import com.dentalCare.be_core.services.PrescriptionPdfService;
+import com.dentalCare.be_core.services.UserServiceClient;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -15,6 +17,7 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -25,11 +28,16 @@ import java.time.Period;
 @Slf4j
 public class PrescriptionPdfServiceImpl implements PrescriptionPdfService {
 
+    @Autowired
+    private UserServiceClient userServiceClient;
+
     @Override
     public byte[] generatePrescriptionPdf(Prescription prescription) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         try {
+            UserDetailDto dentistUser = userServiceClient.getUserById(prescription.getDentist().getUserId());
+            UserDetailDto patientUser = userServiceClient.getUserById(prescription.getPatient().getUserId());
             PdfWriter writer = new PdfWriter(baos);
             PdfDocument pdfDoc = new PdfDocument(writer);
             Document document = new Document(pdfDoc);
@@ -46,7 +54,7 @@ public class PrescriptionPdfServiceImpl implements PrescriptionPdfService {
                     .setTextAlignment(TextAlignment.CENTER)
                     .setMarginBottom(2));
 
-            document.add(new Paragraph("Dr./Dra. " + prescription.getDentist().getFirstName() + " " + prescription.getDentist().getLastName())
+            document.add(new Paragraph("Dr./Dra. " + dentistUser.getFirstName() + " " + dentistUser.getLastName())
                     .setFontSize(12)
                     .setTextAlignment(TextAlignment.CENTER)
                     .setMarginBottom(2));
@@ -63,14 +71,14 @@ public class PrescriptionPdfServiceImpl implements PrescriptionPdfService {
                         .setMarginBottom(2));
             }
 
-            if (prescription.getDentist().getPhone() != null || prescription.getDentist().getEmail() != null) {
+            if (dentistUser.getPhone() != null || dentistUser.getEmail() != null) {
                 String contactInfo = "";
-                if (prescription.getDentist().getPhone() != null) {
-                    contactInfo += "Tel: " + prescription.getDentist().getPhone();
+                if (dentistUser.getPhone() != null) {
+                    contactInfo += "Tel: " + dentistUser.getPhone();
                 }
-                if (prescription.getDentist().getEmail() != null) {
+                if (dentistUser.getEmail() != null) {
                     if (!contactInfo.isEmpty()) contactInfo += " | ";
-                    contactInfo += "Email: " + prescription.getDentist().getEmail();
+                    contactInfo += "Email: " + dentistUser.getEmail();
                 }
                 document.add(new Paragraph(contactInfo)
                         .setFontSize(8)
@@ -78,8 +86,8 @@ public class PrescriptionPdfServiceImpl implements PrescriptionPdfService {
                         .setMarginBottom(2));
             }
 
-            if (prescription.getDentist().getAddress() != null) {
-                document.add(new Paragraph(prescription.getDentist().getAddress())
+            if (dentistUser.getAddress() != null) {
+                document.add(new Paragraph(dentistUser.getAddress())
                         .setFontSize(8)
                         .setTextAlignment(TextAlignment.CENTER)
                         .setMarginBottom(5));
@@ -114,12 +122,12 @@ public class PrescriptionPdfServiceImpl implements PrescriptionPdfService {
             Table patientTable = new Table(2);
             patientTable.setWidth(UnitValue.createPercentValue(100));
             patientTable.addCell(createInfoCell("Nombre completo:", false));
-            patientTable.addCell(createInfoCell(prescription.getPatient().getFirstName() + " " + prescription.getPatient().getLastName(), true));
+            patientTable.addCell(createInfoCell(patientUser.getFirstName() + " " + patientUser.getLastName(), true));
             patientTable.addCell(createInfoCell("DNI:", false));
             patientTable.addCell(createInfoCell(prescription.getPatient().getDni(), true));
 
-            if (prescription.getPatient().getBirthDate() != null) {
-                int age = Period.between(prescription.getPatient().getBirthDate(), LocalDate.now()).getYears();
+            if (patientUser.getBirthDate() != null) {
+                int age = Period.between(patientUser.getBirthDate(), LocalDate.now()).getYears();
                 patientTable.addCell(createInfoCell("Edad:", false));
                 patientTable.addCell(createInfoCell(age + " años", true));
             }
