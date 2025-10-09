@@ -5,22 +5,14 @@
       <div class="logo-container">
         <app-icon name="shield" size="48" class="logo-icon"></app-icon>
       </div>
-      <h1 class="login-title">Crear Cuenta</h1>
+      <h1 class="login-title">
+        {{ userType === 'DENTIST' ? 'Registro de Dentista' : 'Registro de Paciente' }}
+      </h1>
       <p class="login-subtitle">Únete a DentalCare Pro</p>
     </div>
 
     <!-- Formulario de Registro -->
     <form class="login-form" (ngSubmit)="onSubmit()">
-      <!-- Tipo de Usuario -->
-      <mat-form-field class="form-field" appearance="outline">
-        <mat-label>Tipo de Usuario</mat-label>
-        <mat-select [(ngModel)]="userType" name="userType">
-          <mat-option value="Paciente">Paciente</mat-option>
-          <mat-option value="Dentista">Dentista</mat-option>
-        </mat-select>
-        <mat-icon matSuffix>person</mat-icon>
-      </mat-form-field>
-
       <!-- Nombre y Apellido -->
       <div class="name-fields">
         <mat-form-field class="form-field name-field" appearance="outline">

@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
 import { LoginComponent } from './components/auth/pacient-login/pacient-login.component';
-import { DentistLoginComponent } from './components/auth/dentist-login/dentist-login.component';
 import { RegisterComponent } from './components/auth/register/register.component';
 import { PatientDashboardComponent } from './components/dashboard/patient-dashboard/patient-dashboard.component';
 import { DentistDashboardComponent } from './components/dashboard/dentist-dashboard/dentist-dashboard.component';
@@ -21,9 +20,16 @@ import { FaqComponent } from './features/policies/components/faq/faq.component';
 export const routes: Routes = [
   // Páginas públicas sin layout
   { path: '', component: LandingPageComponent },
-  { path: 'pacient-login', component: LoginComponent },
-  { path: 'dentist-login', component: DentistLoginComponent },
-  { path: 'register', component: RegisterComponent },
+  
+  // Login único para ambos roles (paciente y dentista)
+  { path: 'login', component: LoginComponent },
+  { path: 'pacient-login', redirectTo: 'login', pathMatch: 'full' }, // Mantener compatibilidad
+  { path: 'dentist-login', redirectTo: 'login', pathMatch: 'full' }, // Mantener compatibilidad
+  
+  // Rutas de registro separadas por rol
+  { path: 'patient-register', component: RegisterComponent },
+  { path: 'dentist-register', component: RegisterComponent },
+  { path: 'register', redirectTo: 'patient-register', pathMatch: 'full' }, // Por defecto paciente
   
   // Policy pages (public access)
   { path: 'terms-conditions', component: TermsConditionsComponent },

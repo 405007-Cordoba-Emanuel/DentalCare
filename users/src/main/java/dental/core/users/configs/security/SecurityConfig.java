@@ -22,11 +22,6 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.Arrays;
 
 @Configuration
 @EnableMethodSecurity
@@ -61,7 +56,8 @@ public class SecurityConfig {
 						// Cualquier otra petición requiere autenticación
 						.anyRequest().authenticated())
 				.csrf(AbstractHttpConfigurer::disable)
-				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+				// CORS deshabilitado - el Gateway maneja CORS
+				.cors(AbstractHttpConfigurer::disable)
 				.sessionManagement(sessionManager -> sessionManager
 						.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authenticationProvider(authenticationProvider())
@@ -82,6 +78,9 @@ public class SecurityConfig {
 		return authProvider;
 	}
 
+	// CORS deshabilitado - el Gateway maneja CORS
+	// No es necesario configurar CORS en microservicios que están detrás del Gateway
+	/*
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
@@ -97,6 +96,7 @@ public class SecurityConfig {
 
 		return source;
 	}
+	*/
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {

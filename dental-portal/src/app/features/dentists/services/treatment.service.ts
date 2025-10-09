@@ -8,7 +8,7 @@ import { TreatmentResponse, TreatmentDetailResponse } from '../interfaces/treatm
 })
 export class TreatmentService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/dentist';
+  private apiUrl = 'http://localhost:8080/api/core/dentist';
 
   // Obtener tratamientos de un paciente específico
   getTreatmentsByPatient(dentistId: number, patientId: number): Observable<TreatmentResponse[]> {

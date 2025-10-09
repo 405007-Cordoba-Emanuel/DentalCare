@@ -398,3 +398,24 @@
     transform: translateY(0);
   }
 }
+
+/* Google Sign-In Button Container */
+.google-button-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0;
+  animation: fadeInUp 0.5s ease-out 0.7s both;
+}
+
+.google-button-container > div {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Override Google button styles for better integration */
+.google-button-container iframe {
+  margin: 0 auto;
+  display: block;
+}

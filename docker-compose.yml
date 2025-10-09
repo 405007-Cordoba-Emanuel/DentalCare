@@ -1,4 +1,7 @@
 services:
+  # ============================================
+  # Base de datos para Users Service
+  # ============================================
   mysql_users:
     image: mysql:8.0
     container_name: mysql_users
@@ -19,6 +22,9 @@ services:
       timeout: 5s
       retries: 5
 
+  # ============================================
+  # Base de datos para Core Service
+  # ============================================
   mysql_core:
     image: mysql:8.0
     container_name: mysql_core
@@ -38,6 +44,63 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  # ============================================
+  # Users Service - Autenticación y Usuarios
+  # ============================================
+  users-service:
+    build:
+      context: ./users
+      dockerfile: Dockerfile
+    container_name: users-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    ports:
+      - "8081:8081"
+    networks:
+      - dental-network
+    depends_on:
+      mysql_users:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ============================================
+  # BE-Core Service - Lógica de Negocio
+  # ============================================
+  be-core-service:
+    build:
+      context: ./be-core
+      dockerfile: Dockerfile
+    container_name: be-core-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    ports:
+      - "8082:8082"
+    networks:
+      - dental-network
+    depends_on:
+      mysql_core:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ============================================
+  # Gateway Service - API Gateway
+  # ============================================
+  gateway-service:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: gateway-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    ports:
+      - "8080:8080"
+    networks:
+      - dental-network
+    depends_on:
+      - users-service
+      - be-core-service
+    restart: unless-stopped
 
 volumes:
   mysql_users_data:

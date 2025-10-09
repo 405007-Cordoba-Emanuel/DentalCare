@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -9,6 +9,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { IconComponent } from '../../../shared/icon/icon.component';
+import { AuthService } from '../../../core/services/auth/auth.service';
+import { GoogleSignInService } from '../../../core/services/auth/google-signin.service';
+import { EmailAuthRequest } from '../../../interfaces/auth/auth-response.interface';
 
 @Component({
   selector: 'app-dentist-login',
@@ -22,23 +25,66 @@ import { IconComponent } from '../../../shared/icon/icon.component';
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
-    IconComponent
+    IconComponent,
   ],
   templateUrl: './dentist-login.component.html',
-  styleUrl: './dentist-login.component.css'
+  styleUrl: './dentist-login.component.css',
 })
-export class DentistLoginComponent {
+export class DentistLoginComponent implements AfterViewInit {
+  @ViewChild('googleButton') googleButton!: ElementRef;
+  
   hidePassword = true;
   userType = 'Dentista';
   email = '';
   password = '';
+  isLoading = false;
+  errorMessage = '';
+
   private router = inject(Router);
+  private authService = inject(AuthService);
+  private googleSignInService = inject(GoogleSignInService);
 
   onSubmit() {
     if (this.email && this.password) {
-      // Aquí iría la lógica de autenticación
-      console.log('Login del dentista:', { userType: this.userType, email: this.email });
-      this.router.navigate(['/dentist-dashboard']);
+      this.isLoading = true;
+      this.errorMessage = '';
+
+      const loginRequest: EmailAuthRequest = {
+        email: this.email,
+        password: this.password,
+      };
+
+      this.authService.login(loginRequest).subscribe({
+        next: (response) => {
+          console.log('Login exitoso:', response);
+
+          // Redirigir según el rol
+          if (response.role === 'DENTIST') {
+            this.router.navigate(['/dentist-dashboard']);
+          } else if (response.role === 'PATIENT') {
+            this.router.navigate(['/patient-dashboard']);
+          } else {
+            this.router.navigate(['/dashboard']);
+          }
+        },
+        error: (error) => {
+          console.error('Error en login:', error);
+          this.isLoading = false;
+
+          // Manejar diferentes tipos de errores
+          if (error.status === 401) {
+            this.errorMessage = 'Email o contraseña incorrectos';
+          } else if (error.status === 0) {
+            this.errorMessage = 'Error de conexión con el servidor';
+          } else {
+            this.errorMessage =
+              error.error?.message || 'Error al iniciar sesión';
+          }
+        },
+        complete: () => {
+          this.isLoading = false;
+        },
+      });
     }
   }
 
@@ -48,5 +94,17 @@ export class DentistLoginComponent {
 
   goBack() {
     this.router.navigate(['/']);
+  }
+
+  ngAfterViewInit(): void {
+    // Inicializar y renderizar el botón de Google
+    this.googleSignInService.initializeGoogleSignIn();
+    
+    // Pequeño delay para asegurar que Google esté completamente cargado
+    setTimeout(() => {
+      if (this.googleButton && this.googleButton.nativeElement) {
+        this.googleSignInService.renderButton(this.googleButton.nativeElement);
+      }
+    }, 100);
   }
 }

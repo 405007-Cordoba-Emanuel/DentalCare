@@ -8,13 +8,21 @@ import { BaseAuthService } from './base-auth.service';
   providedIn: 'root',
 })
 export class GoogleAuthService extends BaseAuthService {
-  private readonly API_URL = GOOGLE_CONFIG.API_BASE_URL;
+  private readonly API_URL = 'http://localhost:8080/api/users/auth/google';
 
   loginWithGoogle(idToken: string): Observable<AuthResponse> {
     const googleAuthRequest: GoogleAuthRequest = { idToken };
 
+    // Debug: Log the request details
+    console.log('Making Google auth request to:', `${this.API_URL}/login`);
+    console.log('Request payload:', googleAuthRequest);
+
     return this.handleAuthRequest(
-      this.http.post<AuthResponse>(`${this.API_URL}/auth/google/login`, googleAuthRequest),
+      this.http.post<AuthResponse>(`${this.API_URL}/login`, googleAuthRequest, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }),
       'Inicio de sesión con Google exitoso'
     );
   }

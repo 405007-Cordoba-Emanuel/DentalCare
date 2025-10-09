@@ -7,7 +7,7 @@ import { BaseAuthService } from './base-auth.service';
   providedIn: 'root',
 })
 export class AuthService extends BaseAuthService {
-  private apiUrl: string = 'http://localhost:8080/api';
+  private apiUrl: string = 'http://localhost:8080/api/users/auth';
 
   login(loginRequest: EmailAuthRequest): Observable<AuthResponse> {
     return this.handleAuthRequest(

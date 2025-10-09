@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 })
 export class UserService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/v1/users';
+  private apiUrl = 'http://localhost:8080/api/users';
 
   getUser(): Observable<UserProfileRequest> {
     return this.http.get<UserProfileRequest>(`${this.apiUrl}`);

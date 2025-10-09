@@ -11,6 +11,14 @@
 
     <!-- Formulario de Login -->
     <form class="login-form" (ngSubmit)="onSubmit()">
+      <!-- Mensaje de Error -->
+      @if (errorMessage) {
+        <div class="error-message bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <mat-icon class="inline-block align-middle mr-2">error</mat-icon>
+          <span class="align-middle">{{ errorMessage }}</span>
+        </div>
+      }
+
       <!-- Tipo de Usuario -->
       <mat-form-field class="form-field" appearance="outline">
         <mat-label>Tipo de Usuario</mat-label>
@@ -29,6 +37,7 @@
           [(ngModel)]="email" 
           name="email"
           placeholder="tu@email.com"
+          [disabled]="isLoading"
           required
         >
         <mat-icon matSuffix>email</mat-icon>
@@ -42,6 +51,7 @@
           [type]="hidePassword ? 'password' : 'text'"
           [(ngModel)]="password" 
           name="password"
+          [disabled]="isLoading"
           required
         >
         <button 
@@ -49,6 +59,7 @@
           matSuffix 
           (click)="hidePassword = !hidePassword" 
           type="button"
+          [disabled]="isLoading"
           [attr.aria-label]="'Hide password'"
           [attr.aria-pressed]="hidePassword"
         >
@@ -62,10 +73,29 @@
         color="primary" 
         type="submit"
         class="login-button"
-        [disabled]="!email || !password"
+        [disabled]="!email || !password || isLoading"
       >
-        Iniciar Sesión
+        @if (isLoading) {
+          <ng-container>
+            <mat-icon class="inline-block mr-2">refresh</mat-icon>
+            <span>Iniciando sesión...</span>
+          </ng-container>
+        } @else {
+          <span>Iniciar Sesión</span>
+        }
       </button>
+
+      <!-- Divider -->
+      <div class="flex items-center my-6">
+        <div class="flex-1 border-t border-gray-300"></div>
+        <span class="px-4 text-gray-500 text-sm">O continúa con</span>
+        <div class="flex-1 border-t border-gray-300"></div>
+      </div>
+
+      <!-- Google Sign-In Button -->
+      <div class="google-button-container">
+        <div #googleButton class="w-full flex justify-center"></div>
+      </div>
     </form>
 
     <!-- Enlaces de Navegación -->

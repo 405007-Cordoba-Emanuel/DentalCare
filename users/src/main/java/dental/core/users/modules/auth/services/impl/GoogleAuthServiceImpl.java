@@ -107,9 +107,11 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
             log.info("Successful authentication for user: {}", email);
             return AuthResponse.builder()
                     .token(token)
-                    .firstName(user.getName())
+                    .firstName(user.getFirstName())
+                    .lastName(user.getLastName())
                     .email(user.getEmail())
                     .picture(user.getPicture())
+                    .role(user.getRole())
                     .build();
 
         } catch (Exception e) {
@@ -126,8 +128,17 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
             // Update user information if needed
             boolean updated = false;
             
-            if (name != null && !name.equals(user.getName())) {
-                user.setName(name);
+            // Split name into firstName and lastName
+            String[] nameParts = splitName(name);
+            String firstName = nameParts[0];
+            String lastName = nameParts[1];
+            
+            if (firstName != null && !firstName.equals(user.getFirstName())) {
+                user.setFirstName(firstName);
+                updated = true;
+            }
+            if (lastName != null && !lastName.equals(user.getLastName())) {
+                user.setLastName(lastName);
                 updated = true;
             }
             if (picture != null && !picture.equals(user.getPicture())) {
@@ -142,17 +153,46 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
             
             return user;
         } else {
+            // Split name into firstName and lastName
+            String[] nameParts = splitName(name);
+            String firstName = nameParts[0];
+            String lastName = nameParts[1];
+            
             UserEntity newUser = UserEntity.builder()
                     .email(email)
-                    .name(name != null ? name : email)
+                    .firstName(firstName)
+                    .lastName(lastName)
                     .picture(picture)
                     .role(Role.PATIENT)
+                    .isActive(true)
                     .build();
             
             UserEntity savedUser = userRepository.save(newUser);
             log.info("Created new user: {}", email);
             return savedUser;
         }
+    }
+    
+    /**
+     * Splits a full name into first name and last name
+     * @param fullName The full name to split
+     * @return Array with [firstName, lastName]
+     */
+    private String[] splitName(String fullName) {
+        if (fullName == null || fullName.trim().isEmpty()) {
+            return new String[]{"User", "Unknown"};
+        }
+        
+        String[] parts = fullName.trim().split("\\s+", 2);
+        String firstName = parts[0];
+        String lastName = parts.length > 1 ? parts[1] : "";
+        
+        // If lastName is empty, use a default
+        if (lastName.isEmpty()) {
+            lastName = "User";
+        }
+        
+        return new String[]{firstName, lastName};
     }
     
     private AuthResponse handleTestToken() {

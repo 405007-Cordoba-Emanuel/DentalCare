@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  # Build Gateway
+  build-gateway:
+    image: maven:3.9-eclipse-temurin-17
+    working_dir: /app
+    volumes:
+      - ./gateway:/app
+      - maven-repo:/root/.m2
+    command: mvn clean package -DskipTests
+    
+  # Build Users
+  build-users:
+    image: maven:3.9-eclipse-temurin-17
+    working_dir: /app
+    volumes:
+      - ./users:/app
+      - maven-repo:/root/.m2
+    command: mvn clean package -DskipTests
+    
+  # Build Be-Core
+  build-be-core:
+    image: maven:3.9-eclipse-temurin-17
+    working_dir: /app
+    volumes:
+      - ./be-core:/app
+      - maven-repo:/root/.m2
+    command: mvn clean package -DskipTests
+
+volumes:
+  maven-repo:
+

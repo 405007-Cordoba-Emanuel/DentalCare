@@ -81,13 +81,18 @@ public class AuthServiceImpl implements AuthService {
             throw new UserAlreadyExistsException("Email already registered");
         }
 
-        // Crear nuevo usuario
+        // Validar que el rol sea PATIENT o DENTIST (no permitir ADMIN desde registro público)
+        if (registerRequest.getRole() != Role.PATIENT && registerRequest.getRole() != Role.DENTIST) {
+            throw new CustomAuthenticationException("Invalid role. Only PATIENT and DENTIST roles are allowed for registration");
+        }
+
+        // Crear nuevo usuario con el rol especificado
         UserEntity newUser = UserEntity.builder()
             .firstName(registerRequest.getFirstName())
             .lastName(registerRequest.getLastName())
             .email(registerRequest.getEmail())
             .password(passwordEncoder.encode(registerRequest.getPassword()))
-            .role(Role.PATIENT) // Por defecto, los usuarios registrados son PATIENT
+            .role(registerRequest.getRole()) // Usar el rol enviado por la API
             .isActive(true)
             .lastLogin(LocalDateTime.now())
             .build();
@@ -104,6 +109,7 @@ public class AuthServiceImpl implements AuthService {
             .lastName(savedUser.getLastName())
             .email(savedUser.getEmail())
             .picture(savedUser.getPicture())
+            .role(savedUser.getRole())
             .build();
     }
 }

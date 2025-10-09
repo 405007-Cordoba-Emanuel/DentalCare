@@ -4,7 +4,7 @@ export interface AuthResponse {
   firstName: string;
   lastName: string;
   email: string;
-  picture: string;
+  picture: string | null;
   role: string;
   authorized?: boolean;
   authorizationUrl?: string;
@@ -31,4 +31,5 @@ export interface EmailRegisterRequest {
   email: string;
   password: string;
   confirmPassword: string;
+  role: string;
 }

@@ -1,7 +1,9 @@
 package dental.core.users.modules.auth.dto;
 
+import dental.core.users.entities.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,4 +38,7 @@ public class RegisterRequest {
 
     @NotBlank(message = "Password confirmation is required")
     private String confirmPassword;
+
+    @NotNull(message = "Role is required")
+    private Role role;
 }

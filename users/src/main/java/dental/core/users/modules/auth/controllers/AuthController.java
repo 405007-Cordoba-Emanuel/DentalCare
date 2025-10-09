@@ -7,7 +7,6 @@ import dental.core.users.modules.auth.services.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,11 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Controlador para manejar la autenticación de usuarios.
  * Proporciona endpoints para login y registro con email y password.
+ * CORS es manejado por el Gateway - no configurar aquí
  */
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class AuthController {
 
     private final AuthService authService;

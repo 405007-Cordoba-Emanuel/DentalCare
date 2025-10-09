@@ -9,7 +9,7 @@ import { DentistPatientsResponse } from '../interfaces/patient.interface';
 })
 export class DentistService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/dentist';
+  private apiUrl = 'http://localhost:8080/api/core/dentist';
 
   // Obtener datos del odontólogo por ID
   getDentistById(id: number): Observable<DentistResponse> {

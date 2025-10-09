@@ -7,6 +7,6 @@ WORKDIR /app
 
 COPY target/*.jar app.jar
 # Los tres usan lo mismo, solo cambia el path del jar
-EXPOSE 8083
+EXPOSE 8082
 
 ENTRYPOINT ["java","-jar","app.jar"]
