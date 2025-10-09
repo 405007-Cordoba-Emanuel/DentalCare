@@ -33,7 +33,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/dentist")
+@RequestMapping("/api/core/dentist")
 @Slf4j
 @Validated
 @Tag(name = "Dentist", description = "API for dentist management")

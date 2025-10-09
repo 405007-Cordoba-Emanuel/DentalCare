@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  * CORS es manejado por el Gateway - no configurar aquí
  */
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/users/auth")
 @RequiredArgsConstructor
 public class AuthController {
 

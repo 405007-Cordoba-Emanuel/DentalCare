@@ -1,27 +1,43 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { User } from '../../../interfaces/user/user.interface';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LocalStorageService {
+
+  private platformId = inject(PLATFORM_ID);
+
   setAuthToken(token: string) {
-    localStorage.setItem('authToken', token);
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('authToken', token);
+    }
   }
 
   setUserData(user: User) {
-    localStorage.setItem('user', JSON.stringify(user));
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('user', JSON.stringify(user));
+    }
   }
 
   getAuthToken() {
-    return localStorage.getItem('authToken');
+    if (isPlatformBrowser(this.platformId)) {
+      return localStorage.getItem('authToken');
+    }
+    return null;
   }
 
   getUserData() {
-    return localStorage.getItem('user');
+    if (isPlatformBrowser(this.platformId)) {
+      return localStorage.getItem('user');
+    }
+    return null;
   }
 
   clearLocalStorage() {
-    localStorage.clear();
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.clear();
+    }
   }
 }

@@ -49,8 +49,9 @@ public class SecurityConfig {
 								"/v3/api-docs/swagger-config").permitAll()
 						// H2 Console
 						.requestMatchers("/h2-console/**").permitAll()
-						// Endpoints de autenticación
+						// Endpoints de autenticación (ambas rutas)
 						.requestMatchers("/api/auth/**").permitAll()
+						.requestMatchers("/api/users/auth/**").permitAll()
 						// Actuator endpoints para health checks
 						.requestMatchers("/api/health").permitAll()
 						// Cualquier otra petición requiere autenticación

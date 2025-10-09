@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/health")
+@RequestMapping("/api/users/api/health")
 @RequiredArgsConstructor
 @Tag(name = "Health", description = "Health endpoints")
 public class HealthController {

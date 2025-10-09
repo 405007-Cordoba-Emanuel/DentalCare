@@ -29,21 +29,19 @@ public class GatewayConfig {
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
                 // Ruta para users-service (login, register, etc.)
-                // /api/users/auth/login -> stripPrefix(2) -> /auth/login -> users:8081/api/auth/login
+                // /api/users/** -> users:8081/api/users/** (sin cambios en el path)
                 .route("users-service", r -> r
                         .path("/api/users/**")
                         .filters(f -> f
-                                .stripPrefix(2) // Elimina /api/users del path
-                                .rewritePath("/(?<segment>.*)", "/api/${segment}")
                                 .addRequestHeader("X-Gateway", "dental-gateway")
                         )
                         .uri(usersServiceUrl)
                 )
                 // Ruta para be-core-service (lógica de negocio)
+                // /api/core/** -> be-core:8082/api/core/** (sin cambios en el path)
                 .route("core-service", r -> r
                         .path("/api/core/**")
                         .filters(f -> f
-                                .stripPrefix(2) // Elimina /api/core del path
                                 .addRequestHeader("X-Gateway", "dental-gateway")
                         )
                         .uri(coreServiceUrl)

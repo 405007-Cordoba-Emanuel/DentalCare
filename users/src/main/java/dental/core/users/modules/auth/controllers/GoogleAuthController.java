@@ -19,7 +19,7 @@ import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/auth/google")
+@RequestMapping("/api/users/auth/google")
 @RequiredArgsConstructor
 public class GoogleAuthController {
 

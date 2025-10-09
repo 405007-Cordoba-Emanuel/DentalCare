@@ -23,7 +23,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/patient")
+@RequestMapping("/api/core/patient")
 @Slf4j
 @Validated
 @Tag(name = "Patient", description = "API for patient management")
