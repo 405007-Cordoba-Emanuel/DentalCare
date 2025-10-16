@@ -6,10 +6,12 @@ import com.dentalCare.be_core.dtos.response.patient.PatientResponseDto;
 import com.dentalCare.be_core.dtos.response.prescription.PrescriptionResponseDto;
 import com.dentalCare.be_core.dtos.response.treatment.TreatmentDetailResponseDto;
 import com.dentalCare.be_core.dtos.response.treatment.TreatmentResponseDto;
+import com.dentalCare.be_core.dtos.response.appointment.AppointmentResponseDto;
 import com.dentalCare.be_core.services.MedicalHistoryService;
 import com.dentalCare.be_core.services.PatientService;
 import com.dentalCare.be_core.services.PrescriptionService;
 import com.dentalCare.be_core.services.TreatmentService;
+import com.dentalCare.be_core.services.AppointmentService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -40,6 +42,9 @@ public class PatientController {
 
     @Autowired
     private TreatmentService treatmentService;
+
+    @Autowired
+    private AppointmentService appointmentService;
 
 
     /**
@@ -217,6 +222,69 @@ public class PatientController {
             @PathVariable Long treatmentId) {
         TreatmentDetailResponseDto treatment = treatmentService.getTreatmentDetailByIdForPatient(treatmentId, id);
         return ResponseEntity.ok(treatment);
+    }
+
+    /**
+     * Ver Todos los Turnos del Paciente
+     * El paciente consulta todos sus turnos con el dentista.
+     * Los turnos se ordenan por fecha/hora de inicio (más próximos primero).
+     * Incluye turnos de todos los estados (programados, confirmados, completados, etc.).
+     */
+    @GetMapping("/{id}/appointments")
+    public ResponseEntity<List<AppointmentResponseDto>> getAppointmentsByPatientId(
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long id) {
+        List<AppointmentResponseDto> appointments = appointmentService.getAppointmentsByPatientId(id);
+        return ResponseEntity.ok(appointments);
+    }
+
+    /**
+     * Ver Próximos Turnos del Paciente
+     * El paciente consulta únicamente sus turnos futuros (que aún no han ocurrido).
+     * Útil para recordar las próximas citas programadas.
+     */
+    @GetMapping("/{id}/appointments/upcoming")
+    public ResponseEntity<List<AppointmentResponseDto>> getUpcomingAppointmentsByPatientId(
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long id) {
+        List<AppointmentResponseDto> appointments = appointmentService.getUpcomingAppointmentsByPatientId(id);
+        return ResponseEntity.ok(appointments);
+    }
+
+    /**
+     * Ver Detalle de un Turno
+     * El paciente consulta la información completa de un turno específico.
+     * Incluye fecha/hora, motivo, observaciones del dentista y datos del profesional.
+     */
+    @GetMapping("/{id}/appointments/{appointmentId}")
+    public ResponseEntity<AppointmentResponseDto> getAppointmentByIdAndPatientId(
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Appointment ID", required = true)
+            @PathVariable Long appointmentId) {
+        AppointmentResponseDto appointment = appointmentService.getAppointmentByIdAndPatientId(appointmentId, id);
+        return ResponseEntity.ok(appointment);
+    }
+
+    /**
+     * Contar Turnos del Paciente por Estado
+     * El paciente puede ver cuántos turnos tiene en cada estado.
+     * Estados: SCHEDULED, CONFIRMED, COMPLETED, CANCELLED, NO_SHOW.
+     * Si no se especifica estado, cuenta todos los turnos activos.
+     */
+    @GetMapping("/{id}/appointments/count")
+    public ResponseEntity<Long> countAppointmentsByStatus(
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Status filter (optional)", required = false)
+            @RequestParam(required = false) com.dentalCare.be_core.entities.AppointmentStatus status) {
+        long count;
+        if (status != null) {
+            count = appointmentService.countAppointmentsByPatientIdAndStatus(id, status);
+        } else {
+            count = appointmentService.getAppointmentsByPatientId(id).size();
+        }
+        return ResponseEntity.ok(count);
     }
 
 }

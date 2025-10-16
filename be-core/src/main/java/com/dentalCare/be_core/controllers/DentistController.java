@@ -6,6 +6,8 @@ import com.dentalCare.be_core.dtos.request.patient.PatientRequestDto;
 import com.dentalCare.be_core.dtos.request.medicalhistory.MedicalHistoryRequestDto;
 import com.dentalCare.be_core.dtos.request.prescription.PrescriptionRequestDto;
 import com.dentalCare.be_core.dtos.request.treatment.TreatmentRequestDto;
+import com.dentalCare.be_core.dtos.request.appointment.AppointmentRequestDto;
+import com.dentalCare.be_core.dtos.request.appointment.AppointmentUpdateRequestDto;
 import com.dentalCare.be_core.dtos.response.dentist.DentistResponseDto;
 import com.dentalCare.be_core.dtos.response.dentist.DentistPatientsResponseDto;
 import com.dentalCare.be_core.dtos.response.medicalhistory.MedicalHistoryResponseDto;
@@ -13,11 +15,14 @@ import com.dentalCare.be_core.dtos.response.patient.PatientResponseDto;
 import com.dentalCare.be_core.dtos.response.prescription.PrescriptionResponseDto;
 import com.dentalCare.be_core.dtos.response.treatment.TreatmentDetailResponseDto;
 import com.dentalCare.be_core.dtos.response.treatment.TreatmentResponseDto;
+import com.dentalCare.be_core.dtos.response.appointment.AppointmentResponseDto;
+import com.dentalCare.be_core.dtos.response.appointment.AppointmentCalendarDto;
 import com.dentalCare.be_core.services.DentistService;
 import com.dentalCare.be_core.services.MedicalHistoryService;
 import com.dentalCare.be_core.services.PrescriptionPdfService;
 import com.dentalCare.be_core.services.PrescriptionService;
 import com.dentalCare.be_core.services.TreatmentService;
+import com.dentalCare.be_core.services.AppointmentService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -29,6 +34,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -53,6 +59,9 @@ public class DentistController {
 
     @Autowired
     private PrescriptionPdfService prescriptionPdfService;
+
+    @Autowired
+    private AppointmentService appointmentService;
 
     /**
      * Alta de Dentista
@@ -595,6 +604,218 @@ public class DentistController {
             @PathVariable Long treatmentId) {
         treatmentService.deleteTreatment(treatmentId, id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Crear Nuevo Turno
+     * El dentista crea un nuevo turno para uno de sus pacientes.
+     * Define fecha/hora de inicio, duración, motivo y observaciones.
+     * Valida que no haya conflictos de horario con otros turnos.
+     */
+    @PostMapping("/{id}/appointments")
+    public ResponseEntity<AppointmentResponseDto> createAppointment(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Valid @RequestBody AppointmentRequestDto appointmentRequestDto) {
+        try {
+            AppointmentResponseDto appointment = appointmentService.createAppointmentForDentist(id, appointmentRequestDto);
+            return ResponseEntity.ok(appointment);
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Internal error creating appointment", e);
+        }
+    }
+
+    /**
+     * Ver Todos los Turnos del Dentista
+     * Retorna todos los turnos del dentista ordenados por fecha/hora de inicio.
+     * Incluye turnos de todos los pacientes y todos los estados.
+     */
+    @GetMapping("/{id}/appointments")
+    public ResponseEntity<List<AppointmentResponseDto>> getAppointmentsByDentistId(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id) {
+        List<AppointmentResponseDto> appointments = appointmentService.getAppointmentsByDentistId(id);
+        return ResponseEntity.ok(appointments);
+    }
+
+    /**
+     * Ver Turnos de un Paciente Específico
+     * Retorna todos los turnos que el dentista tiene con un paciente en particular.
+     * Útil para ver el historial de citas de un paciente específico.
+     */
+    @GetMapping("/{id}/appointments/patient/{patientId}")
+    public ResponseEntity<List<AppointmentResponseDto>> getAppointmentsByPatientId(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long patientId) {
+        List<AppointmentResponseDto> appointments = appointmentService.getAppointmentsByDentistIdAndPatientId(id, patientId);
+        return ResponseEntity.ok(appointments);
+    }
+
+    /**
+     * Ver Detalle de un Turno
+     * Obtiene la información completa de un turno específico.
+     * Incluye datos del paciente, fecha/hora, motivo y observaciones.
+     */
+    @GetMapping("/{id}/appointments/{appointmentId}")
+    public ResponseEntity<AppointmentResponseDto> getAppointmentById(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Appointment ID", required = true)
+            @PathVariable Long appointmentId) {
+        AppointmentResponseDto appointment = appointmentService.getAppointmentByIdAndDentistId(appointmentId, id);
+        return ResponseEntity.ok(appointment);
+    }
+
+    /**
+     * Modificar Turno Existente
+     * Actualiza los datos de un turno (fecha/hora, motivo, observaciones).
+     * Valida que no haya conflictos de horario con otros turnos.
+     */
+    @PutMapping("/{id}/appointments/{appointmentId}")
+    public ResponseEntity<AppointmentResponseDto> updateAppointment(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Appointment ID", required = true)
+            @PathVariable Long appointmentId,
+            @Valid @RequestBody AppointmentUpdateRequestDto appointmentUpdateRequestDto) {
+        try {
+            AppointmentResponseDto appointment = appointmentService.updateAppointment(appointmentId, id, appointmentUpdateRequestDto);
+            return ResponseEntity.ok(appointment);
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Internal error updating appointment", e);
+        }
+    }
+
+    /**
+     * Cambiar Estado del Turno
+     * Actualiza únicamente el estado de un turno.
+     * Estados válidos: SCHEDULED, CONFIRMED, COMPLETED, CANCELLED, NO_SHOW.
+     */
+    @PutMapping("/{id}/appointments/{appointmentId}/status")
+    public ResponseEntity<AppointmentResponseDto> updateAppointmentStatus(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Appointment ID", required = true)
+            @PathVariable Long appointmentId,
+            @Parameter(description = "New status", required = true)
+            @RequestParam("status") com.dentalCare.be_core.entities.AppointmentStatus status) {
+        try {
+            AppointmentResponseDto appointment = appointmentService.updateAppointmentStatus(appointmentId, id, status);
+            return ResponseEntity.ok(appointment);
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Internal error updating appointment status", e);
+        }
+    }
+
+    /**
+     * Cancelar Turno
+     * Realiza una eliminación lógica de un turno (campo active = false).
+     * El turno no se borra físicamente, solo se marca como inactivo.
+     */
+    @DeleteMapping("/{id}/appointments/{appointmentId}")
+    public ResponseEntity<Void> cancelAppointment(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Appointment ID", required = true)
+            @PathVariable Long appointmentId) {
+        appointmentService.cancelAppointment(appointmentId, id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Ver Agenda Mensual
+     * Retorna todos los turnos del dentista para un mes específico.
+     * Formato optimizado para mostrar en calendario mensual.
+     */
+    @GetMapping("/{id}/appointments/month")
+    public ResponseEntity<List<AppointmentCalendarDto>> getMonthlyAppointments(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Year", required = true)
+            @RequestParam int year,
+            @Parameter(description = "Month (1-12)", required = true)
+            @RequestParam int month) {
+        List<AppointmentCalendarDto> appointments = appointmentService.getMonthlyAppointments(id, year, month);
+        return ResponseEntity.ok(appointments);
+    }
+
+    /**
+     * Ver Agenda Semanal
+     * Retorna todos los turnos del dentista para una semana específica.
+     * Formato optimizado para mostrar en vista semanal.
+     */
+    @GetMapping("/{id}/appointments/week")
+    public ResponseEntity<List<AppointmentCalendarDto>> getWeeklyAppointments(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Start date of the week", required = true)
+            @RequestParam LocalDate startDate) {
+        List<AppointmentCalendarDto> appointments = appointmentService.getWeeklyAppointments(id, startDate);
+        return ResponseEntity.ok(appointments);
+    }
+
+    /**
+     * Ver Agenda Diaria
+     * Retorna todos los turnos del dentista para un día específico.
+     * Formato optimizado para mostrar en vista diaria.
+     */
+    @GetMapping("/{id}/appointments/day")
+    public ResponseEntity<List<AppointmentCalendarDto>> getDailyAppointments(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Date", required = true)
+            @RequestParam LocalDate date) {
+        List<AppointmentCalendarDto> appointments = appointmentService.getDailyAppointments(id, date);
+        return ResponseEntity.ok(appointments);
+    }
+
+    /**
+     * Verificar Conflicto de Horario
+     * Verifica si existe conflicto de horario para un dentista en un rango de tiempo específico.
+     * Útil para validar disponibilidad antes de crear/modificar turnos.
+     */
+    @GetMapping("/{id}/appointments/conflict-check")
+    public ResponseEntity<Boolean> checkTimeConflict(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Start time (format: yyyy-MM-ddTHH:mm:ss)", required = true)
+            @RequestParam String startTime,
+            @Parameter(description = "End time (format: yyyy-MM-ddTHH:mm:ss)", required = true)
+            @RequestParam String endTime) {
+        // Parse the datetime strings
+        java.time.LocalDateTime start = java.time.LocalDateTime.parse(startTime);
+        java.time.LocalDateTime end = java.time.LocalDateTime.parse(endTime);
+        
+        boolean hasConflict = appointmentService.hasTimeConflict(id, start, end);
+        return ResponseEntity.ok(hasConflict);
+    }
+
+    /**
+     * Contar Turnos por Estado
+     * Retorna el número de turnos del dentista filtrado por estado específico.
+     * Si no se especifica estado, cuenta todos los turnos activos.
+     */
+    @GetMapping("/{id}/appointments/count")
+    public ResponseEntity<Long> countAppointmentsByStatus(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Status filter (optional)", required = false)
+            @RequestParam(required = false) com.dentalCare.be_core.entities.AppointmentStatus status) {
+        long count;
+        if (status != null) {
+            count = appointmentService.countAppointmentsByDentistIdAndStatus(id, status);
+        } else {
+            count = appointmentService.getAppointmentsByDentistId(id).size();
+        }
+        return ResponseEntity.ok(count);
     }
 
 }
