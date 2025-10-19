@@ -47,11 +47,10 @@ export class HandlerService {
 
   handleAuthResponse(response: AuthResponse): void {
     const user: User = {
-      id: 0,
+      id: response.id,
       firstName: response.firstName,
       lastName: response.lastName,
       email: response.email,
-      profileImage: '',
       picture: response.picture,
       role: response.role,
       token: response.token,

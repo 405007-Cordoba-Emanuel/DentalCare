@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,6 +9,9 @@ import { MatTableModule } from '@angular/material/table';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
+import { DentistService } from '../../../features/dentists/services/dentist.service';
+import { PatientSummary } from '../../../features/dentists/interfaces/patient.interface';
+import { LocalStorageService } from '../../../core/services/auth/local-storage.service';
 
 @Component({
   selector: 'app-dentist-dashboard',
@@ -28,7 +31,25 @@ import { MatDividerModule } from '@angular/material/divider';
   styleUrl: './dentist-dashboard.component.css'
 })
 export class DentistDashboardComponent {
-  constructor(private router: Router) {}
+  router = inject(Router);
+  dentistService = inject(DentistService);
+  route = inject(ActivatedRoute);
+  localStorage = inject(LocalStorageService);
+  dentistId = this.localStorage.getDentistId();
+
+
+  patients: PatientSummary[] = [];
+  
+  loadPatients(dentistId: number) {
+    this.dentistService.getActivePatientsByDentistId(dentistId).subscribe({
+      next: (response) => {
+        this.patients = response.patients;
+      },
+      error: (error) => {
+        console.error('Error loading patients:', error);
+      }
+    });
+  }
 
   // Datos mock para el dashboard
   upcomingAppointments = [
@@ -68,11 +89,6 @@ export class DentistDashboardComponent {
     monthlyRevenue: 12500
   };
 
-  createNewAppointment() {
-    // Lógica para crear nueva cita
-    console.log('Crear nueva cita');
-  }
-
   viewPatientDetails(patientId: number) {
     // Lógica para ver detalles del paciente
     console.log('Ver paciente:', patientId);
@@ -80,5 +96,10 @@ export class DentistDashboardComponent {
 
   logout() {
     this.router.navigate(['/']);
+  }
+
+  navigateToCreateAppointment() {
+    this.router.navigate(['/dentist/appointments/create']);
+    console.log('Navigating to create appointment for dentist:', this.dentistId);
   }
 }

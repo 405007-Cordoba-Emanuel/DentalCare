@@ -9,17 +9,36 @@ export const roleGuard: CanActivateFn = (route) => {
   const authService = inject(AuthService);
 
   const currentUser = authService.currentUser;
+  const allowedRoles = route.data?.['roles'] as string[];
   const currentPath = route.routeConfig?.path || '';
 
   if (!currentUser) {
     snackBar.open('Debes iniciar sesión para acceder a esta página', 'Cerrar', {
       duration: 3000,
     });
-    router.navigate(['/auth/login']);
+    router.navigate(['/login']);
     return false;
   }
 
   const userRole = currentUser.role || 'PATIENT';
+
+  // Si se especificaron roles permitidos, verificar si el usuario tiene uno de ellos
+  if (allowedRoles && allowedRoles.length > 0) {
+    if (!allowedRoles.includes(userRole)) {
+      snackBar.open('No tienes permisos para acceder a esta página', 'Cerrar', {
+        duration: 3000,
+      });
+      
+      // Redirigir al dashboard apropiado según el rol
+      if (userRole === 'DENTIST') {
+        router.navigate(['/dentist']);
+      } else {
+        router.navigate(['/patient']);
+      }
+      return false;
+    }
+    return true;
+  }
 
   // ADMIN puede acceder a todas las rutas
   if (userRole === 'ADMIN') {
@@ -32,7 +51,7 @@ export const roleGuard: CanActivateFn = (route) => {
       snackBar.open('No tienes permisos para acceder a esta página', 'Cerrar', {
         duration: 3000,
       });
-      router.navigate(['/dashboard']);
+      router.navigate(['/dentist']);
       return false;
     }
     return true;
@@ -44,7 +63,7 @@ export const roleGuard: CanActivateFn = (route) => {
       snackBar.open('No tienes permisos para acceder a esta página', 'Cerrar', {
         duration: 3000,
       });
-      router.navigate(['/dashboard']);
+      router.navigate(['/patient']);
       return false;
     }
     return true;
@@ -54,6 +73,6 @@ export const roleGuard: CanActivateFn = (route) => {
   snackBar.open('No tienes permisos para acceder a esta página', 'Cerrar', {
     duration: 3000,
   });
-  router.navigate(['/dashboard']);
+  router.navigate(['/patient']);
   return false;
 }; 

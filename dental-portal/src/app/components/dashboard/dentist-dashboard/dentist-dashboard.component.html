@@ -11,8 +11,8 @@
           <button 
             mat-raised-button 
             color="primary"
-            (click)="createNewAppointment()"
             class="bg-blue-600 hover:bg-blue-700 text-white"
+            (click)="navigateToCreateAppointment()"
           >
             <mat-icon>add</mat-icon>
             Nueva Cita
@@ -27,6 +27,7 @@
         </div>
       </div>
     </div>
+
 
     <!-- Estadísticas Principales -->
     <div class="stats-grid">
@@ -52,7 +53,7 @@
               <mat-icon class="stat-icon">people</mat-icon>
             </div>
             <div class="stat-info">
-              <h3 class="stat-number">{{ stats.totalPatients }}</h3>
+              <h3 class="stat-number">{{ patients.length }}</h3>
               <p class="stat-label">Total Pacientes</p>
               <p class="stat-subtitle">Pacientes activos</p>
             </div>

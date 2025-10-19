@@ -17,6 +17,25 @@ export abstract class BaseAuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
+  constructor() {
+    // Inicializar usuario desde localStorage al crear el servicio
+    this.initializeUserFromStorage();
+  }
+
+  private initializeUserFromStorage(): void {
+    const token = this.localStorageService.getAuthToken();
+    const userDataString = this.localStorageService.getUserData();
+    
+    if (token && userDataString) {
+      try {
+        const userData = JSON.parse(userDataString);
+        this.currentUserSubject.next(userData);
+      } catch (error) {
+        console.error('Error parsing user data from localStorage:', error);
+      }
+    }
+  }
+
   protected handleAuthRequest(
     request$: Observable<AuthResponse>,
     successMessage: string
@@ -25,12 +44,12 @@ export abstract class BaseAuthService {
       tap((response) => {
         this.handlerService.handleAuthResponse(response);
         // actualizar BehaviorSubject con el usuario
+        console.log('Response:', response);
         const user: User = {
-          id: 0,
+          id: response.id,
           firstName: response.firstName,
           lastName: response.lastName,
           email: response.email,
-          profileImage: '',
           picture: response.picture,
           role: response.role,
           token: response.token,

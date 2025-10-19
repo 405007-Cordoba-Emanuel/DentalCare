@@ -12,7 +12,6 @@ export interface User {
     lastName: string;
     email: string;
     picture: string | null;
-    profileImage: string | null;
     role: string;
     phone?: string | null;
     address?: string | null;

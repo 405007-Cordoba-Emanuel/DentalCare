@@ -83,14 +83,8 @@ export class RegisterComponent implements OnInit {
       next: (response) => {
         console.log('Registro exitoso:', response);
         
-        // Redirigir según el rol
-        if (response.role === 'DENTIST') {
-          this.router.navigate(['/dentist-dashboard']);
-        } else if (response.role === 'PATIENT') {
-          this.router.navigate(['/patient-dashboard']);
-        } else {
-          this.router.navigate(['/dashboard']);
-        }
+        // Redirigir usando el guard de redirección automática
+        this.router.navigate(['/dashboard']);
       },
       error: (error) => {
         console.error('Error en registro:', error);

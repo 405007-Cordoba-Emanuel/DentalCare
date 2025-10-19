@@ -11,12 +11,24 @@ export const loginGuard: CanActivateFn = (route) => {
   // Si está autenticado, redirigir según el rol
   if (isAuthenticated) {
     const currentUser = authService.currentUser;
-    if (currentUser?.role === 'ADMIN') {
-      router.navigate(['/dashboard']);
-    } else {
-      router.navigate(['/dashboard']);
+    const userRole = currentUser?.role;
+    
+    console.log('User already authenticated, redirecting based on role:', userRole);
+    
+    switch (userRole) {
+      case 'DENTIST':
+        router.navigate(['/dentist']);
+        return false;
+      case 'PATIENT':
+        router.navigate(['/patient']);
+        return false;
+      case 'ADMIN':
+        router.navigate(['/dentist']); // Por defecto al dashboard de dentista
+        return false;
+      default:
+        router.navigate(['/patient']); // Por defecto al dashboard de paciente
+        return false;
     }
-    return false;
   }
 
   return true;

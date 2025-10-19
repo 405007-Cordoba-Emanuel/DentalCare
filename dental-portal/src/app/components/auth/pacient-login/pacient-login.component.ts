@@ -58,14 +58,8 @@ export class LoginComponent implements AfterViewInit {
         next: (response) => {
           console.log('Login exitoso:', response);
           
-          // Redirigir según el rol
-          if (response.role === 'PATIENT') {
-            this.router.navigate(['/patient-dashboard']);
-          } else if (response.role === 'DENTIST') {
-            this.router.navigate(['/dentist-dashboard']);
-          } else {
-            this.router.navigate(['/dashboard']);
-          }
+          // Redirigir usando el guard de redirección automática
+          this.router.navigate(['/dashboard']);
         },
         error: (error) => {
           console.error('Error en login:', error);

@@ -11,7 +11,7 @@ export class LocalStorageService {
 
   setAuthToken(token: string) {
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('authToken', token);
+      localStorage.setItem('token', token);
     }
   }
 
@@ -23,7 +23,7 @@ export class LocalStorageService {
 
   getAuthToken() {
     if (isPlatformBrowser(this.platformId)) {
-      return localStorage.getItem('authToken');
+      return localStorage.getItem('token');
     }
     return null;
   }
@@ -39,5 +39,14 @@ export class LocalStorageService {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.clear();
     }
+  }
+
+  getDentistId() {
+    if (isPlatformBrowser(this.platformId)) {
+      const user = JSON.parse(this.getUserData() || '{}');
+      console.log('User:', user);
+      return user.id;
+    }
+    return null;
   }
 }

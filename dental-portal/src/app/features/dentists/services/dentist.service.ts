@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { DentistResponse, DentistUpdateRequest, DentistInfo } from '../interfaces/dentist.interface';
 import { DentistPatientsResponse } from '../interfaces/patient.interface';
+import { AppointmentRequest, AppointmentResponse } from '../interfaces/appointment.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -29,5 +30,9 @@ export class DentistService {
   // Obtener solo pacientes activos del odontólogo
   getActivePatientsByDentistId(dentistId: number): Observable<DentistPatientsResponse> {
     return this.http.get<DentistPatientsResponse>(`${this.apiUrl}/${dentistId}/patients/active`);
+  }
+
+  createAppointment(dentistId: number, appointment: AppointmentRequest): Observable<AppointmentResponse> {
+    return this.http.post<AppointmentResponse>(`${this.apiUrl}/${dentistId}/appointments`, appointment);
   }
 }

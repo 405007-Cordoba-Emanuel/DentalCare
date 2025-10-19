@@ -6,6 +6,12 @@ import { PatientDashboardComponent } from './components/dashboard/patient-dashbo
 import { DentistDashboardComponent } from './components/dashboard/dentist-dashboard/dentist-dashboard.component';
 import { LayoutComponent } from './layout/layout.component';
 
+// Guards
+import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
+import { roleRedirectGuard } from './core/guards/role-redirect.guard';
+import { loginGuard } from './core/guards/login.guard';
+
 // Dentist feature components
 import { DentistPatientsComponent } from './features/dentists/components/dentist-patients/dentist-patients.component';
 import { DentistTreatmentsComponent } from './features/dentists/components/dentist-treatments/dentist-treatments.component';
@@ -16,40 +22,84 @@ import { DentistDetailComponent } from './features/dentists/components/dentist-d
 import { TermsConditionsComponent } from './features/policies/components/terms-conditions/terms-conditions.component';
 import { PrivacyPolicyComponent } from './features/policies/components/privacy-policy/privacy-policy.component';
 import { FaqComponent } from './features/policies/components/faq/faq.component';
+import { AppointmentsComponent } from './features/appointments/appointments.component';
+import { CreateAppointmentComponent } from './features/appointments/create-appointment/create-appointment.component';
+
 
 export const routes: Routes = [
   // Páginas públicas sin layout
   { path: '', component: LandingPageComponent },
   
   // Login único para ambos roles (paciente y dentista)
-  { path: 'login', component: LoginComponent },
-  { path: 'pacient-login', redirectTo: 'login', pathMatch: 'full' }, // Mantener compatibilidad
-  { path: 'dentist-login', redirectTo: 'login', pathMatch: 'full' }, // Mantener compatibilidad
-  
+  { 
+    path: 'login', 
+    component: LoginComponent,
+    canActivate: [loginGuard]
+  },
   // Rutas de registro separadas por rol
-  { path: 'patient-register', component: RegisterComponent },
-  { path: 'dentist-register', component: RegisterComponent },
-  { path: 'register', redirectTo: 'patient-register', pathMatch: 'full' }, // Por defecto paciente
+  { 
+    path: 'patient-register', 
+    component: RegisterComponent,
+    canActivate: [loginGuard]
+  },
+  { 
+    path: 'dentist-register', 
+    component: RegisterComponent,
+    canActivate: [loginGuard]
+  },
+  { 
+    path: 'register', 
+    redirectTo: 'patient-register', 
+    pathMatch: 'full'
+  }, // Por defecto paciente
   
   // Policy pages (public access)
   { path: 'terms-conditions', component: TermsConditionsComponent },
   { path: 'privacy-policy', component: PrivacyPolicyComponent },
   { path: 'faq', component: FaqComponent },
   
+  // Ruta de redirección automática basada en rol
+  { 
+    path: 'dashboard', 
+    canActivate: [roleRedirectGuard],
+    redirectTo: '', // Temporal redirect, el guard manejará la redirección real
+    pathMatch: 'full'
+  },
+  
   // Rutas con layout (páginas protegidas y features)
   {
     path: '',
     component: LayoutComponent,
     children: [
-      { path: 'patient-dashboard', component: PatientDashboardComponent },
-      { path: 'dentist-dashboard', component: DentistDashboardComponent },
+      // Dashboard de paciente con rutas hijas
+      {
+        path: 'patient',
+        component: PatientDashboardComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['PATIENT'] }
+      },
       
-      // Dentist feature routes anidadas
-      { path: 'dentist/:id', component: DentistDetailComponent },
-      { path: 'dentist/:id/profile', component: DentistProfileComponent },
-      { path: 'dentist/:id/patients', component: DentistPatientsComponent },
-      { path: 'dentist/:id/treatments', component: DentistTreatmentsComponent },
-      { path: 'dentist/:id/patients/:patientId/treatments', component: DentistTreatmentsComponent },
+      // Rutas del dentista (todas empiezan con dentist/)
+      {
+        path: 'dentist',
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['DENTIST'] },
+        children: [
+          // Dashboard principal (ruta vacía)
+          { path: '', component: DentistDashboardComponent },
+          { path: 'profile', component: DentistProfileComponent },
+          { path: 'patients', component: DentistPatientsComponent },
+          { path: 'treatments', component: DentistTreatmentsComponent },
+          { path: 'appointments', component: AppointmentsComponent },
+          { path: 'appointments/create', component: CreateAppointmentComponent },
+          // Rutas de dentista por ID
+          { path: ':id', component: DentistDetailComponent },
+          { path: ':id/profile', component: DentistProfileComponent },
+          { path: ':id/patients', component: DentistPatientsComponent },
+          { path: ':id/treatments', component: DentistTreatmentsComponent },
+          { path: ':id/patients/:patientId/treatments', component: DentistTreatmentsComponent },
+        ]
+      },
     ]
   },
   

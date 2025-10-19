@@ -58,14 +58,12 @@ export class DentistLoginComponent implements AfterViewInit {
         next: (response) => {
           console.log('Login exitoso:', response);
 
-          // Redirigir según el rol
+          // Redirigir al dashboard del dentista
           if (response.role === 'DENTIST') {
-            this.router.navigate(['/dentist-dashboard']);
-          } else if (response.role === 'PATIENT') {
-            this.router.navigate(['/patient-dashboard']);
+            this.router.navigate(['/dentist']);
           } else {
-            this.router.navigate(['/dashboard']);
-          }
+            this.router.navigate(['/patient']);
+          } 
         },
         error: (error) => {
           console.error('Error en login:', error);
