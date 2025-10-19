@@ -1,1 +1,41 @@
-<p>appointments works!</p>
+<div class="flex flex-col items-center gap-6 w-full">
+  <!-- Botones de vista -->
+  <div class="flex gap-3 mb-4">
+    <button
+      class="px-4 py-2 rounded-lg font-medium transition-all"
+      [class.bg-blue-600]="currentView === 'timeGridDay'"
+      [class.text-white]="currentView === 'timeGridDay'"
+      [class.bg-gray-200]="currentView !== 'timeGridDay'"
+      (click)="changeView('timeGridDay', calendarRef)"
+    >
+      Diario
+    </button>
+
+    <button
+      class="px-4 py-2 rounded-lg font-medium transition-all"
+      [class.bg-blue-600]="currentView === 'timeGridWeek'"
+      [class.text-white]="currentView === 'timeGridWeek'"
+      [class.bg-gray-200]="currentView !== 'timeGridWeek'"
+      (click)="changeView('timeGridWeek', calendarRef)"
+    >
+      Semanal
+    </button>
+
+    <button
+      class="px-4 py-2 rounded-lg font-medium transition-all"
+      [class.bg-blue-600]="currentView === 'dayGridMonth'"
+      [class.text-white]="currentView === 'dayGridMonth'"
+      [class.bg-gray-200]="currentView !== 'dayGridMonth'"
+      (click)="changeView('dayGridMonth', calendarRef)"
+    >
+      Mensual
+    </button>
+  </div>
+
+  <!-- Calendario -->
+  <full-calendar
+    #calendarRef
+    [options]="calendarOptions"
+    class="w-full max-w-5xl bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-md"
+  ></full-calendar>
+</div>
