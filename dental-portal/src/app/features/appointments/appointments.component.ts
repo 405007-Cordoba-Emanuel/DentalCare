@@ -5,10 +5,13 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import esLocale from '@fullcalendar/core/locales/es';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-appointments',
-  imports: [FullCalendarModule],
+  imports: [FullCalendarModule, MatButtonModule, MatIconModule],
   templateUrl: './appointments.component.html',
   styles: [
     `
@@ -66,7 +69,7 @@ import esLocale from '@fullcalendar/core/locales/es';
 })
 export class AppointmentsComponent {
   currentView: 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay' = 'dayGridMonth';
-
+  router = inject(Router);
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
     initialView: this.currentView,
@@ -163,5 +166,9 @@ export class AppointmentsComponent {
   ) {
     this.currentView = view;
     calendar.getApi().changeView(view);
+  }
+
+  navigateToCreateAppointment() {
+    this.router.navigate(['/dentist/appointments/create']);
   }
 }

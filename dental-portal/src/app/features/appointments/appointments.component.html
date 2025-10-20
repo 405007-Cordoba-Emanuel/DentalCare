@@ -1,34 +1,48 @@
-<div class="flex flex-col items-center gap-6 w-full">
-  <!-- Botones de vista -->
-  <div class="flex gap-3 mb-4">
-    <button
-      class="px-4 py-2 rounded-lg font-medium transition-all"
-      [class.bg-blue-600]="currentView === 'timeGridDay'"
-      [class.text-white]="currentView === 'timeGridDay'"
-      [class.bg-gray-200]="currentView !== 'timeGridDay'"
-      (click)="changeView('timeGridDay', calendarRef)"
-    >
-      Diario
-    </button>
+<div class="flex flex-col gap-6 w-full ">
+  <!-- Botones de vista y nueva cita -->
+  <div class="flex justify-between items-center w-full px-6 container mx-auto">
+    <!-- Botones de vista a la izquierda -->
+    <div class="flex gap-3">
+      <button
+        class="px-4 py-2 rounded-lg font-medium transition-all cursor-pointer"
+        [class.bg-blue-600]="currentView === 'timeGridDay'"
+        [class.text-white]="currentView === 'timeGridDay'"
+        [class.bg-gray-200]="currentView !== 'timeGridDay'"
+        [class.hover:bg-gray-300]="currentView !== 'timeGridDay'"
+        (click)="changeView('timeGridDay', calendarRef)"
+      >
+        Diario
+      </button>
 
-    <button
-      class="px-4 py-2 rounded-lg font-medium transition-all"
-      [class.bg-blue-600]="currentView === 'timeGridWeek'"
-      [class.text-white]="currentView === 'timeGridWeek'"
-      [class.bg-gray-200]="currentView !== 'timeGridWeek'"
-      (click)="changeView('timeGridWeek', calendarRef)"
-    >
-      Semanal
-    </button>
+      <button
+        class="px-4 py-2 rounded-lg font-medium transition-all cursor-pointer"
+        [class.bg-blue-600]="currentView === 'timeGridWeek'"
+        [class.text-white]="currentView === 'timeGridWeek'"
+        [class.bg-gray-200]="currentView !== 'timeGridWeek'"
+        [class.hover:bg-gray-300]="currentView !== 'timeGridWeek'"
+        (click)="changeView('timeGridWeek', calendarRef)"
+      >
+        Semanal
+      </button>
 
+      <button
+        class="px-4 py-2 rounded-lg font-medium transition-all cursor-pointer"
+        [class.bg-blue-600]="currentView === 'dayGridMonth'"
+        [class.text-white]="currentView === 'dayGridMonth'"
+        [class.bg-gray-200]="currentView !== 'dayGridMonth'"
+        [class.hover:bg-gray-300]="currentView !== 'dayGridMonth'"
+        (click)="changeView('dayGridMonth', calendarRef)"
+      >
+        Mensual
+      </button>
+    </div>
+
+    <!-- Botón de nueva cita a la derecha -->
     <button
-      class="px-4 py-2 rounded-lg font-medium transition-all"
-      [class.bg-blue-600]="currentView === 'dayGridMonth'"
-      [class.text-white]="currentView === 'dayGridMonth'"
-      [class.bg-gray-200]="currentView !== 'dayGridMonth'"
-      (click)="changeView('dayGridMonth', calendarRef)"
+      class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-all hover:bg-blue-700 shadow-sm cursor-pointer"
+      (click)="navigateToCreateAppointment()"
     >
-      Mensual
+      + Nueva Cita
     </button>
   </div>
 
@@ -36,6 +50,6 @@
   <full-calendar
     #calendarRef
     [options]="calendarOptions"
-    class="w-full max-w-5xl bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-md"
+    class="w-full bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-md container mx-auto"
   ></full-calendar>
 </div>

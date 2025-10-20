@@ -1,6 +1,16 @@
-<app-generic-form
-  [formTitle]="'Create Appointment'"
-  [fields]="formFields"
-  [submitText]="'Create Appointment'"
-  (formSubmit)="handleFormSubmit($event)"
-></app-generic-form>
+<div class="container mx-auto p-6">
+  @if (loading) {
+  <div class="flex justify-center items-center h-64">
+    <div
+      class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
+    ></div>
+  </div>
+  } @else {
+  <app-generic-form
+    [fields]="formFields"
+    [formTitle]="'Create New Appointment'"
+    [submitText]="'Create Appointment'"
+    (formSubmit)="handleFormSubmit($event)"
+  />
+  }
+</div>

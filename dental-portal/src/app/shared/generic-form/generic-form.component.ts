@@ -1,8 +1,8 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, inject, input, output, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { FormGroup } from '@angular/forms';
 
-interface FormField {
+export interface FormField {
   name: string;
   label: string;
   type: 'text' | 'textarea' | 'select' | 'datetime-local' | 'number';
@@ -16,7 +16,7 @@ interface FormField {
   imports: [ReactiveFormsModule],
   templateUrl: './generic-form.component.html',
 })
-export class GenericFormComponent {
+export class GenericFormComponent implements OnInit, OnChanges {
   fields = input<FormField[]>([]);
   formTitle = input<string>('Form');
   submitText = input<string>('Submit');
@@ -27,6 +27,16 @@ export class GenericFormComponent {
   private fb = inject(FormBuilder);
 
   ngOnInit() {
+    this.buildForm();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['fields'] && !changes['fields'].firstChange) {
+      this.buildForm();
+    }
+  }
+
+  private buildForm() {
     const group: any = {};
     // ✅ Llamamos correctamente a fields() porque es un signal
     this.fields().forEach((field) => {

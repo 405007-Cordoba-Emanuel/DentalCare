@@ -6,6 +6,8 @@ import { PatientSummary } from '../../dentists/interfaces/patient.interface';
 import { AppointmentRequest } from '../../dentists/interfaces/appointment.interface';
 import { LocalStorageService } from '../../../core/services/auth/local-storage.service';
 import { GenericFormComponent } from '../../../shared/generic-form/generic-form.component';
+import { FormField } from '../../../shared/generic-form/generic-form.component';
+import { Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-create-appointment',
@@ -21,77 +23,74 @@ export class CreateAppointmentComponent {
 
   patients: PatientSummary[] = [];
   loading = false;
-  formFields: any[] = [];
+  formFields: FormField[] = []; // ✅ Inicializado como array vacío
 
   ngOnInit() {
-    this.loadPatients();
-  }
-
-  loadPatients() {
-    this.loading = true;
-    this.dentistService.getActivePatientsByDentistId(this.dentistId).subscribe({
-      next: (response) => {
-        this.patients = response.patients;
-
-        // Configurar los campos del formulario después de cargar pacientes
-        this.formFields = [
-          {
-            name: 'patientId',
-            label: 'Patient',
-            type: 'select',
-            options: this.patients.map((p) => ({
-              label: `${p.firstName} ${p.lastName}`,
-              value: p.id,
-            })),
-          },
-          {
-            name: 'startDateTime',
-            label: 'Start Date and Time',
-            type: 'datetime-local',
-          },
-          {
-            name: 'endDateTime',
-            label: 'End Date and Time',
-            type: 'datetime-local',
-          },
-          {
-            name: 'reason',
-            label: 'Reason',
-            type: 'text',
-            placeholder: 'Reason for appointment',
-          },
-          {
-            name: 'notes',
-            label: 'Notes',
-            type: 'textarea',
-            placeholder: 'Additional notes...',
-          },
-        ];
+    this.formFields = [
+      {
+        name: 'patientId',
+        label: 'Patient',
+        type: 'select',
+        options: [
+          { label: 'Select a patient', value: '' }, // ✅ Opción por defecto
+          ...this.patients.map((p) => ({
+            label: `${p.firstName} ${p.lastName}`,
+            value: p.id,
+          })),
+        ],
+        validators: [Validators.required], // ✅ Agregado
       },
-      error: (error) => {
-        console.error('Error loading patients:', error);
+      {
+        name: 'startDateTime',
+        label: 'Start Date and Time',
+        type: 'datetime-local',
+        validators: [Validators.required], // ✅ Agregado
       },
-      complete: () => {
-        this.loading = false;
+      {
+        name: 'endDateTime',
+        label: 'End Date and Time',
+        type: 'datetime-local',
+        validators: [Validators.required], // ✅ Agregado
       },
-    });
+      {
+        name: 'reason',
+        label: 'Reason',
+        type: 'text',
+        placeholder: 'Reason for appointment',
+        validators: [Validators.required], // ✅ Agregado
+      },
+      {
+        name: 'notes',
+        label: 'Notes',
+        type: 'textarea',
+        placeholder: 'Additional notes...',
+        validators: [], // ✅ Opcional, sin validadores
+      },
+    ];
   }
 
   handleFormSubmit(data: any) {
     this.loading = true;
     console.log('Form data:', data);
+
+    const appointmentData: AppointmentRequest = {
+      patientId: Number(data.patientId), // ✅ Asegúrate de convertir a número si es necesario
+      startDateTime: data.startDateTime,
+      endDateTime: data.endDateTime,
+      reason: data.reason,
+      notes: data.notes,
+    };
+
     this.dentistService
-      .createAppointment(this.dentistId, data as AppointmentRequest)
+      .createAppointment(this.dentistId, appointmentData)
       .subscribe({
         next: (response) => {
           console.log('Appointment created:', response);
+          this.router.navigate(['/dentist/appointments']);
         },
         error: (error) => {
           console.error('Error creating appointment:', error);
-        },
-        complete: () => {
           this.loading = false;
-          this.router.navigate(['/dentist/appointments']);
         },
       });
   }
