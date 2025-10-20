@@ -24,6 +24,7 @@ import com.dentalCare.be_core.services.PrescriptionService;
 import com.dentalCare.be_core.services.TreatmentService;
 import com.dentalCare.be_core.services.AppointmentService;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -63,11 +64,13 @@ public class DentistController {
     @Autowired
     private AppointmentService appointmentService;
 
+    // ------- Bloque Dentista -------
     /**
      * Alta de Dentista
      * Crea un nuevo dentista en el sistema con todos sus datos personales y profesionales.
      * Valida que no exista otro dentista con la misma matrícula o email.
      */
+    @Operation(summary = "Crear un nuevo dentista")
     @PostMapping("/create")
     public ResponseEntity<DentistResponseDto> postDentist(@RequestBody DentistRequestDto dentistRequestDto) {
         try {
@@ -85,6 +88,7 @@ public class DentistController {
      * Obtiene la información completa de un dentista específico mediante su ID único.
      * Retorna todos los datos personales y profesionales del dentista.
      */
+    @Operation(summary = "Obtener dentista por ID")
     @GetMapping("/getById/{id}")
     public ResponseEntity<DentistResponseDto> getById(
             @Parameter(description = "Dentist ID", required = true)
@@ -98,6 +102,7 @@ public class DentistController {
      * Permite buscar un dentista utilizando su número de matrícula profesional.
      * Útil para verificar la existencia y validez de una matrícula.
      */
+    @Operation(summary = "Obtener dentista por matrícula")
     @GetMapping("/licenseNumber/{licenseNumber}")
     public ResponseEntity<DentistResponseDto> getByLicenseNumber(
             @Parameter(description = "Dentist's License Number", required = true)
@@ -112,6 +117,7 @@ public class DentistController {
      * Retorna una lista completa de todos los dentistas que están activos en el sistema.
      * Los dentistas se ordenan alfabéticamente por nombre y apellido.
      */
+    @Operation(summary = "Listar dentistas activos")
     @GetMapping("/getAllActive")
     public ResponseEntity<List<DentistResponseDto>> getAllActive() {
         List<DentistResponseDto> dentistResponseDtoList = dentistService.findAllActive();
@@ -123,6 +129,7 @@ public class DentistController {
      * Filtra y retorna todos los dentistas activos que tienen una especialidad específica.
      * Por ejemplo: Ortodoncia, Endodoncia, Periodoncia, etc.
      */
+    @Operation(summary = "Listar dentistas por especialidad")
     @GetMapping("/specialty/{specialty}")
     public ResponseEntity<List<DentistResponseDto>> getBySpecialty(
             @Parameter(description = "Specialty to look for", required = true)
@@ -137,6 +144,7 @@ public class DentistController {
      * Actualiza la información de un dentista existente (datos personales, contacto, especialidad, etc.).
      * Valida que no se duplique matrícula o email con otros dentistas.
      */
+    @Operation(summary = "Actualizar dentista")
     @PutMapping("/update/{id}")
     public ResponseEntity<DentistResponseDto> updateDentist(
             @Parameter(description = "Dentist ID to update", required = true)
@@ -153,6 +161,7 @@ public class DentistController {
      * Elimina físicamente un dentista del sistema.
      * IMPORTANTE: Esto es una eliminación permanente, no es eliminación lógica.
      */
+    @Operation(summary = "Eliminar dentista")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteDentist(
             @Parameter(description = "Dentist ID to delete", required = true)
@@ -166,17 +175,20 @@ public class DentistController {
      * Retorna el número total de dentistas que están activos en el sistema.
      * Útil para estadísticas y dashboards.
      */
+    @Operation(summary = "Contar dentistas activos")
     @GetMapping("/countActive")
     public ResponseEntity<Long> countActiveDentist() {
         long count = dentistService.countActiveDentist();
         return ResponseEntity.ok(count);
     }
 
+    // ------- Bloque Pacientes de Dentista -------
     /**
      * Ver Todos los Pacientes de un Dentista
      * Retorna la lista completa de pacientes asignados a un dentista específico.
      * Incluye tanto pacientes activos como inactivos.
      */
+    @Operation(summary = "Listar pacientes de un dentista")
     @GetMapping("/{id}/patients")
     public ResponseEntity<DentistPatientsResponseDto> getPatientsByDentistId(
             @Parameter(description = "Dentist ID", required = true)
@@ -190,6 +202,7 @@ public class DentistController {
      * Retorna solamente los pacientes que están activos de un dentista específico.
      * Filtra los pacientes inactivos o dados de baja.
      */
+    @Operation(summary = "Listar pacientes activos de un dentista")
     @GetMapping("/{id}/patients/active")
     public ResponseEntity<DentistPatientsResponseDto> getActivePatientsByDentistId(
             @Parameter(description = "Dentist ID", required = true)
@@ -203,6 +216,7 @@ public class DentistController {
      * El dentista da de alta un nuevo paciente en el sistema, asignándolo automáticamente a él.
      * El paciente queda vinculado al dentista desde su creación.
      */
+    @Operation(summary = "Crear paciente para un dentista")
     @PostMapping("/{id}/patients")
     public ResponseEntity<PatientResponseDto> createPatientForDentist(
             @Parameter(description = "Dentist ID", required = true)
@@ -218,11 +232,13 @@ public class DentistController {
         }
     }
 
+    // ------- Bloque Recetas -------
     /**
      * Emitir Receta Médica
      * El dentista crea una receta/prescripción médica para un paciente específico.
      * Incluye medicamentos, observaciones y fecha de emisión.
      */
+    @Operation(summary = "Crear receta para un paciente")
     @PostMapping("/{id}/prescriptions")
     public ResponseEntity<PrescriptionResponseDto> createPrescriptionForDentist(
             @Parameter(description = "Dentist ID", required = true)
@@ -243,6 +259,7 @@ public class DentistController {
      * Retorna todas las recetas emitidas por un dentista específico.
      * Las recetas se ordenan por fecha de emisión descendente (más recientes primero).
      */
+    @Operation(summary = "Listar recetas de un dentista")
     @GetMapping("/{id}/prescriptions")
     public ResponseEntity<List<PrescriptionResponseDto>> getPrescriptionsByDentistId(
             @Parameter(description = "Dentist ID", required = true)
@@ -256,6 +273,7 @@ public class DentistController {
      * Retorna todas las recetas que el dentista ha emitido para un paciente en particular.
      * Útil para ver el historial de prescripciones de un paciente.
      */
+    @Operation(summary = "Listar recetas por paciente")
     @GetMapping("/{id}/prescriptions/patient/{patientId}")
     public ResponseEntity<List<PrescriptionResponseDto>> getPrescriptionsByDentistIdAndPatientId(
             @Parameter(description = "Dentist ID", required = true)
@@ -271,6 +289,7 @@ public class DentistController {
      * Obtiene la información completa de una receta específica emitida por el dentista.
      * Incluye datos del paciente, medicamentos, observaciones y fecha.
      */
+    @Operation(summary = "Obtener receta por ID")
     @GetMapping("/{id}/prescriptions/{prescriptionId}")
     public ResponseEntity<PrescriptionResponseDto> getPrescriptionByIdAndDentistId(
             @Parameter(description = "Dentist ID", required = true)
@@ -286,6 +305,7 @@ public class DentistController {
      * Actualiza los datos de una receta previamente emitida (medicamentos, observaciones, etc.).
      * Solo el dentista que emitió la receta puede modificarla.
      */
+    @Operation(summary = "Actualizar receta")
     @PutMapping("/{id}/prescriptions/{prescriptionId}")
     public ResponseEntity<PrescriptionResponseDto> updatePrescription(
             @Parameter(description = "Dentist ID", required = true)
@@ -308,6 +328,7 @@ public class DentistController {
      * Elimina físicamente una receta del sistema.
      * IMPORTANTE: Esta es una eliminación permanente.
      */
+    @Operation(summary = "Eliminar receta")
     @DeleteMapping("/{id}/prescriptions/{prescriptionId}")
     public ResponseEntity<Void> deletePrescription(
             @Parameter(description = "Dentist ID", required = true)
@@ -323,6 +344,7 @@ public class DentistController {
      * Retorna el número total de recetas activas emitidas por el dentista.
      * Útil para estadísticas y reportes.
      */
+    @Operation(summary = "Contar recetas de un dentista")
     @GetMapping("/{id}/prescriptions/count")
     public ResponseEntity<Long> countPrescriptionsByDentistId(
             @Parameter(description = "Dentist ID", required = true)
@@ -367,12 +389,14 @@ public class DentistController {
         }
     }
 
+    // ------- Bloque Historia Clínica -------
     /**
      * Crear Entrada en Historia Clínica
      * El dentista registra una nueva entrada en la historia clínica del paciente.
      * Incluye descripción, fecha, opcionalmente receta y archivo adjunto (foto/PDF).
      * Los campos se envían como form-data individual compatible con Swagger.
      */
+    @Operation(summary = "Crear entrada de historia clínica")
     @PostMapping(value = "/{id}/patients/{patientId}/medical-history", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MedicalHistoryResponseDto> createMedicalHistoryEntry(
             @Parameter(description = "Dentist ID", required = true)
@@ -411,6 +435,7 @@ public class DentistController {
      * Retorna todas las entradas de la historia clínica de un paciente específico.
      * Las entradas se ordenan por fecha descendente (más recientes primero).
      */
+    @Operation(summary = "Listar historia clínica de un paciente")
     @GetMapping("/{id}/patients/{patientId}/medical-history")
     public ResponseEntity<List<MedicalHistoryResponseDto>> getMedicalHistoryByPatient(
             @Parameter(description = "Dentist ID", required = true)
@@ -426,6 +451,7 @@ public class DentistController {
      * Obtiene la información completa de una entrada específica de la historia clínica.
      * Incluye descripción, fecha, receta asociada e información del archivo adjunto si existe.
      */
+    @Operation(summary = "Obtener entrada de historia clínica por ID")
     @GetMapping("/{id}/medical-history/{entryId}")
     public ResponseEntity<MedicalHistoryResponseDto> getMedicalHistoryEntry(
             @Parameter(description = "Dentist ID", required = true)
@@ -441,6 +467,7 @@ public class DentistController {
      * Actualiza una entrada existente de la historia clínica (descripción, fecha, archivo, etc.).
      * Si se envía un nuevo archivo, reemplaza el anterior. Los campos se envían individualmente.
      */
+    @Operation(summary = "Actualizar entrada de historia clínica")
     @PutMapping(value = "/{id}/medical-history/{entryId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MedicalHistoryResponseDto> updateMedicalHistoryEntry(
             @Parameter(description = "Dentist ID", required = true)
@@ -481,6 +508,7 @@ public class DentistController {
      * Realiza una eliminación lógica de una entrada (campo active = false).
      * La entrada no se borra físicamente, solo se marca como inactiva.
      */
+    @Operation(summary = "Eliminar entrada de historia clínica")
     @DeleteMapping("/{id}/medical-history/{entryId}")
     public ResponseEntity<Void> deleteMedicalHistoryEntry(
             @Parameter(description = "Dentist ID", required = true)
@@ -491,12 +519,14 @@ public class DentistController {
         return ResponseEntity.noContent().build();
     }
 
+    // ------- Bloque Tratamientos -------
     /**
      * Crear Nuevo Tratamiento
      * El dentista crea un nuevo tratamiento para un paciente (Ej: Ortodoncia, Implante dental).
      * Define el nombre, descripción, fechas estimadas y número de sesiones planificadas.
      * El estado inicial es "pending" hasta que se registre la primera sesión.
      */
+    @Operation(summary = "Crear tratamiento para un paciente")
     @PostMapping("/{id}/patients/{patientId}/treatments")
     public ResponseEntity<TreatmentResponseDto> createTreatment(
             @Parameter(description = "Dentist ID", required = true)
@@ -517,6 +547,7 @@ public class DentistController {
      * Retorna todos los tratamientos activos de un paciente específico.
      * Incluye información de progreso, fechas y estado de cada tratamiento.
      */
+    @Operation(summary = "Listar tratamientos de un paciente")
     @GetMapping("/{id}/patients/{patientId}/treatments")
     public ResponseEntity<List<TreatmentResponseDto>> getTreatmentsByPatient(
             @Parameter(description = "Dentist ID", required = true)
@@ -533,6 +564,7 @@ public class DentistController {
      * Las sesiones son entradas de historia clínica vinculadas a este tratamiento.
      * Muestra progreso, fechas, estado y el listado completo de sesiones realizadas.
      */
+    @Operation(summary = "Obtener detalle de tratamiento")
     @GetMapping("/{id}/treatments/{treatmentId}")
     public ResponseEntity<TreatmentDetailResponseDto> getTreatmentDetail(
             @Parameter(description = "Dentist ID", required = true)
@@ -549,6 +581,7 @@ public class DentistController {
      * Permite cambiar nombre, descripción, fechas estimadas, número de sesiones y notas.
      * NO cambia el estado ni las sesiones completadas.
      */
+    @Operation(summary = "Actualizar tratamiento")
     @PutMapping("/{id}/treatments/{treatmentId}")
     public ResponseEntity<TreatmentResponseDto> updateTreatment(
             @Parameter(description = "Dentist ID", required = true)
@@ -572,6 +605,7 @@ public class DentistController {
      * Estados válidos: "pendiente", "en progreso", "completado", "cancelado".
      * Si se marca como "completado", automáticamente se establece la fecha real de fin.
      */
+    @Operation(summary = "Cambiar estado del tratamiento")
     @PutMapping("/{id}/treatments/{treatmentId}/status")
     public ResponseEntity<TreatmentResponseDto> updateTreatmentStatus(
             @Parameter(description = "Dentist ID", required = true)
@@ -596,6 +630,7 @@ public class DentistController {
      * El tratamiento no se borra físicamente, solo se marca como inactivo.
      * Las sesiones (entradas de historia clínica) NO se eliminan.
      */
+    @Operation(summary = "Eliminar tratamiento")
     @DeleteMapping("/{id}/treatments/{treatmentId}")
     public ResponseEntity<Void> deleteTreatment(
             @Parameter(description = "Dentist ID", required = true)
@@ -606,12 +641,14 @@ public class DentistController {
         return ResponseEntity.noContent().build();
     }
 
+    // ------- Bloque Turnos -------
     /**
      * Crear Nuevo Turno
      * El dentista crea un nuevo turno para uno de sus pacientes.
      * Define fecha/hora de inicio, duración, motivo y observaciones.
      * Valida que no haya conflictos de horario con otros turnos.
      */
+    @Operation(summary = "Crear turno para un paciente")
     @PostMapping("/{id}/appointments")
     public ResponseEntity<AppointmentResponseDto> createAppointment(
             @Parameter(description = "Dentist ID", required = true)
@@ -632,6 +669,7 @@ public class DentistController {
      * Retorna todos los turnos del dentista ordenados por fecha/hora de inicio.
      * Incluye turnos de todos los pacientes y todos los estados.
      */
+    @Operation(summary = "Listar turnos del dentista")
     @GetMapping("/{id}/appointments")
     public ResponseEntity<List<AppointmentResponseDto>> getAppointmentsByDentistId(
             @Parameter(description = "Dentist ID", required = true)
@@ -645,6 +683,7 @@ public class DentistController {
      * Retorna todos los turnos que el dentista tiene con un paciente en particular.
      * Útil para ver el historial de citas de un paciente específico.
      */
+    @Operation(summary = "Listar turnos de un paciente")
     @GetMapping("/{id}/appointments/patient/{patientId}")
     public ResponseEntity<List<AppointmentResponseDto>> getAppointmentsByPatientId(
             @Parameter(description = "Dentist ID", required = true)
@@ -660,6 +699,7 @@ public class DentistController {
      * Obtiene la información completa de un turno específico.
      * Incluye datos del paciente, fecha/hora, motivo y observaciones.
      */
+    @Operation(summary = "Obtener turno por ID")
     @GetMapping("/{id}/appointments/{appointmentId}")
     public ResponseEntity<AppointmentResponseDto> getAppointmentById(
             @Parameter(description = "Dentist ID", required = true)
@@ -675,6 +715,7 @@ public class DentistController {
      * Actualiza los datos de un turno (fecha/hora, motivo, observaciones).
      * Valida que no haya conflictos de horario con otros turnos.
      */
+    @Operation(summary = "Actualizar turno")
     @PutMapping("/{id}/appointments/{appointmentId}")
     public ResponseEntity<AppointmentResponseDto> updateAppointment(
             @Parameter(description = "Dentist ID", required = true)
@@ -697,6 +738,7 @@ public class DentistController {
      * Actualiza únicamente el estado de un turno.
      * Estados válidos: SCHEDULED, CONFIRMED, COMPLETED, CANCELLED, NO_SHOW.
      */
+    @Operation(summary = "Cambiar estado del turno")
     @PutMapping("/{id}/appointments/{appointmentId}/status")
     public ResponseEntity<AppointmentResponseDto> updateAppointmentStatus(
             @Parameter(description = "Dentist ID", required = true)
@@ -720,6 +762,7 @@ public class DentistController {
      * Realiza una eliminación lógica de un turno (campo active = false).
      * El turno no se borra físicamente, solo se marca como inactivo.
      */
+    @Operation(summary = "Cancelar turno")
     @DeleteMapping("/{id}/appointments/{appointmentId}")
     public ResponseEntity<Void> cancelAppointment(
             @Parameter(description = "Dentist ID", required = true)
@@ -735,6 +778,7 @@ public class DentistController {
      * Retorna todos los turnos del dentista para un mes específico.
      * Formato optimizado para mostrar en calendario mensual.
      */
+    @Operation(summary = "Listar turnos del mes")
     @GetMapping("/{id}/appointments/month")
     public ResponseEntity<List<AppointmentCalendarDto>> getMonthlyAppointments(
             @Parameter(description = "Dentist ID", required = true)
@@ -752,6 +796,7 @@ public class DentistController {
      * Retorna todos los turnos del dentista para una semana específica.
      * Formato optimizado para mostrar en vista semanal.
      */
+    @Operation(summary = "Listar turnos de la semana")
     @GetMapping("/{id}/appointments/week")
     public ResponseEntity<List<AppointmentCalendarDto>> getWeeklyAppointments(
             @Parameter(description = "Dentist ID", required = true)
@@ -767,6 +812,7 @@ public class DentistController {
      * Retorna todos los turnos del dentista para un día específico.
      * Formato optimizado para mostrar en vista diaria.
      */
+    @Operation(summary = "Listar turnos del día")
     @GetMapping("/{id}/appointments/day")
     public ResponseEntity<List<AppointmentCalendarDto>> getDailyAppointments(
             @Parameter(description = "Dentist ID", required = true)
@@ -782,6 +828,7 @@ public class DentistController {
      * Verifica si existe conflicto de horario para un dentista en un rango de tiempo específico.
      * Útil para validar disponibilidad antes de crear/modificar turnos.
      */
+    @Operation(summary = "Verificar conflicto de horario")
     @GetMapping("/{id}/appointments/conflict-check")
     public ResponseEntity<Boolean> checkTimeConflict(
             @Parameter(description = "Dentist ID", required = true)
@@ -803,6 +850,7 @@ public class DentistController {
      * Retorna el número de turnos del dentista filtrado por estado específico.
      * Si no se especifica estado, cuenta todos los turnos activos.
      */
+    @Operation(summary = "Contar turnos por estado")
     @GetMapping("/{id}/appointments/count")
     public ResponseEntity<Long> countAppointmentsByStatus(
             @Parameter(description = "Dentist ID", required = true)

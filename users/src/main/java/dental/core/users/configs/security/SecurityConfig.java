@@ -52,8 +52,13 @@ public class SecurityConfig {
 						// Endpoints de autenticación (ambas rutas)
 						.requestMatchers("/api/auth/**").permitAll()
 						.requestMatchers("/api/users/auth/**").permitAll()
+						// Endpoints internos para comunicación entre microservicios
+						.requestMatchers("/api/internal/**").permitAll()
+						// Endpoints públicos para comunicación entre microservicios
+						.requestMatchers("/public/**").permitAll()
 						// Actuator endpoints para health checks
 						.requestMatchers("/api/health").permitAll()
+						.requestMatchers("/api/users/api/health").permitAll()
 						// Cualquier otra petición requiere autenticación
 						.anyRequest().authenticated())
 				.csrf(AbstractHttpConfigurer::disable)
@@ -81,23 +86,22 @@ public class SecurityConfig {
 
 	// CORS deshabilitado - el Gateway maneja CORS
 	// No es necesario configurar CORS en microservicios que están detrás del Gateway
-	/*
 	@Bean
-	public CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration config = new CorsConfiguration();
+	public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+		org.springframework.web.cors.CorsConfiguration config = new org.springframework.web.cors.CorsConfiguration();
 
 		config.setAllowCredentials(true);
-		config.addAllowedOriginPattern("*");
+		config.addAllowedOriginPattern("*"); // Permite cualquier origen (solo para entorno local)
 		config.addAllowedHeader("*");
 		config.addAllowedMethod("*");
-		config.setExposedHeaders(Arrays.asList("Authorization"));
+		config.setExposedHeaders(java.util.Arrays.asList("Authorization"));
 
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", config);
 
 		return source;
 	}
-	*/
+
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {

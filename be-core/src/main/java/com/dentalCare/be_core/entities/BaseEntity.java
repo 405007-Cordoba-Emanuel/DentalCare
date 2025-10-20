@@ -35,7 +35,7 @@ public abstract class BaseEntity {
 	/**
 	 * ID of the user who created the record.
 	 */
-	@Column(name = "created_user", nullable = false, updatable = false)
+    @Column(name = "created_user", nullable = true, updatable = false)
 	private Long createdUser;
 
 	/**
@@ -47,7 +47,7 @@ public abstract class BaseEntity {
 	/**
 	 * ID of the user who performed the last update.
 	 */
-	@Column(name = "last_updated_user", nullable = false)
+    @Column(name = "last_updated_user", nullable = true)
 	private Long lastUpdatedUser;
 
 	/**

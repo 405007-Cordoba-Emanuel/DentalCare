@@ -13,6 +13,7 @@ import com.dentalCare.be_core.services.PrescriptionService;
 import com.dentalCare.be_core.services.TreatmentService;
 import com.dentalCare.be_core.services.AppointmentService;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -47,11 +48,13 @@ public class PatientController {
     private AppointmentService appointmentService;
 
 
+	// ------- Bloque Paciente -------
     /**
      * Consultar Paciente por ID
      * Obtiene la información completa de un paciente específico mediante su ID único.
      * Retorna todos los datos personales del paciente.
      */
+	@Operation(summary = "Obtener paciente por ID")
     @GetMapping("/getById/{id}")
     public ResponseEntity<PatientResponseDto> getById(
             @Parameter(description = "Patient ID", required = true)
@@ -65,6 +68,7 @@ public class PatientController {
      * Permite buscar un paciente utilizando su número de documento de identidad.
      * Útil para verificar si un paciente ya existe en el sistema.
      */
+	@Operation(summary = "Obtener paciente por DNI")
     @GetMapping("/dni/{dni}")
     public ResponseEntity<PatientResponseDto> getByLicenseNumber(
             @Parameter(description = "Patient's DNI", required = true)
@@ -79,6 +83,7 @@ public class PatientController {
      * Retorna una lista completa de todos los pacientes que están activos en el sistema.
      * Incluye pacientes de todos los dentistas.
      */
+	@Operation(summary = "Listar pacientes activos")
     @GetMapping("/getAllActive")
     public ResponseEntity<List<PatientResponseDto>> getAllActive() {
         List<PatientResponseDto> patientResponseDtoList = patientService.findAllActive();
@@ -90,6 +95,7 @@ public class PatientController {
      * Actualiza la información de un paciente existente (datos personales, contacto, etc.).
      * Valida que no se duplique DNI o email con otros pacientes.
      */
+	@Operation(summary = "Actualizar paciente")
     @PutMapping("/update/{id}")
     public ResponseEntity<PatientResponseDto> updatePatient(
             @Parameter(description = "Patient ID to update", required = true)
@@ -106,6 +112,7 @@ public class PatientController {
      * Elimina físicamente un paciente del sistema.
      * IMPORTANTE: Esto es una eliminación permanente, no es eliminación lógica.
      */
+	@Operation(summary = "Eliminar paciente")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deletePatient(
             @Parameter(description = "Patient ID to delete", required = true)
@@ -120,17 +127,20 @@ public class PatientController {
      * Retorna el número total de pacientes que están activos en el sistema.
      * Útil para estadísticas y dashboards.
      */
+	@Operation(summary = "Contar pacientes activos")
     @GetMapping("/countActive")
     public ResponseEntity<Long> countActivePatient() {
         long count = patientService.countActivePatient();
         return ResponseEntity.ok(count);
     }
 
+	// ------- Bloque Recetas del Paciente -------
     /**
      * Ver Recetas del Paciente
      * El paciente puede consultar todas las recetas que le han emitido.
      * Las recetas se ordenan por fecha de emisión descendente (más recientes primero).
      */
+	@Operation(summary = "Listar recetas del paciente")
     @GetMapping("/{id}/prescriptions")
     public ResponseEntity<List<PrescriptionResponseDto>> getPrescriptionsByPatientId(
             @Parameter(description = "Patient ID", required = true)
@@ -144,6 +154,7 @@ public class PatientController {
      * El paciente consulta el detalle completo de una receta específica que le emitieron.
      * Incluye medicamentos, observaciones y datos del dentista.
      */
+	@Operation(summary = "Obtener receta por ID para el paciente")
     @GetMapping("/{id}/prescriptions/{prescriptionId}")
     public ResponseEntity<PrescriptionResponseDto> getPrescriptionByIdAndPatientId(
             @Parameter(description = "Patient ID", required = true)
@@ -159,6 +170,7 @@ public class PatientController {
      * Retorna el número total de recetas activas que tiene el paciente.
      * Útil para estadísticas personales del paciente.
      */
+	@Operation(summary = "Contar recetas del paciente")
     @GetMapping("/{id}/prescriptions/count")
     public ResponseEntity<Long> countPrescriptionsByPatientId(
             @Parameter(description = "Patient ID", required = true)
@@ -167,11 +179,13 @@ public class PatientController {
         return ResponseEntity.ok(count);
     }
 
+	// ------- Bloque Historia Clínica del Paciente -------
     /**
      * Ver Historia Clínica del Paciente
      * El paciente consulta su historia clínica completa (solo lectura).
      * Las entradas se ordenan por fecha descendente (más recientes primero).
      */
+	@Operation(summary = "Listar historia clínica del paciente")
     @GetMapping("/{id}/medical-history")
     public ResponseEntity<List<MedicalHistoryResponseDto>> getMedicalHistoryByPatient(
             @Parameter(description = "Patient ID", required = true)
@@ -185,6 +199,7 @@ public class PatientController {
      * El paciente consulta el detalle completo de una entrada específica de su historia.
      * Incluye descripción, fecha, receta asociada e información del archivo adjunto si existe.
      */
+	@Operation(summary = "Obtener entrada de historia clínica por ID para el paciente")
     @GetMapping("/{id}/medical-history/{entryId}")
     public ResponseEntity<MedicalHistoryResponseDto> getMedicalHistoryEntry(
             @Parameter(description = "Patient ID", required = true)
@@ -195,11 +210,13 @@ public class PatientController {
         return ResponseEntity.ok(entry);
     }
 
+	// ------- Bloque Tratamientos del Paciente -------
     /**
      * Ver Tratamientos del Paciente
      * El paciente consulta todos los tratamientos que tiene activos.
      * Muestra nombre, estado, fechas y porcentaje de progreso de cada tratamiento.
      */
+	@Operation(summary = "Listar tratamientos del paciente")
     @GetMapping("/{id}/treatments")
     public ResponseEntity<List<TreatmentResponseDto>> getTreatmentsByPatient(
             @Parameter(description = "Patient ID", required = true)
@@ -214,6 +231,7 @@ public class PatientController {
      * Muestra el progreso completo con todas las entradas de historia clínica relacionadas.
      * Permite ver fotos, recetas y descripciones de cada sesión del tratamiento.
      */
+	@Operation(summary = "Obtener detalle de tratamiento para el paciente")
     @GetMapping("/{id}/treatments/{treatmentId}")
     public ResponseEntity<TreatmentDetailResponseDto> getTreatmentDetail(
             @Parameter(description = "Patient ID", required = true)
@@ -224,12 +242,14 @@ public class PatientController {
         return ResponseEntity.ok(treatment);
     }
 
+	// ------- Bloque Turnos del Paciente -------
     /**
      * Ver Todos los Turnos del Paciente
      * El paciente consulta todos sus turnos con el dentista.
      * Los turnos se ordenan por fecha/hora de inicio (más próximos primero).
      * Incluye turnos de todos los estados (programados, confirmados, completados, etc.).
      */
+	@Operation(summary = "Listar turnos del paciente")
     @GetMapping("/{id}/appointments")
     public ResponseEntity<List<AppointmentResponseDto>> getAppointmentsByPatientId(
             @Parameter(description = "Patient ID", required = true)
@@ -243,6 +263,7 @@ public class PatientController {
      * El paciente consulta únicamente sus turnos futuros (que aún no han ocurrido).
      * Útil para recordar las próximas citas programadas.
      */
+	@Operation(summary = "Listar próximos turnos del paciente")
     @GetMapping("/{id}/appointments/upcoming")
     public ResponseEntity<List<AppointmentResponseDto>> getUpcomingAppointmentsByPatientId(
             @Parameter(description = "Patient ID", required = true)
@@ -256,6 +277,7 @@ public class PatientController {
      * El paciente consulta la información completa de un turno específico.
      * Incluye fecha/hora, motivo, observaciones del dentista y datos del profesional.
      */
+	@Operation(summary = "Obtener turno por ID para el paciente")
     @GetMapping("/{id}/appointments/{appointmentId}")
     public ResponseEntity<AppointmentResponseDto> getAppointmentByIdAndPatientId(
             @Parameter(description = "Patient ID", required = true)
@@ -272,6 +294,7 @@ public class PatientController {
      * Estados: SCHEDULED, CONFIRMED, COMPLETED, CANCELLED, NO_SHOW.
      * Si no se especifica estado, cuenta todos los turnos activos.
      */
+	@Operation(summary = "Contar turnos del paciente por estado")
     @GetMapping("/{id}/appointments/count")
     public ResponseEntity<Long> countAppointmentsByStatus(
             @Parameter(description = "Patient ID", required = true)

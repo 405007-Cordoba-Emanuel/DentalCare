@@ -17,7 +17,7 @@ import java.time.temporal.ChronoUnit;
 @AllArgsConstructor
 @Entity
 @Table(name = "appointments")
-public class Appointment extends BaseEntity {
+public class Appointment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -67,8 +67,8 @@ public class Appointment extends BaseEntity {
         return 0;
     }
 
+    @PrePersist
     protected void onCreate() {
-        super.onCreate();
         if (this.active == null) {
             this.active = true;
         }
