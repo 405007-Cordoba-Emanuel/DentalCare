@@ -20,15 +20,16 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    @Value("${jwt.expiration:3600000}") // 1 hour default
+    @Value("${jwt.expiration:3600000}")
     private long jwtExpiration;
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    public String generateToken(String email, String firstName,String lastName , String picture, String role) {
+    public String generateToken(String id, String email, String firstName,String lastName , String picture, String role) {
         Map<String, Object> claims = new HashMap<>();
+		claims.put("id", id);
         claims.put("role",role);
         claims.put("firstName", firstName);
         claims.put("lastName", lastName);
@@ -41,11 +42,10 @@ public class JwtUtil {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
 
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
+        return Jwts.builder().claims(claims)
+                .subject(subject)
+                .issuedAt(now)
+                .expiration(expiryDate)
                 .signWith(getSigningKey(), Jwts.SIG.HS256)
                 .compact();
     }

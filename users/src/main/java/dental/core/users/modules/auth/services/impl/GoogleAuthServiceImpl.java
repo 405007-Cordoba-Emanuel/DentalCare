@@ -102,10 +102,11 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
             }
 
             // Generate JWT token
-            String token = jwtUtil.generateToken(email, user.getFirstName(), user.getLastName(), user.getPicture(), user.getRole().name());
+            String token = jwtUtil.generateToken(user.getId().toString(),email, user.getFirstName(), user.getLastName(), user.getPicture(), user.getRole().name());
 
             log.info("Successful authentication for user: {}", email);
             return AuthResponse.builder()
+					.id(user.getId().toString())
                     .token(token)
                     .firstName(user.getFirstName())
                     .lastName(user.getLastName())
@@ -202,7 +203,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         String testPicture = "https://example.com/test-picture.jpg";
         
         UserEntity user = findOrCreateUser(testEmail, testFirstName, testPicture);
-        String token = jwtUtil.generateToken(testEmail, testFirstName, testLastName, testPicture, user.getRole().name());
+        String token = jwtUtil.generateToken(String.valueOf(user.getId()),testEmail, testFirstName, testLastName, testPicture, user.getRole().name());
 
         log.info("Test authentication successful for: {}", testEmail);
         return AuthResponse.builder()
@@ -248,7 +249,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                 tokenResponse.getExpiresInSeconds());
             
             // Generar JWT
-            String token = jwtUtil.generateToken(email, user.getFirstName(),user.getLastName(), user.getPicture(), user.getRole().name());
+            String token = jwtUtil.generateToken(String.valueOf(user.getId()),email, user.getFirstName(),user.getLastName(), user.getPicture(), user.getRole().name());
             
             log.info("OAuth callback successful for user: {}", email);
             return AuthResponse.builder()

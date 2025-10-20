@@ -53,7 +53,7 @@ public class AuthServiceImpl implements AuthService {
             userRepository.save(user);
 
             // Generar token JWT
-            String token = jwtUtil.generateToken(user.getEmail(), user.getFirstName(),user.getLastName(), user.getPicture(), user.getRole().name());
+            String token = jwtUtil.generateToken(user.getId().toString(),user.getEmail(), user.getFirstName(),user.getLastName(), user.getPicture(), user.getRole().name());
 
             return AuthResponse.builder()
                 .token(token)
@@ -101,7 +101,7 @@ public class AuthServiceImpl implements AuthService {
         UserEntity savedUser = userRepository.save(newUser);
 
         // Generar token JWT
-        String token = jwtUtil.generateToken(savedUser.getEmail(), savedUser.getFirstName(),savedUser.getLastName(), savedUser.getPicture(), savedUser.getRole().name());
+        String token = jwtUtil.generateToken(savedUser.getId().toString(),savedUser.getEmail(), savedUser.getFirstName(),savedUser.getLastName(), savedUser.getPicture(), savedUser.getRole().name());
 
         return AuthResponse.builder()
             .token(token)
