@@ -13,24 +13,16 @@
     </div>
   </mat-toolbar>
 
-  <!-- Hero Section con Material Design -->
+  <!-- Hero Section -->
   <section class="hero-section">
     <div class="hero-content">
-      <h1 class="hero-title">
-        La Plataforma Dental del Futuro
-      </h1>
+      <h1 class="hero-title">La Plataforma Dental del Futuro</h1>
       <p class="hero-description">
         Conectamos dentistas y pacientes en una plataforma moderna, segura y fácil de usar. 
         Gestiona citas, historiales médicos y más desde cualquier lugar.
       </p>
-      
       <div class="hero-buttons">
-        <button 
-          mat-raised-button 
-          color="primary"
-          class="hero-btn primary"
-          routerLink="/login"
-        >
+        <button mat-raised-button color="primary" class="hero-btn primary" routerLink="/login">
           <mat-icon>medical_services</mat-icon>
           Portal del Dentista
         </button>
@@ -38,7 +30,7 @@
     </div>
   </section>
 
-  <!-- Features Section con Material Cards -->
+  <!-- Features Section -->
   <section class="features-section">
     <div class="features-container">
       <div class="features-header">
@@ -48,6 +40,7 @@
         </p>
       </div>
 
+      <!-- GRID con 3 columnas -->
       <div class="features-grid">
         <!-- Gestión de Citas -->
         <mat-card class="feature-card">
@@ -88,15 +81,15 @@
           </mat-card-content>
         </mat-card>
 
-        <!-- Historial Médico -->
+        <!-- Historia Clínica -->
         <mat-card class="feature-card">
           <div class="feature-icon-container">
             <app-icon name="fileText" size="32" class="feature-icon"></app-icon>
           </div>
           <mat-card-content>
-            <h3 class="feature-title">Historial Médico</h3>
+            <h3 class="feature-title">Historia Clínica</h3>
             <p class="feature-description">
-              Historiales médicos digitales seguros y accesibles desde cualquier dispositivo.
+              Historiales clínicos digitales seguros y accesibles desde cualquier dispositivo.
             </p>
           </mat-card-content>
         </mat-card>
@@ -110,6 +103,19 @@
             <h3 class="feature-title">Gestión de Pacientes</h3>
             <p class="feature-description">
               Base de datos completa de pacientes con información personal y médica organizada.
+            </p>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Confección de Odontograma -->
+        <mat-card class="feature-card">
+          <div class="feature-icon-container">
+            <app-icon name="teeth" size="32" class="feature-icon"></app-icon>
+          </div>
+          <mat-card-content>
+            <h3 class="feature-title">Confección de Odontograma</h3>
+            <p class="feature-description">
+              Representa gráficamente la salud dental de tus pacientes con facilidad.
             </p>
           </mat-card-content>
         </mat-card>

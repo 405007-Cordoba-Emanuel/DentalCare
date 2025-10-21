@@ -129,5 +129,24 @@ export const Icons = {
   rotateCcw: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <polyline points="1,4 1,10 7,10"/>
     <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
-  </svg>`
+  </svg>`,
+  
+  teeth: `<svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Arcada dental superior -->
+  <path d="M2 6 Q3 4, 5 5 Q7 4, 9 5 Q11 4, 13 5 Q15 4, 17 5 Q19 4, 22 6 Q22 7, 21 8 Q19 7, 17 8 Q15 7, 13 8 Q11 7, 9 8 Q7 7, 5 8 Q3 7, 2 6 Z"/>
+  
+  <!-- Arcada dental inferior -->
+  <path d="M2 18 Q3 20, 5 19 Q7 20, 9 19 Q11 20, 13 19 Q15 20, 17 19 Q19 20, 22 18 Q22 17, 21 16 Q19 17, 17 16 Q15 17, 13 16 Q11 17, 9 16 Q7 17, 5 16 Q3 17, 2 18 Z"/>
+  
+  <!-- Líneas de separación entre dientes superiores -->
+  <path d="M9 6 Q9 7, 9 8"/>
+  <path d="M13 6 Q13 7, 13 8"/>
+  <path d="M17 6 Q17 7, 17 8"/>
+  
+  <!-- Líneas de separación entre dientes inferiores -->
+  <path d="M9 18 Q9 17, 9 16"/>
+  <path d="M13 18 Q13 17, 13 16"/>
+  <path d="M17 18 Q17 17, 17 16"/>
+</svg>`
+
 };
