@@ -28,7 +28,4 @@ public class PatientRequestDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
 
-    @NotNull(message = "Dentist ID is required")
-    private Long dentistId;
-
 }

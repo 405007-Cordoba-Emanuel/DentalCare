@@ -133,20 +133,20 @@ export const Icons = {
   
   teeth: `<svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
     <!-- Arcada dental superior -->
-  <path d="M2 6 Q3 4, 5 5 Q7 4, 9 5 Q11 4, 13 5 Q15 4, 17 5 Q19 4, 22 6 Q22 7, 21 8 Q19 7, 17 8 Q15 7, 13 8 Q11 7, 9 8 Q7 7, 5 8 Q3 7, 2 6 Z"/>
+  <path d="M2 8 Q3 6, 5 7 Q7 6, 9 7 Q11 6, 13 7 Q15 6, 17 7 Q19 6, 22 8 Q22 9, 21 10 Q19 9, 17 10 Q15 9, 13 10 Q11 9, 9 10 Q7 9, 5 10 Q3 9, 2 8 Z"/>
   
   <!-- Arcada dental inferior -->
-  <path d="M2 18 Q3 20, 5 19 Q7 20, 9 19 Q11 20, 13 19 Q15 20, 17 19 Q19 20, 22 18 Q22 17, 21 16 Q19 17, 17 16 Q15 17, 13 16 Q11 17, 9 16 Q7 17, 5 16 Q3 17, 2 18 Z"/>
+  <path d="M2 16 Q3 18, 5 17 Q7 18, 9 17 Q11 18, 13 17 Q15 18, 17 17 Q19 18, 22 16 Q22 15, 21 14 Q19 15, 17 14 Q15 15, 13 14 Q11 15, 9 14 Q7 15, 5 14 Q3 15, 2 16 Z"/>
   
   <!-- Líneas de separación entre dientes superiores -->
-  <path d="M9 6 Q9 7, 9 8"/>
-  <path d="M13 6 Q13 7, 13 8"/>
-  <path d="M17 6 Q17 7, 17 8"/>
+  <path d="M9 8 Q9 9, 9 10"/>
+  <path d="M13 8 Q13 9, 13 10"/>
+  <path d="M17 8 Q17 9, 17 10"/>
   
   <!-- Líneas de separación entre dientes inferiores -->
-  <path d="M9 18 Q9 17, 9 16"/>
-  <path d="M13 18 Q13 17, 13 16"/>
-  <path d="M17 18 Q17 17, 17 16"/>
+  <path d="M9 16 Q9 15, 9 14"/>
+  <path d="M13 16 Q13 15, 13 14"/>
+  <path d="M17 16 Q17 15, 17 14"/>
 </svg>`
 
 };
