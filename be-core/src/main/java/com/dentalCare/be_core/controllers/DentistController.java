@@ -8,6 +8,7 @@ import com.dentalCare.be_core.dtos.request.prescription.PrescriptionRequestDto;
 import com.dentalCare.be_core.dtos.request.treatment.TreatmentRequestDto;
 import com.dentalCare.be_core.dtos.request.appointment.AppointmentRequestDto;
 import com.dentalCare.be_core.dtos.request.appointment.AppointmentUpdateRequestDto;
+import com.dentalCare.be_core.dtos.response.AvailableUserDto;
 import com.dentalCare.be_core.dtos.response.dentist.DentistResponseDto;
 import com.dentalCare.be_core.dtos.response.dentist.DentistPatientsResponseDto;
 import com.dentalCare.be_core.dtos.response.medicalhistory.MedicalHistoryResponseDto;
@@ -229,6 +230,22 @@ public class DentistController {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException("Internal error creating patient for dentist", e);
+        }
+    }
+
+    /**
+     * Obtener usuarios pacientes disponibles
+     * Lista todos los usuarios con rol PATIENT que están activos y no tienen un dentista vinculado.
+     * Permite al dentista ver usuarios disponibles para vincular como pacientes.
+     */
+    @Operation(summary = "Obtener usuarios pacientes disponibles")
+    @GetMapping("/available-patients")
+    public ResponseEntity<List<AvailableUserDto>> getAvailablePatientUsers() {
+        try {
+            List<AvailableUserDto> availableUsers = dentistService.getAvailablePatientUsers();
+            return ResponseEntity.ok(availableUsers);
+        } catch (Exception e) {
+            throw new RuntimeException("Internal error getting available patient users", e);
         }
     }
 

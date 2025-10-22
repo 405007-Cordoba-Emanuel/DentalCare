@@ -1,19 +1,17 @@
 package com.dentalCare.be_core.dtos.external;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDetailDto {
+public class UserDetailResponseDto {
     
-    private Long userId;
+    private Long id;
     private String firstName;
     private String lastName;
     private String email;

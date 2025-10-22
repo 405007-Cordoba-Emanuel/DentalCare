@@ -3,6 +3,7 @@ package com.dentalCare.be_core.services;
 import com.dentalCare.be_core.dtos.request.dentist.DentistRequestDto;
 import com.dentalCare.be_core.dtos.request.dentist.DentistUpdateRequestDto;
 import com.dentalCare.be_core.dtos.request.patient.PatientRequestDto;
+import com.dentalCare.be_core.dtos.response.AvailableUserDto;
 import com.dentalCare.be_core.dtos.response.dentist.DentistResponseDto;
 import com.dentalCare.be_core.dtos.response.dentist.DentistPatientsResponseDto;
 import com.dentalCare.be_core.dtos.response.patient.PatientResponseDto;
@@ -39,5 +40,7 @@ public interface DentistService {
     DentistPatientsResponseDto getActivePatientsByDentistId(Long dentistId);
 
     PatientResponseDto createPatientForDentist(Long dentistId, PatientRequestDto patientRequestDto);
+
+    List<AvailableUserDto> getAvailablePatientUsers();
 
 }

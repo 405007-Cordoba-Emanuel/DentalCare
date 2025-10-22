@@ -1,5 +1,6 @@
 package dental.core.users.modules.auth.controllers;
 
+import dental.core.users.entities.Role;
 import dental.core.users.entities.UserEntity;
 import dental.core.users.modules.auth.dto.UserDetailResponse;
 import dental.core.users.modules.auth.repositories.UserRepository;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/public/users")
@@ -42,6 +45,35 @@ public class PublicUserController {
                 .isActive(user.getIsActive())
                 .build();
         return ResponseEntity.ok(dto);
+    }
+
+    @GetMapping("/role/{role}")
+    @Operation(summary = "Obtener usuarios por rol (público)")
+    public ResponseEntity<List<UserDetailResponse>> getByRole(@PathVariable String role) {
+        try {
+            Role roleEnum = Role.valueOf(role.toUpperCase());
+            List<UserEntity> users = userRepository.findByRole(roleEnum);
+            
+            List<UserDetailResponse> userDtos = users.stream()
+                    .map(user -> UserDetailResponse.builder()
+                            .id(user.getId())
+                            .firstName(user.getFirstName())
+                            .lastName(user.getLastName())
+                            .email(user.getEmail())
+                            .picture(user.getPicture())
+                            .profileImage(user.getProfileImage())
+                            .role(user.getRole())
+                            .phone(user.getPhone())
+                            .address(user.getAddress())
+                            .birthDate(user.getBirthDate())
+                            .isActive(user.getIsActive())
+                            .build())
+                    .toList();
+            
+            return ResponseEntity.ok(userDtos);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }
 

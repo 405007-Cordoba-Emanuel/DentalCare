@@ -4,6 +4,7 @@ import com.dentalCare.be_core.dtos.external.UserDetailDto;
 import com.dentalCare.be_core.dtos.request.dentist.DentistRequestDto;
 import com.dentalCare.be_core.dtos.request.dentist.DentistUpdateRequestDto;
 import com.dentalCare.be_core.dtos.request.patient.PatientRequestDto;
+import com.dentalCare.be_core.dtos.response.AvailableUserDto;
 import com.dentalCare.be_core.dtos.response.dentist.DentistResponseDto;
 import com.dentalCare.be_core.dtos.response.dentist.DentistPatientsResponseDto;
 import com.dentalCare.be_core.dtos.response.patient.PatientResponseDto;
@@ -264,6 +265,36 @@ public class DentistServiceImpl implements DentistService {
         dto.setDni(patient.getDni());
         dto.setBirthDate(patient.getBirthDate().toString());
         dto.setActive(patient.getActive());
+        return dto;
+    }
+
+    @Override
+    public List<AvailableUserDto> getAvailablePatientUsers() {
+        // Obtener todos los usuarios con rol PATIENT
+        List<UserDetailDto> patientUsers = userServiceClient.getUsersByRole("PATIENT");
+        
+        // Obtener todos los userIds que ya tienen un paciente vinculado
+        List<Long> existingPatientUserIds = patientRepository.findAll()
+                .stream()
+                .map(Patient::getUserId)
+                .toList();
+        
+        // Filtrar usuarios que no tienen paciente vinculado y están activos
+        return patientUsers.stream()
+                .filter(user -> user.getIsActive() && !existingPatientUserIds.contains(user.getUserId()))
+                .map(this::mapToAvailableUserDto)
+                .toList();
+    }
+
+    private AvailableUserDto mapToAvailableUserDto(UserDetailDto user) {
+        AvailableUserDto dto = new AvailableUserDto();
+        dto.setUserId(user.getUserId());
+        dto.setFirstName(user.getFirstName());
+        dto.setLastName(user.getLastName());
+        dto.setEmail(user.getEmail());
+        dto.setPicture(user.getPicture());
+        dto.setRole(user.getRole());
+        dto.setActive(user.getIsActive());
         return dto;
     }
 }

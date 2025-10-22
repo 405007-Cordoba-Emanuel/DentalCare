@@ -1,10 +1,12 @@
 package dental.core.users.modules.auth.repositories;
 
+import dental.core.users.entities.Role;
 import dental.core.users.entities.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -19,5 +21,10 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>, JpaSpec
      * Busca un usuario por su email.
      */
     Optional<UserEntity> findByEmail(String email);
+
+    /**
+     * Busca usuarios por rol.
+     */
+    List<UserEntity> findByRole(Role role);
 
 }
