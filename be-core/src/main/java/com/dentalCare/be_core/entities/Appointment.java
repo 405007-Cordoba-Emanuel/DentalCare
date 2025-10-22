@@ -73,7 +73,7 @@ public class Appointment {
             this.active = true;
         }
         if (this.status == null) {
-            this.status = AppointmentStatus.SCHEDULED;
+            this.status = AppointmentStatus.PROGRAMADO;
         }
     }
 }

@@ -1,12 +1,12 @@
 package com.dentalCare.be_core.entities;
 
 /**
- * Enum que define los posibles estados de un turno/cita
+ * Enum que define los posibles estados de un turno o cita odontológica
  */
 public enum AppointmentStatus {
-    SCHEDULED,    // Programado - Turno creado pero no confirmado
-    CONFIRMED,    // Confirmado - Turno confirmado por el dentista
-    COMPLETED,    // Completado - Turno realizado exitosamente
-    CANCELLED,    // Cancelado - Turno cancelado por dentista o paciente
-    NO_SHOW       // No se presentó - Paciente no asistió al turno
+    PROGRAMADO,   // Turno creado pero aún no confirmado
+    CONFIRMADO,   // Turno confirmado por el dentista o el paciente
+    COMPLETADO,   // Turno realizado exitosamente
+    CANCELADO,    // Turno cancelado por el dentista o el paciente
+    AUSENTE       // El paciente no se presentó al turno
 }

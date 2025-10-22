@@ -80,7 +80,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setId(null);
         appointment.setDentist(dentist);
         appointment.setPatient(patient);
-        appointment.setStatus(AppointmentStatus.SCHEDULED);
+        appointment.setStatus(AppointmentStatus.PROGRAMADO);
         appointment.setActive(true);
 
         Appointment savedAppointment = appointmentRepository.save(appointment);
@@ -169,7 +169,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository.findByIdAndDentistIdAndActiveTrue(appointmentId, dentistId)
                 .orElseThrow(() -> new IllegalArgumentException("No appointment found with ID: " + appointmentId));
 
-        appointment.setStatus(AppointmentStatus.CANCELLED);
+        appointment.setStatus(AppointmentStatus.CANCELADO);
         appointment.setActive(false);
         appointmentRepository.save(appointment);
     }

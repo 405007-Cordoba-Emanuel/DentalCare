@@ -52,7 +52,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
                                             @Param("currentDateTime") LocalDateTime currentDateTime);
 
     @Query("SELECT COUNT(a) > 0 FROM Appointment a WHERE a.dentist.id = :dentistId AND a.active = true " +
-           "AND a.status NOT IN (com.dentalCare.be_core.entities.AppointmentStatus.CANCELLED, com.dentalCare.be_core.entities.AppointmentStatus.NO_SHOW) " +
+           "AND a.status NOT IN (com.dentalCare.be_core.entities.AppointmentStatus.CANCELADO, com.dentalCare.be_core.entities.AppointmentStatus.AUSENTE) " +
            "AND ((a.startDateTime < :endTime AND a.endDateTime > :startTime))")
     boolean existsTimeConflict(@Param("dentistId") Long dentistId,
                               @Param("startTime") LocalDateTime startTime,
@@ -60,7 +60,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     @Query("SELECT COUNT(a) > 0 FROM Appointment a WHERE a.dentist.id = :dentistId AND a.active = true " +
            "AND a.id != :excludeAppointmentId " +
-           "AND a.status NOT IN (com.dentalCare.be_core.entities.AppointmentStatus.CANCELLED, com.dentalCare.be_core.entities.AppointmentStatus.NO_SHOW) " +
+           "AND a.status NOT IN (com.dentalCare.be_core.entities.AppointmentStatus.CANCELADO, com.dentalCare.be_core.entities.AppointmentStatus.AUSENTE) " +
            "AND ((a.startDateTime < :endTime AND a.endDateTime > :startTime))")
     boolean existsTimeConflictExcluding(@Param("dentistId") Long dentistId,
                                        @Param("excludeAppointmentId") Long excludeAppointmentId,
