@@ -12,7 +12,7 @@ import { Icons } from '../icons';
   `
 })
 export class IconComponent {
-  @Input() name!: keyof typeof Icons;
+  @Input() name!: string;
   @Input() class: string = '';
 
   constructor(private sanitizer: DomSanitizer) {}
@@ -22,10 +22,14 @@ export class IconComponent {
   }
 
   getSafeIcon(): SafeHtml {
-    if (!this.name || !Icons[this.name]) {
+    if (!this.name) {
+      return this.sanitizer.bypassSecurityTrustHtml('');
+    }
+    const key = this.name as keyof typeof Icons;
+    if (!Icons[key]) {
       console.warn(`Icon "${this.name}" not found`);
       return this.sanitizer.bypassSecurityTrustHtml('');
     }
-    return this.sanitizer.bypassSecurityTrustHtml(Icons[this.name]);
+    return this.sanitizer.bypassSecurityTrustHtml(Icons[key]);
   }
 }

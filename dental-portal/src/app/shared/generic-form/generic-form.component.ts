@@ -9,6 +9,7 @@ export interface FormField {
   placeholder?: string;
   options?: { label: string; value: any }[];
   validators?: any[];
+  fullWidth?: boolean;
 }
 
 @Component({
@@ -20,6 +21,8 @@ export class GenericFormComponent implements OnInit, OnChanges {
   fields = input<FormField[]>([]);
   formTitle = input<string>('Form');
   submitText = input<string>('Submit');
+  // Optional icon: provide { name: string; size?: number; class?: string }
+  icon = input<{ name: string; size?: number; class?: string } | undefined>(undefined);
 
   formSubmit = output<any>();
 

@@ -1,56 +1,72 @@
 <form
   [formGroup]="formGroup"
   (ngSubmit)="onSubmit()"
-  class="max-w-2xl mx-auto bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-8 flex flex-col gap-6 transition-all"
+  class="w-full max-w-5xl mx-auto bg-white p-6 sm:p-8"
 >
-  <h2
-    class="text-2xl font-semibold text-gray-800 dark:text-gray-100 text-center"
-  >
-    {{ formTitle() }}
-  </h2>
+  <!-- Header con título e icono -->
+  <div class="mb-8 border-b border-gray-200 pb-4 flex items-center gap-2">
+      <h2 class="text-2xl font-semibold text-gray-900">
+        {{ formTitle() }}
+      </h2>
+  </div>
 
-  @for (field of fields(); track field.name) {
-  <div>
-    <label class="block text-gray-700 dark:text-gray-300 font-medium mb-2">
-      {{ field.label }}
-    </label>
+  <!-- Grid de campos -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mb-8">
+    @for (field of fields(); track field.name) {
+    <div [class]="field.fullWidth ? 'md:col-span-2' : 'col-span-1'">
+      <label class="block text-sm font-medium text-gray-700 mb-1.5">
+        {{ field.label }}
+      </label>
 
-    @if (field.type === 'text' || field.type === 'number') {
-    <input
-      [type]="field.type"
-      [formControlName]="field.name"
-      [placeholder]="field.placeholder"
-      class="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-    />
-    } @if (field.type === 'textarea') {
-    <textarea
-      [formControlName]="field.name"
-      [placeholder]="field.placeholder"
-      class="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded-lg px-4 py-2 h-24 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
-    ></textarea>
-    } @if (field.type === 'select') {
-    <select
-      [formControlName]="field.name"
-      class="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-    >
-      @for (opt of field.options; track opt.value) {
-      <option [value]="opt.value">{{ opt.label }}</option>
+      @if (field.type === 'text' || field.type === 'number') {
+      <input
+        [type]="field.type"
+        [formControlName]="field.name"
+        [placeholder]="field.placeholder"
+        class="w-full border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-600 focus:ring-0 focus:outline-none transition-colors"
+      />
+      } @if (field.type === 'textarea') {
+      <textarea
+        [formControlName]="field.name"
+        [placeholder]="field.placeholder"
+        rows="4"
+        class="w-full border border-gray-300 bg-transparent rounded px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 focus:outline-none transition-colors resize-none"
+      ></textarea>
+      } @if (field.type === 'select') {
+      <select
+        [formControlName]="field.name"
+        class="w-full border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2 text-gray-900 focus:border-blue-600 focus:ring-0 focus:outline-none transition-colors"
+      >
+        <option value="" disabled selected>Seleccionar...</option>
+        @for (opt of field.options; track opt.value) {
+        <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+      } @if (field.type === 'datetime-local') {
+      <input
+        type="datetime-local"
+        [formControlName]="field.name"
+        class="w-full border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2 text-gray-900 focus:border-blue-600 focus:ring-0 focus:outline-none transition-colors"
+      />
       }
-    </select>
-    } @if (field.type === 'datetime-local') {
-    <input
-      type="datetime-local"
-      [formControlName]="field.name"
-      class="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-    />
+
+      <!-- Mensaje de error si el campo es inválido y fue tocado -->
+      @if (formGroup.get(field.name)?.invalid &&
+      formGroup.get(field.name)?.touched) {
+      <p class="mt-1 text-xs text-red-600">Este campo es requerido</p>
+      }
+    </div>
     }
   </div>
-  }
 
-  <button
-    type="submit"
-    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all"
-  >
-    {{ submitText() }}
-  </button>
+  <!-- Botón de submit -->
+  <div class="flex justify-end pt-4 border-t border-gray-200">
+    <button
+      type="submit"
+      class="px-6 py-2.5 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      [disabled]="formGroup.invalid"
+    >
+      {{ submitText() }}
+    </button>
+  </div>
 </form>

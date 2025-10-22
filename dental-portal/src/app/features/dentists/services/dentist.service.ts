@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { DentistResponse, DentistUpdateRequest, DentistInfo } from '../interfaces/dentist.interface';
-import { DentistPatientsResponse } from '../interfaces/patient.interface';
+import { DentistPatientsResponse, PatientInfo, PatientRequest } from '../interfaces/patient.interface';
 import { AppointmentRequest, AppointmentResponse } from '../interfaces/appointment.interface';
 
 @Injectable({
@@ -10,7 +10,7 @@ import { AppointmentRequest, AppointmentResponse } from '../interfaces/appointme
 })
 export class DentistService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/core/dentist';
+  private apiUrl = 'http://localhost:8081/api/core/dentist';
 
   // Obtener datos del odontólogo por ID
   getDentistById(id: number): Observable<DentistResponse> {
@@ -34,5 +34,9 @@ export class DentistService {
 
   createAppointment(dentistId: number, appointment: AppointmentRequest): Observable<AppointmentResponse> {
     return this.http.post<AppointmentResponse>(`${this.apiUrl}/${dentistId}/appointments`, appointment);
+  }
+
+  createPatient(dentistId: number, patient: PatientRequest): Observable<PatientInfo> {
+    return this.http.post<PatientInfo>(`${this.apiUrl}/${dentistId}/patients`, patient);
   }
 }

@@ -7,7 +7,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const token = localStorageService.getAuthToken();
 
   // Si existe el token y no es una petición de autenticación, agregar el header
-  if (token && !req.url.includes('/auth/')) {
+  if (token && !req.url.includes('/auth/') && !req.url.includes('/api/core/dentist/{id}/patients')) {
     const clonedRequest = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`

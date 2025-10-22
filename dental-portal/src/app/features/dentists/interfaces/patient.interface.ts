@@ -22,3 +22,8 @@ export interface PatientInfo {
   lastName: string;
   dni: string;
 }
+
+export interface PatientRequest {
+  userId: number;
+  dni: number;
+}

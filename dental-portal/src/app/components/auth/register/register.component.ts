@@ -8,9 +8,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { IconComponent } from '../../../shared/icon/icon.component';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { EmailRegisterRequest } from '../../../interfaces/auth/auth-response.interface';
+import { DentistService } from '../../../features/dentists/services/dentist.service';
+import { LocalStorageService } from '../../../core/services/auth/local-storage.service';
+import { GenericFormComponent, FormField } from '../../../shared/generic-form/generic-form.component';
+import { Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-register',
@@ -24,26 +27,21 @@ import { EmailRegisterRequest } from '../../../interfaces/auth/auth-response.int
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
-    IconComponent
+    GenericFormComponent,
   ],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.css'
+  styleUrl: './register.component.css',
 })
 export class RegisterComponent implements OnInit {
   userType: string = 'PATIENT'; // Valor por defecto
-  firstName: string = '';
-  lastName: string = '';
-  email: string = '';
-  phone: string = '';
-  password: string = '';
-  confirmPassword: string = '';
   isLoading = false;
   errorMessage = '';
+  formFields: FormField[] = [];
 
   private router = inject(Router);
-  private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
-
+  private dentistService = inject(DentistService);
+  private localStorage = inject(LocalStorageService); 
   ngOnInit(): void {
     // Detectar la ruta actual para establecer el rol correcto
     const currentPath = this.router.url;
@@ -52,17 +50,62 @@ export class RegisterComponent implements OnInit {
     } else if (currentPath.includes('patient-register')) {
       this.userType = 'PATIENT';
     }
+
+    // Configurar campos del formulario
+    this.configureFormFields();
   }
 
-  onSubmit() {
-    // Validaciones
-    if (this.password !== this.confirmPassword) {
-      this.errorMessage = 'Las contraseñas no coinciden';
-      return;
-    }
+  private configureFormFields() {
+    this.formFields = [
+      {
+        name: 'firstName',
+        label: 'Nombre',
+        type: 'text',
+        placeholder: 'Ingresa tu nombre',
+        validators: [Validators.required, Validators.minLength(2)],
+      },
+      {
+        name: 'lastName',
+        label: 'Apellido',
+        type: 'text',
+        placeholder: 'Ingresa tu apellido',
+        validators: [Validators.required, Validators.minLength(2)],
+      },
+      {
+        name: 'email',
+        label: 'Email',
+        type: 'text',
+        placeholder: 'tu@email.com',
+        validators: [Validators.required, Validators.email],
+      },
+      {
+        name: 'dni',
+        label: 'DNI',
+        type: 'number',
+        placeholder: 'Ingresa tu DNI',
+        validators: [Validators.required, Validators.min(1000000), Validators.max(99999999)],
+      },
+      {
+        name: 'password',
+        label: 'Contraseña',
+        type: 'text',
+        placeholder: 'Ingresa tu contraseña',
+        validators: [Validators.required, Validators.minLength(6)],
+      },
+      {
+        name: 'confirmPassword',
+        label: 'Confirmar Contraseña',
+        type: 'text',
+        placeholder: 'Confirma tu contraseña',
+        validators: [Validators.required],
+      },
+    ];
+  }
 
-    if (!this.firstName || !this.lastName || !this.email || !this.password) {
-      this.errorMessage = 'Por favor completa todos los campos requeridos';
+  handleFormSubmit(data: any) {
+    // Validaciones
+    if (data.password !== data.confirmPassword) {
+      this.errorMessage = 'Las contraseñas no coinciden';
       return;
     }
 
@@ -70,26 +113,28 @@ export class RegisterComponent implements OnInit {
     this.errorMessage = '';
 
     const registerRequest: EmailRegisterRequest = {
-      firstName: this.firstName,
-      lastName: this.lastName,
-      email: this.email,
-      password: this.password,
-      confirmPassword: this.confirmPassword,
-      role: this.userType // Enviar el rol seleccionado (PATIENT o DENTIST)
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      password: data.password,
+      confirmPassword: data.confirmPassword,
+      role: this.userType, // Enviar el rol seleccionado (PATIENT o DENTIST)
     };
 
-    console.log('Register request:', registerRequest);
     this.authService.register(registerRequest).subscribe({
       next: (response) => {
         console.log('Registro exitoso:', response);
-        
-        // Redirigir usando el guard de redirección automática
-        this.router.navigate(['/dashboard']);
+
+        // Si es un paciente, crear el registro de paciente
+        if (this.userType === 'PATIENT') {
+          this.createPatientAfterRegistration(response.id, data.dni);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
       },
       error: (error) => {
-        console.error('Error en registro:', error);
         this.isLoading = false;
-        
+
         // Manejar diferentes tipos de errores
         if (error.status === 400) {
           this.errorMessage = error.error?.message || 'Datos inválidos';
@@ -98,8 +143,28 @@ export class RegisterComponent implements OnInit {
         } else if (error.status === 0) {
           this.errorMessage = 'Error de conexión con el servidor';
         } else {
-          this.errorMessage = error.error?.message || 'Error al registrar usuario';
+          this.errorMessage =
+            error.error?.message || 'Error al registrar usuario';
         }
+      },
+    });
+  }
+
+  private createPatientAfterRegistration(userId: number, dni: number) {
+    const patientRequest = {
+      userId: userId,
+      dni: dni
+    };
+
+    this.dentistService.createPatient(this.localStorage.getDentistId(), patientRequest).subscribe({
+      next: (response) => {
+        console.log('Paciente creado exitosamente:', response);
+        this.router.navigate(['/dashboard']);
+      },
+      error: (error) => {
+        console.error('Error al crear paciente:', error);
+        this.errorMessage = 'Usuario registrado pero error al crear perfil de paciente';
+        this.isLoading = false;
       },
       complete: () => {
         this.isLoading = false;

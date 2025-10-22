@@ -7,19 +7,17 @@ import { BaseAuthService } from './base-auth.service';
   providedIn: 'root',
 })
 export class AuthService extends BaseAuthService {
-  private apiUrl: string = 'http://localhost:8080/api/users/auth';
+  private apiUrl: string = 'http://localhost:8081/api/users/auth';
 
   login(loginRequest: EmailAuthRequest): Observable<AuthResponse> {
     return this.handleAuthRequest(
-      this.http.post<AuthResponse>(`${this.apiUrl}/login`, loginRequest),
-      'Inicio de sesión exitoso'
+      this.http.post<AuthResponse>(`${this.apiUrl}/login`, loginRequest)
     );
   }
 
   register(registerRequest: EmailRegisterRequest): Observable<AuthResponse> {
     return this.handleAuthRequest(
-      this.http.post<AuthResponse>(`${this.apiUrl}/register`, registerRequest),
-      'Registro exitoso. Bienvenido a Dental Care'
+      this.http.post<AuthResponse>(`${this.apiUrl}/register`, registerRequest)
     );
   }
 }

@@ -1,133 +1,57 @@
-<div class="login-container">
-  <div class="login-card">
-    <!-- Header del Registro -->
-    <div class="login-header">
-      <div class="logo-container">
-        <app-icon name="shield" size="48" class="logo-icon"></app-icon>
-      </div>
-      <h1 class="login-title">
-        {{ userType === 'DENTIST' ? 'Registro de Dentista' : 'Registro de Paciente' }}
-      </h1>
-      <p class="login-subtitle">Únete a DentalCare Pro</p>
-    </div>
-
-    <!-- Formulario de Registro -->
-    <form class="login-form" (ngSubmit)="onSubmit()">
-      <!-- Nombre y Apellido -->
-      <div class="name-fields">
-        <mat-form-field class="form-field name-field" appearance="outline">
-          <mat-label>Nombre</mat-label>
-          <input 
-            matInput 
-            type="text" 
-            [(ngModel)]="firstName" 
-            name="firstName"
-            required
-          >
-          <mat-icon matSuffix>person</mat-icon>
-        </mat-form-field>
-
-        <mat-form-field class="form-field name-field" appearance="outline">
-          <mat-label>Apellido</mat-label>
-          <input 
-            matInput 
-            type="text" 
-            [(ngModel)]="lastName" 
-            name="lastName"
-            required
-          >
-          <mat-icon matSuffix>person</mat-icon>
-        </mat-form-field>
+<div class="flex min-h-screen overflow-hidden">
+  <!-- Panel izquierdo (40%) - Formulario -->
+  <div
+    class="w-[40%] bg-white p-8 flex items-center justify-center relative"
+  >
+    <div class="w-full max-h-screen overflow-y-auto px-4">
+      <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">DentalCare Pro</h1>
+        <p class="text-lg text-gray-600">
+          {{
+            userType === "DENTIST"
+              ? "Únete a nuestra red de profesionales"
+              : "Comienza tu viaje hacia una sonrisa saludable"
+          }}
+        </p>
       </div>
 
-      <!-- Email -->
-      <mat-form-field class="form-field" appearance="outline">
-        <mat-label>Email</mat-label>
-        <input 
-          matInput 
-          type="email" 
-          [(ngModel)]="email" 
-          name="email"
-          placeholder="tu@email.com"
-          required
-        >
-        <mat-icon matSuffix>email</mat-icon>
-      </mat-form-field>
+      @if (isLoading) {
+      <div class="flex justify-center items-center h-64">
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
+        ></div>
+      </div>
+      } @else {
+      <app-generic-form
+        [fields]="formFields"
+        [formTitle]="
+          userType === 'DENTIST'
+            ? 'Registro de Dentista'
+            : 'Registro de Paciente'
+        "
+        [submitText]="'Crear Cuenta'"
+        [icon]="{ name: 'shield', class: 'logo-icon text-blue-600' }"
+        (formSubmit)="handleFormSubmit($event)"
+      />
+      }
 
-      <!-- Teléfono -->
-      <mat-form-field class="form-field" appearance="outline">
-        <mat-label>Teléfono (opcional)</mat-label>
-        <input 
-          matInput 
-          type="tel" 
-          [(ngModel)]="phone" 
-          name="phone"
-          placeholder="+54 11 1234-5678"
-        >
-        <mat-icon matSuffix>phone</mat-icon>
-      </mat-form-field>
-
-      <!-- Contraseña -->
-      <mat-form-field class="form-field" appearance="outline">
-        <mat-label>Contraseña</mat-label>
-        <input 
-          matInput 
-          type="password" 
-          [(ngModel)]="password" 
-          name="password"
-          required
-        >
-        <mat-icon matSuffix>lock</mat-icon>
-      </mat-form-field>
-
-      <!-- Confirmar Contraseña -->
-      <mat-form-field class="form-field" appearance="outline">
-        <mat-label>Confirmar Contraseña</mat-label>
-        <input 
-          matInput 
-          type="password" 
-          [(ngModel)]="confirmPassword" 
-          name="confirmPassword"
-          required
-        >
-        <mat-icon matSuffix>lock</mat-icon>
-      </mat-form-field>
-
-      <!-- Botón de Registro -->
-      <button 
-        mat-raised-button 
-        color="primary" 
-        type="submit"
-        class="login-button"
-        [disabled]="!firstName || !lastName || !email || !password || !confirmPassword"
+      <!-- Mensaje de Error -->
+      @if (errorMessage) {
+      <div
+        class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg"
       >
-        Crear Cuenta
-      </button>
-    </form>
-
-    <!-- Enlaces de Navegación -->
-    <div class="login-footer">
-      <p class="register-text">
-        ¿Ya tienes cuenta? 
-        <button 
-          mat-button 
-          color="primary"
-          (click)="goToLogin()"
-          class="register-link"
-        >
-          Inicia sesión aquí
-        </button>
-      </p>
-      
-      <button 
-        mat-button 
-        color="primary"
-        class="back-button"
-        (click)="goBack()"
-      >
-        <mat-icon>arrow_back</mat-icon>
-        Volver al Inicio
-      </button>
+        {{ errorMessage }}
+      </div>
+      }
     </div>
+  </div>
+
+  <!-- Panel derecho (60%) - Imagen -->
+  <div class="w-[60%] relative overflow-hidden">
+    <img
+      src="fondo.jpg"
+      alt="Pareja sonriente usando una tablet"
+      class="w-full h-screen object-cover"
+    />
   </div>
 </div>

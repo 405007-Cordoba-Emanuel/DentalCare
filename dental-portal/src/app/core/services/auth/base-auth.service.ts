@@ -37,14 +37,11 @@ export abstract class BaseAuthService {
   }
 
   protected handleAuthRequest(
-    request$: Observable<AuthResponse>,
-    successMessage: string
+    request$: Observable<AuthResponse>
   ): Observable<AuthResponse> {
     return request$.pipe(
       tap((response) => {
         this.handlerService.handleAuthResponse(response);
-        // actualizar BehaviorSubject con el usuario
-        console.log('Response:', response);
         const user: User = {
           id: response.id,
           firstName: response.firstName,
@@ -58,7 +55,6 @@ export abstract class BaseAuthService {
         this.localStorageService.setUserData(user);
         this.currentUserSubject.next(user);
       }),
-      tap(() => this.notificationService.success(successMessage)),
       catchError(this.handlerService.handleError)
     );
   }
