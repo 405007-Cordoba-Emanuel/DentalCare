@@ -3,6 +3,7 @@ package com.dentalCare.be_core.services.impl;
 import com.dentalCare.be_core.dtos.external.UserDetailDto;
 import com.dentalCare.be_core.dtos.request.dentist.DentistRequestDto;
 import com.dentalCare.be_core.dtos.request.dentist.DentistUpdateRequestDto;
+import com.dentalCare.be_core.dtos.request.dentist.CreateDentistFromUserRequest;
 import com.dentalCare.be_core.dtos.request.patient.PatientRequestDto;
 import com.dentalCare.be_core.dtos.response.AvailableUserDto;
 import com.dentalCare.be_core.dtos.response.dentist.DentistResponseDto;
@@ -53,6 +54,35 @@ public class DentistServiceImpl implements DentistService {
         dentist.setUserId(dentistRequestDto.getUserId());
         dentist.setLicenseNumber(dentistRequestDto.getLicenseNumber());
         dentist.setSpecialty(dentistRequestDto.getSpecialty());
+        dentist.setActive(true);
+
+        Dentist savedDentist = dentistRepository.save(dentist);
+        return mapToResponseDto(savedDentist, user);
+    }
+
+    @Override
+    public DentistResponseDto createDentistFromUser(CreateDentistFromUserRequest request) {
+        // Verificar que el usuario existe
+        UserDetailDto user = userServiceClient.getUserById(request.getUserId());
+        if (user == null) {
+            throw new IllegalArgumentException("User not found with ID: " + request.getUserId());
+        }
+
+        // Verificar que no existe ya un dentista para este usuario
+        if (dentistRepository.existsByUserId(request.getUserId())) {
+            throw new IllegalArgumentException("Dentist already exists for user ID: " + request.getUserId());
+        }
+
+        // Verificar que la matrícula no esté en uso
+        if (dentistRepository.existsByLicenseNumber(request.getLicenseNumber())) {
+            throw new IllegalArgumentException("There is already a dentist with the license number: " + request.getLicenseNumber());
+        }
+
+        // Crear el dentista
+        Dentist dentist = new Dentist();
+        dentist.setUserId(request.getUserId());
+        dentist.setLicenseNumber(request.getLicenseNumber());
+        dentist.setSpecialty(request.getSpecialty());
         dentist.setActive(true);
 
         Dentist savedDentist = dentistRepository.save(dentist);

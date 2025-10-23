@@ -2,6 +2,7 @@ package com.dentalCare.be_core.controllers;
 
 import com.dentalCare.be_core.dtos.request.dentist.DentistRequestDto;
 import com.dentalCare.be_core.dtos.request.dentist.DentistUpdateRequestDto;
+import com.dentalCare.be_core.dtos.request.dentist.CreateDentistFromUserRequest;
 import com.dentalCare.be_core.dtos.request.patient.PatientRequestDto;
 import com.dentalCare.be_core.dtos.request.medicalhistory.MedicalHistoryRequestDto;
 import com.dentalCare.be_core.dtos.request.prescription.PrescriptionRequestDto;
@@ -212,40 +213,23 @@ public class DentistController {
         return ResponseEntity.ok(response);
     }
 
+
     /**
-     * Alta de Paciente por el Dentista
-     * El dentista da de alta un nuevo paciente en el sistema, asignándolo automáticamente a él.
-     * El paciente queda vinculado al dentista desde su creación.
+     * Crear dentista automáticamente desde registro de usuario
+     * Endpoint público para ser llamado desde el microservicio de usuarios
      */
-    @Operation(summary = "Crear paciente para un dentista")
-    @PostMapping("/{id}/patients")
-    public ResponseEntity<PatientResponseDto> createPatientForDentist(
-            @Parameter(description = "Dentist ID", required = true)
-            @PathVariable Long id,
-            @Valid @RequestBody PatientRequestDto patientRequestDto) {
+    @Operation(summary = "Crear dentista automáticamente desde registro")
+    @PostMapping("/create-from-user")
+    public ResponseEntity<DentistResponseDto> createDentistFromUser(
+            @Parameter(description = "Datos del usuario") 
+            @Valid @RequestBody CreateDentistFromUserRequest request) {
         try {
-            PatientResponseDto createdPatient = dentistService.createPatientForDentist(id, patientRequestDto);
-            return ResponseEntity.ok(createdPatient);
+            DentistResponseDto createdDentist = dentistService.createDentistFromUser(request);
+            return ResponseEntity.ok(createdDentist);
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (Exception e) {
-            throw new RuntimeException("Internal error creating patient for dentist", e);
-        }
-    }
-
-    /**
-     * Obtener usuarios pacientes disponibles
-     * Lista todos los usuarios con rol PATIENT que están activos y no tienen un dentista vinculado.
-     * Permite al dentista ver usuarios disponibles para vincular como pacientes.
-     */
-    @Operation(summary = "Obtener usuarios pacientes disponibles")
-    @GetMapping("/available-patients")
-    public ResponseEntity<List<AvailableUserDto>> getAvailablePatientUsers() {
-        try {
-            List<AvailableUserDto> availableUsers = dentistService.getAvailablePatientUsers();
-            return ResponseEntity.ok(availableUsers);
-        } catch (Exception e) {
-            throw new RuntimeException("Internal error getting available patient users", e);
+            throw new RuntimeException("Internal error creating dentist from user", e);
         }
     }
 

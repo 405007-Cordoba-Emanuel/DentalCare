@@ -1,5 +1,6 @@
 package com.dentalCare.be_core.services;
 
+import com.dentalCare.be_core.dtos.request.patient.CreatePatientFromUserRequest;
 import com.dentalCare.be_core.dtos.request.patient.PatientUpdateRequestDto;
 import com.dentalCare.be_core.dtos.response.patient.PatientResponseDto;
 
@@ -10,6 +11,7 @@ import java.util.List;
  */
 public interface PatientService {
 
+    PatientResponseDto createPatientFromUser(CreatePatientFromUserRequest request);
 
     PatientResponseDto searchById(Long id);
 

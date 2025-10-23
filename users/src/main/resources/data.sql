@@ -48,7 +48,12 @@ INSERT INTO users (id, first_name, last_name, email, password, role, phone, addr
 (207, 'Valentina', 'Jiménez', 'valentina.jimenez@email.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDi', 'PATIENT', '+54-11-7777-7777', 'Av. Córdoba 7777, CABA', '1993-04-12', true, NOW(), NOW()),
 (208, 'Fernando', 'Herrera', 'fernando.herrera@email.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDi', 'PATIENT', '+54-11-8888-8888', 'Av. Rivadavia 8888, CABA', '1987-08-25', true, NOW(), NOW()),
 (209, 'Camila', 'Ruiz', 'camila.ruiz@email.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDi', 'PATIENT', '+54-11-9999-9999', 'Av. Belgrano 9999, CABA', '1991-12-03', true, NOW(), NOW()),
-(210, 'Sebastián', 'Mendoza', 'sebastian.mendoza@email.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDi', 'PATIENT', '+54-11-0000-0000', 'Av. San Martín 0000, CABA', '1989-06-17', true, NOW(), NOW());
+(210, 'Sebastián', 'Mendoza', 'sebastian.mendoza@email.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDi', 'PATIENT', '+54-11-0000-0000', 'Av. San Martín 0000, CABA', '1989-06-17', true, NOW(), NOW()),
+(211, 'Sofía', 'Morales', 'sofia.morales@email.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDi', 'PATIENT', '+54-11-1111-2222', 'Av. Corrientes 1111, CABA', '1994-03-15', true, NOW(), NOW()),
+(212, 'Lucas', 'González', 'lucas.gonzalez@email.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDi', 'PATIENT', '+54-11-2222-3333', 'Av. Santa Fe 2222, CABA', '1992-07-22', true, NOW(), NOW()),
+(213, 'Martina', 'López', 'martina.lopez@email.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDi', 'PATIENT', '+54-11-3333-4444', 'Av. Córdoba 3333, CABA', '1990-11-08', true, NOW(), NOW()),
+(214, 'Nicolás', 'Fernández', 'nicolas.fernandez@email.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDi', 'PATIENT', '+54-11-4444-5555', 'Av. Rivadavia 4444, CABA', '1996-05-12', true, NOW(), NOW()),
+(215, 'Isabella', 'Rodríguez', 'isabella.rodriguez@email.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDi', 'PATIENT', '+54-11-5555-6666', 'Av. Belgrano 5555, CABA', '1993-09-30', true, NOW(), NOW());
 
 -- ===============================================
 -- NOTAS IMPORTANTES PARA TESTING

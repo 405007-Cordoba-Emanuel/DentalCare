@@ -14,6 +14,8 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 
     boolean existsByDni(String dni);
 
+    boolean existsByUserId(Long userId);
+
     Optional<Patient> findByUserId(Long userId);
 
     @Query("SELECT p FROM Patient p WHERE p.active = true")

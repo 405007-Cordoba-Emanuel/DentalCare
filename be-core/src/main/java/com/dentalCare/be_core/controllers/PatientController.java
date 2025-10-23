@@ -1,5 +1,6 @@
 package com.dentalCare.be_core.controllers;
 
+import com.dentalCare.be_core.dtos.request.patient.CreatePatientFromUserRequest;
 import com.dentalCare.be_core.dtos.request.patient.PatientUpdateRequestDto;
 import com.dentalCare.be_core.dtos.response.medicalhistory.MedicalHistoryResponseDto;
 import com.dentalCare.be_core.dtos.response.patient.PatientResponseDto;
@@ -46,6 +47,25 @@ public class PatientController {
 
     @Autowired
     private AppointmentService appointmentService;
+
+    /**
+     * Crear paciente automáticamente desde registro de usuario
+     * Endpoint público para ser llamado desde el microservicio de usuarios
+     */
+    @Operation(summary = "Crear paciente automáticamente desde registro")
+    @PostMapping("/create-from-user")
+    public ResponseEntity<PatientResponseDto> createPatientFromUser(
+            @Parameter(description = "Datos del usuario") 
+            @Valid @RequestBody CreatePatientFromUserRequest request) {
+        try {
+            PatientResponseDto createdPatient = patientService.createPatientFromUser(request);
+            return ResponseEntity.ok(createdPatient);
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Internal error creating patient from user", e);
+        }
+    }
 
 
 	// ------- Bloque Paciente -------

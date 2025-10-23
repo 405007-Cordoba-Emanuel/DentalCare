@@ -18,4 +18,6 @@ public class AuthResponse {
     private String email;
     private String picture;
     private Role role;
+    private Long dentistId;
+    private Long patientId;
 }

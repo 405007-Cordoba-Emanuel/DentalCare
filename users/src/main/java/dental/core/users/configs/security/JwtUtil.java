@@ -38,6 +38,23 @@ public class JwtUtil {
         return createToken(claims, email);
     }
 
+    public String generateToken(String id, String email, String firstName, String lastName, String picture, String role, Long dentistId, Long patientId) {
+        Map<String, Object> claims = new HashMap<>();
+		claims.put("id", id);
+        claims.put("role", role);
+        claims.put("firstName", firstName);
+        claims.put("lastName", lastName);
+        claims.put("picture", picture);
+        if (dentistId != null) {
+            claims.put("dentistId", dentistId);
+        }
+        if (patientId != null) {
+            claims.put("patientId", patientId);
+        }
+        
+        return createToken(claims, email);
+    }
+
     private String createToken(Map<String, Object> claims, String subject) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
@@ -56,6 +73,16 @@ public class JwtUtil {
 
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
+    }
+
+    public Long extractDentistId(String token) {
+        Object dentistId = extractAllClaims(token).get("dentistId");
+        return dentistId != null ? ((Number) dentistId).longValue() : null;
+    }
+
+    public Long extractPatientId(String token) {
+        Object patientId = extractAllClaims(token).get("patientId");
+        return patientId != null ? ((Number) patientId).longValue() : null;
     }
 
     public <T> T extractClaim(String token, java.util.function.Function<Claims, T> claimsResolver) {

@@ -15,6 +15,8 @@ public interface DentistRepository extends JpaRepository<Dentist, Long> {
 
     boolean existsByLicenseNumber(String licenseNumber);
 
+    boolean existsByUserId(Long userId);
+
     Optional<Dentist> findByUserId(Long userId);
 
     @Query("SELECT d FROM Dentist d WHERE d.specialty = :specialty AND d.active = true")

@@ -1,6 +1,7 @@
 package com.dentalCare.be_core.services.impl;
 
 import com.dentalCare.be_core.dtos.external.UserDetailDto;
+import com.dentalCare.be_core.dtos.request.patient.CreatePatientFromUserRequest;
 import com.dentalCare.be_core.dtos.request.patient.PatientUpdateRequestDto;
 import com.dentalCare.be_core.dtos.response.patient.PatientResponseDto;
 import com.dentalCare.be_core.entities.Patient;
@@ -26,6 +27,36 @@ public class PatientServiceImpl implements PatientService {
     
     @Autowired
     private UserServiceClient userServiceClient;
+
+    @Override
+    public PatientResponseDto createPatientFromUser(CreatePatientFromUserRequest request) {
+        // Verificar que el usuario existe
+        UserDetailDto user = userServiceClient.getUserById(request.getUserId());
+        if (user == null) {
+            throw new IllegalArgumentException("User not found with ID: " + request.getUserId());
+        }
+
+        // Verificar que no existe ya un paciente para este usuario
+        if (patientRepository.existsByUserId(request.getUserId())) {
+            throw new IllegalArgumentException("Patient already exists for user ID: " + request.getUserId());
+        }
+
+        // Verificar que el DNI no esté en uso
+        if (patientRepository.existsByDni(request.getDni())) {
+            throw new IllegalArgumentException("There is already a patient with the DNI: " + request.getDni());
+        }
+
+        // Crear el paciente SIN dentista asignado (para que aparezca en la lista de disponibles)
+        Patient patient = new Patient();
+        patient.setUserId(request.getUserId());
+        patient.setDni(request.getDni());
+        patient.setBirthDate(request.getBirthDate());
+        patient.setDentist(null); // Sin dentista asignado
+        patient.setActive(true);
+
+        Patient savedPatient = patientRepository.save(patient);
+        return mapToResponseDto(savedPatient, user);
+    }
 
     @Override
     @Transactional(readOnly = true)

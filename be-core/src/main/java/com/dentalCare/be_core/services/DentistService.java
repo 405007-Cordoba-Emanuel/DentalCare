@@ -2,6 +2,7 @@ package com.dentalCare.be_core.services;
 
 import com.dentalCare.be_core.dtos.request.dentist.DentistRequestDto;
 import com.dentalCare.be_core.dtos.request.dentist.DentistUpdateRequestDto;
+import com.dentalCare.be_core.dtos.request.dentist.CreateDentistFromUserRequest;
 import com.dentalCare.be_core.dtos.request.patient.PatientRequestDto;
 import com.dentalCare.be_core.dtos.response.AvailableUserDto;
 import com.dentalCare.be_core.dtos.response.dentist.DentistResponseDto;
@@ -16,6 +17,8 @@ import java.util.List;
 public interface DentistService {
 
     DentistResponseDto createDentist(DentistRequestDto dentistRequestDto);
+
+    DentistResponseDto createDentistFromUser(CreateDentistFromUserRequest request);
 
     DentistResponseDto searchById(Long id);
 
