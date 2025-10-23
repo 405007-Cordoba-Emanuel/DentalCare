@@ -15,86 +15,74 @@ import com.dentalCare.be_core.repositories.DentistRepository;
 import com.dentalCare.be_core.repositories.PatientRepository;
 import com.dentalCare.be_core.services.DentistService;
 import com.dentalCare.be_core.services.UserServiceClient;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 @Service
 @Slf4j
+@RequiredArgsConstructor
 @Transactional
 public class DentistServiceImpl implements DentistService {
 
-    @Autowired
-    private DentistRepository dentistRepository;
-    
-    @Autowired
-    private PatientRepository patientRepository;
-    
-    @Autowired
-    private UserServiceClient userServiceClient;
+    private final DentistRepository dentistRepository;
+    private final PatientRepository patientRepository;
+    private final UserServiceClient userServiceClient;
+
+    // ==================== CREATE OPERATIONS ====================
 
     @Override
     public DentistResponseDto createDentist(DentistRequestDto dentistRequestDto) {
-        if (existsByLicense(dentistRequestDto.getLicenseNumber())) {
-            throw new IllegalArgumentException("There is already a dentist with the license: "
-                    + dentistRequestDto.getLicenseNumber());
-        }
-
-        UserDetailDto user = userServiceClient.getUserById(dentistRequestDto.getUserId());
-        if (user == null) {
-            throw new IllegalArgumentException("User not found with ID: " + dentistRequestDto.getUserId());
-        }
-
-        Dentist dentist = new Dentist();
-        dentist.setUserId(dentistRequestDto.getUserId());
-        dentist.setLicenseNumber(dentistRequestDto.getLicenseNumber());
-        dentist.setSpecialty(dentistRequestDto.getSpecialty());
-        dentist.setActive(true);
-
+        validateLicenseNotExists(dentistRequestDto.getLicenseNumber());
+        UserDetailDto user = validateAndGetUser(dentistRequestDto.getUserId());
+        
+        Dentist dentist = buildDentistEntity(dentistRequestDto.getUserId(), 
+                                           dentistRequestDto.getLicenseNumber(), 
+                                           dentistRequestDto.getSpecialty());
+        
         Dentist savedDentist = dentistRepository.save(dentist);
         return mapToResponseDto(savedDentist, user);
     }
 
     @Override
     public DentistResponseDto createDentistFromUser(CreateDentistFromUserRequest request) {
-        // Verificar que el usuario existe
-        UserDetailDto user = userServiceClient.getUserById(request.getUserId());
-        if (user == null) {
-            throw new IllegalArgumentException("User not found with ID: " + request.getUserId());
-        }
-
-        // Verificar que no existe ya un dentista para este usuario
-        if (dentistRepository.existsByUserId(request.getUserId())) {
-            throw new IllegalArgumentException("Dentist already exists for user ID: " + request.getUserId());
-        }
-
-        // Verificar que la matrícula no esté en uso
-        if (dentistRepository.existsByLicenseNumber(request.getLicenseNumber())) {
-            throw new IllegalArgumentException("There is already a dentist with the license number: " + request.getLicenseNumber());
-        }
-
-        // Crear el dentista
-        Dentist dentist = new Dentist();
-        dentist.setUserId(request.getUserId());
-        dentist.setLicenseNumber(request.getLicenseNumber());
-        dentist.setSpecialty(request.getSpecialty());
-        dentist.setActive(true);
-
+        UserDetailDto user = validateAndGetUser(request.getUserId());
+        validateDentistNotExistsForUser(request.getUserId());
+        validateLicenseNotExists(request.getLicenseNumber());
+        
+        Dentist dentist = buildDentistEntity(request.getUserId(), 
+                                           request.getLicenseNumber(), 
+                                           request.getSpecialty());
+        
         Dentist savedDentist = dentistRepository.save(dentist);
         return mapToResponseDto(savedDentist, user);
     }
 
     @Override
+    public PatientResponseDto createPatientForDentist(Long dentistId, PatientRequestDto patientRequestDto) {
+        Dentist dentist = findDentistById(dentistId);
+        UserDetailDto user = validateAndGetUser(patientRequestDto.getUserId());
+        validateDniNotExists(patientRequestDto.getDni());
+        
+        Patient patient = buildPatientEntity(patientRequestDto.getUserId(),
+                                           patientRequestDto.getDni(),
+                                           patientRequestDto.getBirthDate(),
+                                           dentist);
+        
+        Patient savedPatient = patientRepository.save(patient);
+        return mapPatientToResponseDto(savedPatient, user);
+    }
+
+    // ==================== READ OPERATIONS ====================
+
+    @Override
     @Transactional(readOnly = true)
     public DentistResponseDto searchById(Long id) {
-        Dentist dentist = dentistRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No dentist found with ID: "+ id));
-        
+        Dentist dentist = findDentistById(id);
         UserDetailDto user = userServiceClient.getUserById(dentist.getUserId());
         return mapToResponseDto(dentist, user);
     }
@@ -102,9 +90,7 @@ public class DentistServiceImpl implements DentistService {
     @Override
     @Transactional(readOnly = true)
     public DentistResponseDto searchByLicenseNumber(String licenseNumber) {
-        Dentist dentist = dentistRepository.findByLicenseNumber(licenseNumber)
-                .orElseThrow(() -> new IllegalArgumentException("No licensed dentist found:" + licenseNumber));
-
+        Dentist dentist = findDentistByLicenseNumber(licenseNumber);
         UserDetailDto user = userServiceClient.getUserById(dentist.getUserId());
         return mapToResponseDto(dentist, user);
     }
@@ -113,52 +99,81 @@ public class DentistServiceImpl implements DentistService {
     @Transactional(readOnly = true)
     public List<DentistResponseDto> findAllActive() {
         List<Dentist> dentists = dentistRepository.findAllActive();
-        return dentists.stream()
-                .map(dentist -> {
-                    UserDetailDto user = userServiceClient.getUserById(dentist.getUserId());
-                    return mapToResponseDto(dentist, user);
-                })
-                .collect(Collectors.toList());
+        return mapDentistsToResponseDtos(dentists);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<DentistResponseDto> searchBySpecialty(String specialty) {
         List<Dentist> dentists = dentistRepository.findActiveBySpecialty(specialty);
-        return dentists.stream()
-                .map(dentist -> {
-                    UserDetailDto user = userServiceClient.getUserById(dentist.getUserId());
-                    return mapToResponseDto(dentist, user);
-                })
-                .collect(Collectors.toList());
+        return mapDentistsToResponseDtos(dentists);
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public DentistPatientsResponseDto getPatientsByDentistId(Long dentistId) {
+        Dentist dentist = findDentistByIdWithPatients(dentistId);
+        UserDetailDto dentistUser = userServiceClient.getUserById(dentist.getUserId());
+        
+        DentistPatientsResponseDto response = buildDentistPatientsResponse(dentist, dentistUser);
+        List<DentistPatientsResponseDto.PatientSummaryDto> patients = mapPatientsToSummaryDtos(dentist.getPatients());
+        response.setPatients(patients);
+        
+        return response;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public DentistPatientsResponseDto getActivePatientsByDentistId(Long dentistId) {
+        Dentist dentist = findDentistByIdWithActivePatients(dentistId);
+        UserDetailDto dentistUser = userServiceClient.getUserById(dentist.getUserId());
+        
+        DentistPatientsResponseDto response = buildDentistPatientsResponse(dentist, dentistUser);
+        List<DentistPatientsResponseDto.PatientSummaryDto> patients = mapPatientsToSummaryDtos(
+            dentist.getPatients().stream()
+                .filter(patient -> Boolean.TRUE.equals(patient.getActive()))
+                .collect(Collectors.toList())
+        );
+        response.setPatients(patients);
+        
+        return response;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AvailableUserDto> getAvailablePatientUsers() {
+        List<UserDetailDto> patientUsers = userServiceClient.getUsersByRole("PATIENT");
+        List<Long> existingPatientUserIds = getExistingPatientUserIds();
+        
+        return patientUsers.stream()
+                .filter(user -> user.getIsActive() && !existingPatientUserIds.contains(user.getUserId()))
+                .map(this::mapToAvailableUserDto)
+                .collect(Collectors.toList());
+    }
+
+    // ==================== UPDATE OPERATIONS ====================
+
+    @Override
     public DentistResponseDto updateDentist(Long id, DentistUpdateRequestDto dentistUpdateRequestDto) {
-        Dentist dentist = dentistRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No dentist found with ID: " + id));
-
-        if (!dentist.getLicenseNumber().equals(dentistUpdateRequestDto.getLicenseNumber())) {
-            if (existsByLicense(dentistUpdateRequestDto.getLicenseNumber())) {
-                throw new IllegalArgumentException("There is already a dentist with the license: " + dentistUpdateRequestDto.getLicenseNumber());
-            }
-        }
-
-        dentist.setLicenseNumber(dentistUpdateRequestDto.getLicenseNumber());
-        dentist.setSpecialty(dentistUpdateRequestDto.getSpecialty());
-        dentist.setActive(dentistUpdateRequestDto.getActive());
-
+        Dentist dentist = findDentistById(id);
+        validateLicenseUpdate(dentist, dentistUpdateRequestDto.getLicenseNumber());
+        
+        updateDentistFields(dentist, dentistUpdateRequestDto);
         Dentist updatedDentist = dentistRepository.save(dentist);
+        
         UserDetailDto user = userServiceClient.getUserById(updatedDentist.getUserId());
         return mapToResponseDto(updatedDentist, user);
     }
 
+    // ==================== DELETE OPERATIONS ====================
+
     @Override
     public void deleteDentist(Long id) {
-        Dentist dentist = dentistRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No dentist found with ID: " + id));
+        Dentist dentist = findDentistById(id);
         dentistRepository.delete(dentist);
     }
+
+    // ==================== UTILITY OPERATIONS ====================
 
     @Override
     public boolean existsByLicense(String licenseNumber) {
@@ -167,7 +182,7 @@ public class DentistServiceImpl implements DentistService {
 
     @Override
     public boolean existsByEmail(String email) {
-        return false;
+        return false; // Implementación pendiente si es necesaria
     }
 
     @Override
@@ -176,97 +191,132 @@ public class DentistServiceImpl implements DentistService {
         return dentistRepository.countActiveDentist();
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public DentistPatientsResponseDto getPatientsByDentistId(Long dentistId) {
-        Dentist dentist = dentistRepository.findByIdWithPatients(dentistId)
-                .orElseThrow(() -> new IllegalArgumentException("No dentist found with ID: " + dentistId));
-        
-        UserDetailDto dentistUser = userServiceClient.getUserById(dentist.getUserId());
-        
-        DentistPatientsResponseDto response = new DentistPatientsResponseDto();
-        response.setDentistId(dentist.getId());
-        response.setDentistName(dentistUser.getFirstName() + " " + dentistUser.getLastName());
-        response.setLicenseNumber(dentist.getLicenseNumber());
-        response.setSpecialty(dentist.getSpecialty());
-        
-        List<DentistPatientsResponseDto.PatientSummaryDto> patients = dentist.getPatients().stream()
-                .map(patient -> {
-                    UserDetailDto patientUser = userServiceClient.getUserById(patient.getUserId());
-                    DentistPatientsResponseDto.PatientSummaryDto patientDto = new DentistPatientsResponseDto.PatientSummaryDto();
-                    patientDto.setId(patient.getId());
-                    patientDto.setFirstName(patientUser.getFirstName());
-                    patientDto.setLastName(patientUser.getLastName());
-                    patientDto.setDni(patient.getDni());
-                    patientDto.setEmail(patientUser.getEmail());
-                    patientDto.setPhone(patientUser.getPhone());
-                    patientDto.setActive(patient.getActive());
-                    return patientDto;
-                })
-                .collect(Collectors.toList());
-        
-        response.setPatients(patients);
-        return response;
+    // ==================== PRIVATE HELPER METHODS ====================
+
+    private Dentist findDentistById(Long id) {
+        return dentistRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("No dentist found with ID: " + id));
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public DentistPatientsResponseDto getActivePatientsByDentistId(Long dentistId) {
-        Dentist dentist = dentistRepository.findByIdWithActivePatients(dentistId)
-                .orElseThrow(() -> new IllegalArgumentException("No dentist found with ID: " + dentistId));
-        
-        UserDetailDto dentistUser = userServiceClient.getUserById(dentist.getUserId());
-        
-        DentistPatientsResponseDto response = new DentistPatientsResponseDto();
-        response.setDentistId(dentist.getId());
-        response.setDentistName(dentistUser.getFirstName() + " " + dentistUser.getLastName());
-        response.setLicenseNumber(dentist.getLicenseNumber());
-        response.setSpecialty(dentist.getSpecialty());
-        
-        List<DentistPatientsResponseDto.PatientSummaryDto> patients = dentist.getPatients().stream()
-                .filter(patient -> Boolean.TRUE.equals(patient.getActive()))
-                .map(patient -> {
-                    UserDetailDto patientUser = userServiceClient.getUserById(patient.getUserId());
-                    DentistPatientsResponseDto.PatientSummaryDto patientDto = new DentistPatientsResponseDto.PatientSummaryDto();
-                    patientDto.setId(patient.getId());
-                    patientDto.setFirstName(patientUser.getFirstName());
-                    patientDto.setLastName(patientUser.getLastName());
-                    patientDto.setDni(patient.getDni());
-                    patientDto.setEmail(patientUser.getEmail());
-                    patientDto.setPhone(patientUser.getPhone());
-                    patientDto.setActive(patient.getActive());
-                    return patientDto;
-                })
-                .collect(Collectors.toList());
-        
-        response.setPatients(patients);
-        return response;
+    private Dentist findDentistByLicenseNumber(String licenseNumber) {
+        return dentistRepository.findByLicenseNumber(licenseNumber)
+                .orElseThrow(() -> new IllegalArgumentException("No licensed dentist found: " + licenseNumber));
     }
 
-    @Override
-    public PatientResponseDto createPatientForDentist(Long dentistId, PatientRequestDto patientRequestDto) {
-        Dentist dentist = dentistRepository.findById(dentistId)
+    private Dentist findDentistByIdWithPatients(Long dentistId) {
+        return dentistRepository.findByIdWithPatients(dentistId)
                 .orElseThrow(() -> new IllegalArgumentException("No dentist found with ID: " + dentistId));
+    }
 
-        UserDetailDto user = userServiceClient.getUserById(patientRequestDto.getUserId());
+    private Dentist findDentistByIdWithActivePatients(Long dentistId) {
+        return dentistRepository.findByIdWithActivePatients(dentistId)
+                .orElseThrow(() -> new IllegalArgumentException("No dentist found with ID: " + dentistId));
+    }
+
+    private UserDetailDto validateAndGetUser(Long userId) {
+        UserDetailDto user = userServiceClient.getUserById(userId);
         if (user == null) {
-            throw new IllegalArgumentException("User not found with ID: " + patientRequestDto.getUserId());
+            throw new IllegalArgumentException("User not found with ID: " + userId);
         }
+        return user;
+    }
 
-        if (patientRepository.existsByDni(patientRequestDto.getDni())) {
-            throw new IllegalArgumentException("There is already a patient with the DNI: " + patientRequestDto.getDni());
+    private void validateLicenseNotExists(String licenseNumber) {
+        if (existsByLicense(licenseNumber)) {
+            throw new IllegalArgumentException("There is already a dentist with the license: " + licenseNumber);
         }
+    }
 
+    private void validateDentistNotExistsForUser(Long userId) {
+        if (dentistRepository.existsByUserId(userId)) {
+            throw new IllegalArgumentException("Dentist already exists for user ID: " + userId);
+        }
+    }
+
+    private void validateDniNotExists(String dni) {
+        if (patientRepository.existsByDni(dni)) {
+            throw new IllegalArgumentException("There is already a patient with the DNI: " + dni);
+        }
+    }
+
+    private void validateLicenseUpdate(Dentist dentist, String newLicenseNumber) {
+        if (!dentist.getLicenseNumber().equals(newLicenseNumber)) {
+            validateLicenseNotExists(newLicenseNumber);
+        }
+    }
+
+    private Dentist buildDentistEntity(Long userId, String licenseNumber, String specialty) {
+        Dentist dentist = new Dentist();
+        dentist.setUserId(userId);
+        dentist.setLicenseNumber(licenseNumber);
+        dentist.setSpecialty(specialty);
+        dentist.setActive(true);
+        return dentist;
+    }
+
+    private Patient buildPatientEntity(Long userId, String dni, java.time.LocalDate birthDate, Dentist dentist) {
         Patient patient = new Patient();
-        patient.setUserId(patientRequestDto.getUserId());
-        patient.setDni(patientRequestDto.getDni());
-        patient.setBirthDate(patientRequestDto.getBirthDate());
+        patient.setUserId(userId);
+        patient.setDni(dni);
+        patient.setBirthDate(birthDate);
         patient.setDentist(dentist);
         patient.setActive(true);
-
-        Patient savedPatient = patientRepository.save(patient);
-        return mapPatientToResponseDto(savedPatient, user);
+        return patient;
     }
+
+    private void updateDentistFields(Dentist dentist, DentistUpdateRequestDto updateDto) {
+        dentist.setLicenseNumber(updateDto.getLicenseNumber());
+        dentist.setSpecialty(updateDto.getSpecialty());
+        dentist.setActive(updateDto.getActive());
+    }
+
+    private List<DentistResponseDto> mapDentistsToResponseDtos(List<Dentist> dentists) {
+        return dentists.stream()
+                .map(dentist -> {
+                    UserDetailDto user = userServiceClient.getUserById(dentist.getUserId());
+                    return mapToResponseDto(dentist, user);
+                })
+                .collect(Collectors.toList());
+    }
+
+    private List<DentistPatientsResponseDto.PatientSummaryDto> mapPatientsToSummaryDtos(List<Patient> patients) {
+        return patients.stream()
+                .map(patient -> {
+                    UserDetailDto patientUser = userServiceClient.getUserById(patient.getUserId());
+                    return buildPatientSummaryDto(patient, patientUser);
+                })
+                .collect(Collectors.toList());
+    }
+
+    private DentistPatientsResponseDto buildDentistPatientsResponse(Dentist dentist, UserDetailDto dentistUser) {
+        DentistPatientsResponseDto response = new DentistPatientsResponseDto();
+        response.setDentistId(dentist.getId());
+        response.setDentistName(dentistUser.getFirstName() + " " + dentistUser.getLastName());
+        response.setLicenseNumber(dentist.getLicenseNumber());
+        response.setSpecialty(dentist.getSpecialty());
+        return response;
+    }
+
+    private DentistPatientsResponseDto.PatientSummaryDto buildPatientSummaryDto(Patient patient, UserDetailDto patientUser) {
+        DentistPatientsResponseDto.PatientSummaryDto patientDto = new DentistPatientsResponseDto.PatientSummaryDto();
+        patientDto.setId(patient.getId());
+        patientDto.setFirstName(patientUser.getFirstName());
+        patientDto.setLastName(patientUser.getLastName());
+        patientDto.setDni(patient.getDni());
+        patientDto.setEmail(patientUser.getEmail());
+        patientDto.setPhone(patientUser.getPhone());
+        patientDto.setActive(patient.getActive());
+        return patientDto;
+    }
+
+    private List<Long> getExistingPatientUserIds() {
+        return patientRepository.findAll()
+                .stream()
+                .map(Patient::getUserId)
+                .collect(Collectors.toList());
+    }
+
+    // ==================== MAPPING METHODS ====================
 
     private DentistResponseDto mapToResponseDto(Dentist dentist, UserDetailDto user) {
         DentistResponseDto dto = new DentistResponseDto();
@@ -296,24 +346,6 @@ public class DentistServiceImpl implements DentistService {
         dto.setBirthDate(patient.getBirthDate().toString());
         dto.setActive(patient.getActive());
         return dto;
-    }
-
-    @Override
-    public List<AvailableUserDto> getAvailablePatientUsers() {
-        // Obtener todos los usuarios con rol PATIENT
-        List<UserDetailDto> patientUsers = userServiceClient.getUsersByRole("PATIENT");
-        
-        // Obtener todos los userIds que ya tienen un paciente vinculado
-        List<Long> existingPatientUserIds = patientRepository.findAll()
-                .stream()
-                .map(Patient::getUserId)
-                .toList();
-        
-        // Filtrar usuarios que no tienen paciente vinculado y están activos
-        return patientUsers.stream()
-                .filter(user -> user.getIsActive() && !existingPatientUserIds.contains(user.getUserId()))
-                .map(this::mapToAvailableUserDto)
-                .toList();
     }
 
     private AvailableUserDto mapToAvailableUserDto(UserDetailDto user) {
