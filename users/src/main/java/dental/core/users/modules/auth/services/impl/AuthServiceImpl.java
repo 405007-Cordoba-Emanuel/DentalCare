@@ -64,12 +64,15 @@ public class AuthServiceImpl implements AuthService {
             String token = jwtUtil.generateToken(user.getId().toString(),user.getEmail(), user.getFirstName(),user.getLastName(), user.getPicture(), user.getRole().name());
 
             return AuthResponse.builder()
+                .id(user.getId().toString())
                 .token(token)
                 .firstName(user.getFirstName())
-                    .lastName(user.getLastName())
+                .lastName(user.getLastName())
                 .email(user.getEmail())
                 .picture(user.getPicture())
-                    .role(user.getRole())
+                .role(user.getRole())
+                .dentistId(null) // En login no tenemos estos IDs
+                .patientId(null)
                 .build();
 
         } catch (AuthenticationException e) {
@@ -106,7 +109,9 @@ public class AuthServiceImpl implements AuthService {
             .build();
 
         // Guardar usuario
+        log.info("Saving user: {}", newUser.getEmail());
         UserEntity savedUser = userRepository.save(newUser);
+        log.info("User saved with ID: {}", savedUser.getId());
 
         // Crear dentista o paciente automáticamente en be-core
         Long dentistId = null;
@@ -114,6 +119,7 @@ public class AuthServiceImpl implements AuthService {
 
         if (savedUser.getRole() == Role.DENTIST) {
             try {
+                log.info("Creating dentist for user ID: {}", savedUser.getId());
                 CreateDentistFromUserRequest dentistRequest = new CreateDentistFromUserRequest();
                 dentistRequest.setUserId(savedUser.getId());
                 dentistRequest.setLicenseNumber("DENT-" + savedUser.getId() + "-AUTO");
@@ -121,12 +127,14 @@ public class AuthServiceImpl implements AuthService {
 
                 DentistResponse dentistResponse = coreServiceClient.createDentistFromUser(dentistRequest);
                 dentistId = dentistResponse.getId();
+                log.info("Dentist created successfully with ID: {}", dentistId);
             } catch (Exception e) {
-                log.error("Error creating dentist in core service: {}", e.getMessage());
+                log.error("Error creating dentist in core service for user ID {}: {}", savedUser.getId(), e.getMessage(), e);
                 // Continuar sin fallar el registro
             }
         } else if (savedUser.getRole() == Role.PATIENT) {
             try {
+                log.info("Creating patient for user ID: {}", savedUser.getId());
                 CreatePatientFromUserRequest patientRequest = new CreatePatientFromUserRequest();
                 patientRequest.setUserId(savedUser.getId());
                 patientRequest.setDni("0000000" + savedUser.getId()); // DNI temporal
@@ -134,8 +142,9 @@ public class AuthServiceImpl implements AuthService {
 
                 PatientResponse patientResponse = coreServiceClient.createPatientFromUser(patientRequest);
                 patientId = patientResponse.getId();
+                log.info("Patient created successfully with ID: {}", patientId);
             } catch (Exception e) {
-                log.error("Error creating patient in core service: {}", e.getMessage());
+                log.error("Error creating patient in core service for user ID {}: {}", savedUser.getId(), e.getMessage(), e);
                 // Continuar sin fallar el registro
             }
         }
@@ -146,6 +155,7 @@ public class AuthServiceImpl implements AuthService {
             savedUser.getRole().name(), dentistId, patientId);
 
         return AuthResponse.builder()
+            .id(savedUser.getId().toString())
             .token(token)
             .firstName(savedUser.getFirstName())
             .lastName(savedUser.getLastName())

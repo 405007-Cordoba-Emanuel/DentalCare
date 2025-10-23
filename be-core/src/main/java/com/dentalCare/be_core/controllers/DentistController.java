@@ -224,12 +224,27 @@ public class DentistController {
             @Parameter(description = "Datos del usuario") 
             @Valid @RequestBody CreateDentistFromUserRequest request) {
         try {
+            log.info("Received request to create dentist from user: {}", request);
             DentistResponseDto createdDentist = dentistService.createDentistFromUser(request);
+            log.info("Dentist created successfully: {}", createdDentist);
             return ResponseEntity.ok(createdDentist);
         } catch (IllegalArgumentException e) {
+            log.error("Validation error: {}", e.getMessage());
             throw e;
         } catch (Exception e) {
+            log.error("Internal error creating dentist from user", e);
             throw new RuntimeException("Internal error creating dentist from user", e);
+        }
+    }
+
+    @Operation(summary = "Obtener usuarios pacientes disponibles")
+    @GetMapping("/available-patients")
+    public ResponseEntity<List<AvailableUserDto>> getAvailablePatientUsers() {
+        try {
+            List<AvailableUserDto> availableUsers = dentistService.getAvailablePatientUsers();
+            return ResponseEntity.ok(availableUsers);
+        } catch (Exception e) {
+            throw new RuntimeException("Internal error getting available patient users", e);
         }
     }
 
