@@ -248,6 +248,22 @@ public class DentistController {
         }
     }
 
+    @Operation(summary = "Obtener ID de dentista por userId")
+    @GetMapping("/user-id/{userId}")
+    public ResponseEntity<Long> getDentistIdByUserId(@PathVariable Long userId) {
+        try {
+            Long dentistId = dentistService.getDentistIdByUserId(userId);
+            if (dentistId == null) {
+                throw new IllegalArgumentException("No dentist found for userId: " + userId);
+            }
+            return ResponseEntity.ok(dentistId);
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Internal error getting dentist ID by userId", e);
+        }
+    }
+
     // ------- Bloque Recetas -------
     /**
      * Emitir Receta Médica

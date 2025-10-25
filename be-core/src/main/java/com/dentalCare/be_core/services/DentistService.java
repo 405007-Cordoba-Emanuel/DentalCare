@@ -46,4 +46,6 @@ public interface DentistService {
 
     List<AvailableUserDto> getAvailablePatientUsers();
 
+    Long getDentistIdByUserId(Long userId);
+
 }

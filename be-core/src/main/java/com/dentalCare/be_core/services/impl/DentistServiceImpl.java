@@ -151,6 +151,14 @@ public class DentistServiceImpl implements DentistService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Long getDentistIdByUserId(Long userId) {
+        return dentistRepository.findByUserId(userId)
+                .map(Dentist::getId)
+                .orElse(null);
+    }
+
     // ==================== UPDATE OPERATIONS ====================
 
     @Override

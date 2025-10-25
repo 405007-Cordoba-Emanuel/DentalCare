@@ -67,6 +67,21 @@ public class PatientController {
         }
     }
 
+    @Operation(summary = "Obtener ID de paciente por userId")
+    @GetMapping("/user-id/{userId}")
+    public ResponseEntity<Long> getPatientIdByUserId(@PathVariable Long userId) {
+        try {
+            Long patientId = patientService.getPatientIdByUserId(userId);
+            if (patientId == null) {
+                throw new IllegalArgumentException("No patient found for userId: " + userId);
+            }
+            return ResponseEntity.ok(patientId);
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Internal error getting patient ID by userId", e);
+        }
+    }
 
 	// ------- Bloque Paciente -------
     /**

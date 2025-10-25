@@ -10,4 +10,8 @@ public interface CoreServiceClient {
     DentistResponse createDentistFromUser(CreateDentistFromUserRequest request);
     
     PatientResponse createPatientFromUser(CreatePatientFromUserRequest request);
+    
+    Long getDentistIdByUserId(Long userId);
+    
+    Long getPatientIdByUserId(Long userId);
 }

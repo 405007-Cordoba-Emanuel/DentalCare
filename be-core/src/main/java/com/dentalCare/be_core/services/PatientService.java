@@ -28,4 +28,6 @@ public interface PatientService {
     boolean existsByEmail(String email);
 
     long countActivePatient();
+
+    Long getPatientIdByUserId(Long userId);
 }

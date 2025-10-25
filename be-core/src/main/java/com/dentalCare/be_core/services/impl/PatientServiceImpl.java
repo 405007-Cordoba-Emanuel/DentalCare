@@ -106,6 +106,14 @@ public class PatientServiceImpl implements PatientService {
         return patientRepository.countActivePatient();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Long getPatientIdByUserId(Long userId) {
+        return patientRepository.findByUserId(userId)
+                .map(Patient::getId)
+                .orElse(null);
+    }
+
     // ==================== PRIVATE HELPER METHODS ====================
 
     private Patient findPatientById(Long id) {

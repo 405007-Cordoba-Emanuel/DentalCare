@@ -79,4 +79,28 @@ public class CoreServiceClientImpl implements CoreServiceClient {
         }
     }
 
+    @Override
+    public Long getDentistIdByUserId(Long userId) {
+        try {
+            String url = coreServiceUrl + "/api/core/dentist/user-id/" + userId;
+            ResponseEntity<Long> response = restTemplate.getForEntity(url, Long.class);
+            return response.getBody();
+        } catch (Exception e) {
+            log.warn("No dentist found for userId: {}", userId);
+            return null;
+        }
+    }
+
+    @Override
+    public Long getPatientIdByUserId(Long userId) {
+        try {
+            String url = coreServiceUrl + "/api/core/patient/user-id/" + userId;
+            ResponseEntity<Long> response = restTemplate.getForEntity(url, Long.class);
+            return response.getBody();
+        } catch (Exception e) {
+            log.warn("No patient found for userId: {}", userId);
+            return null;
+        }
+    }
+
 }

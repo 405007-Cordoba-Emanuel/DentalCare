@@ -60,20 +60,18 @@ public class AuthServiceImpl implements AuthService {
             user.setLastLogin(LocalDateTime.now());
             userRepository.save(user);
 
-            // Generar token JWT
-            String token = jwtUtil.generateToken(user.getId().toString(),user.getEmail(), user.getFirstName(),user.getLastName(), user.getPicture(), user.getRole().name());
+            // Obtener IDs de dentista o paciente según el rol
+            Long dentistId = null;
+            Long patientId = null;
+            
+            if (user.getRole() == Role.DENTIST) {
+                dentistId = coreServiceClient.getDentistIdByUserId(user.getId());
+            } else if (user.getRole() == Role.PATIENT) {
+                patientId = coreServiceClient.getPatientIdByUserId(user.getId());
+            }
 
-            return AuthResponse.builder()
-                .id(user.getId().toString())
-                .token(token)
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .picture(user.getPicture())
-                .role(user.getRole())
-                .dentistId(null) // En login no tenemos estos IDs
-                .patientId(null)
-                .build();
+            // Generar token JWT y construir respuesta
+            return buildAuthResponse(user, dentistId, patientId);
 
         } catch (AuthenticationException e) {
             throw new CustomAuthenticationException("Invalid email or password");
@@ -149,19 +147,32 @@ public class AuthServiceImpl implements AuthService {
             }
         }
 
-        // Generar token JWT con los IDs correspondientes
-        String token = jwtUtil.generateToken(savedUser.getId().toString(), savedUser.getEmail(), 
-            savedUser.getFirstName(), savedUser.getLastName(), savedUser.getPicture(), 
-            savedUser.getRole().name(), dentistId, patientId);
+                 // Generar token JWT y construir respuesta
+         return buildAuthResponse(savedUser, dentistId, patientId);
+    }
+
+    // ==================== PRIVATE HELPER METHODS ====================
+
+    private AuthResponse buildAuthResponse(UserEntity user, Long dentistId, Long patientId) {
+        String token = jwtUtil.generateToken(
+            user.getId().toString(),
+            user.getEmail(),
+            user.getFirstName(),
+            user.getLastName(),
+            user.getPicture(),
+            user.getRole().name(),
+            dentistId,
+            patientId
+        );
 
         return AuthResponse.builder()
-            .id(savedUser.getId().toString())
+            .id(user.getId().toString())
             .token(token)
-            .firstName(savedUser.getFirstName())
-            .lastName(savedUser.getLastName())
-            .email(savedUser.getEmail())
-            .picture(savedUser.getPicture())
-            .role(savedUser.getRole())
+            .firstName(user.getFirstName())
+            .lastName(user.getLastName())
+            .email(user.getEmail())
+            .picture(user.getPicture())
+            .role(user.getRole())
             .dentistId(dentistId)
             .patientId(patientId)
             .build();
