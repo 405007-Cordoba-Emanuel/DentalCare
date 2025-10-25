@@ -1,12 +1,14 @@
 
 export interface AuthResponse {
-  id: number;
+  id: string;
   token: string;
   firstName: string;
   lastName: string;
   email: string;
   picture: string | null;
   role: string;
+  dentistId?: number;
+  patientId?: number;
   authorized?: boolean;
   authorizationUrl?: string;
 }

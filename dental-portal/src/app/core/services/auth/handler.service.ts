@@ -54,6 +54,8 @@ export class HandlerService {
       picture: response.picture,
       role: response.role,
       token: response.token,
+      dentistId: response.dentistId,
+      patientId: response.patientId,
     };
 
     this.localStorageService.setAuthToken(response.token);

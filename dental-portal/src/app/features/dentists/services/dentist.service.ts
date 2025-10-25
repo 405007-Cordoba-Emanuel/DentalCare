@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { DentistResponse, DentistUpdateRequest, DentistInfo } from '../interfaces/dentist.interface';
+import { DentistResponse, DentistUpdateRequest } from '../interfaces/dentist.interface';
 import { DentistPatientsResponse, PatientInfo, PatientRequest } from '../interfaces/patient.interface';
 import { AppointmentRequest, AppointmentResponse } from '../interfaces/appointment.interface';
 

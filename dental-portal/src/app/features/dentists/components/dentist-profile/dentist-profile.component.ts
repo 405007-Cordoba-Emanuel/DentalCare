@@ -1,124 +1,194 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { Validators } from '@angular/forms';
 import { DentistService } from '../../services/dentist.service';
-import { DentistResponse, DentistUpdateRequest } from '../../interfaces/dentist.interface';
+import { UserService } from '../../../../core/services/auth/user.service';
+import {
+  FormField,
+  GenericFormComponent,
+} from '../../../../shared/generic-form/generic-form.component';
+import { LocalStorageService } from '../../../../core/services/auth/local-storage.service';
 
 @Component({
   selector: 'app-dentist-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [GenericFormComponent],
   templateUrl: './dentist-profile.component.html',
-  styleUrls: ['./dentist-profile.component.css']
+  styleUrls: ['./dentist-profile.component.css'],
 })
 export class DentistProfileComponent implements OnInit {
-  dentistForm: FormGroup;
-  dentist: DentistResponse | null = null;
-  loading = false;
-  saving = false;
-  hasChanges = false;
+  private userService = inject(UserService);
+  private dentistService = inject(DentistService);
+  private localStorageService = inject(LocalStorageService);
 
-  constructor(
-    private fb: FormBuilder,
-    private dentistService: DentistService,
-    public route: ActivatedRoute,
-    private router: Router
-  ) {
-    this.dentistForm = this.fb.group({
-      firstName: ['', [Validators.required, Validators.maxLength(100)]],
-      lastName: ['', [Validators.required, Validators.maxLength(100)]],
-      licenseNumber: ['', [Validators.required, Validators.maxLength(20), Validators.pattern(/^[A-Za-z0-9\-]+$/)]],
-      specialty: ['', [Validators.required, Validators.maxLength(150)]],
-      phone: ['', [Validators.pattern(/^[+]?[0-9\s\-()]{7,20}$/)]],
-      email: ['', [Validators.email, Validators.maxLength(150)]],
-      address: ['', [Validators.maxLength(255)]],
-      active: [true]
-    });
+  // ⭐ NUEVO: Signals para los datos cargados
+  userProfileData = signal<any>({});
+  dentistProfileData = signal<any>({});
 
-    // Detectar cambios en el formulario
-    this.dentistForm.valueChanges.subscribe(() => {
-      this.hasChanges = true;
-    });
+  // Estados de carga y mensajes
+  loadingPersonal = signal(false);
+  loadingProfessional = signal(false);
+  successPersonal = signal(false);
+  successProfessional = signal(false);
+  errorPersonal = signal<string | null>(null);
+  errorProfessional = signal<string | null>(null);
+
+  ngOnInit(): void {
+    this.loadUserProfile();
+    this.loadDentistProfile();
   }
 
-  ngOnInit() {
-    const dentistId = this.route.snapshot.params['id'];
-    if (dentistId) {
-      this.loadDentist(+dentistId);
-    }
-  }
+  // Configuración de campos - Datos Personales
+  personalFields = signal<FormField[]>([
+    {
+      name: 'firstName',
+      label: 'Nombre',
+      type: 'text',
+      placeholder: 'Ingresa tu nombre',
+      validators: [Validators.required, Validators.minLength(2)],
+    },
+    {
+      name: 'lastName',
+      label: 'Apellido',
+      type: 'text',
+      placeholder: 'Ingresa tu apellido',
+      validators: [Validators.required, Validators.minLength(2)],
+    },
+    {
+      name: 'phone',
+      label: 'Teléfono',
+      type: 'text',
+      placeholder: '+54 9 11 1234-5678',
+      validators: [Validators.required],
+    },
+    {
+      name: 'address',
+      label: 'Dirección',
+      type: 'text',
+      placeholder: 'Calle, número, piso, depto',
+      fullWidth: true,
+    },
+    {
+      name: 'birthDate',
+      label: 'Fecha de Nacimiento',
+      type: 'text',
+      placeholder: 'YYYY-MM-DD',
+      validators: [
+        Validators.required,
+        Validators.pattern(/^\d{4}-\d{2}-\d{2}$/),
+      ],
+      fullWidth: true,
+    },
+  ]);
 
-  loadDentist(id: number) {
-    this.loading = true;
-    this.dentistService.getDentistById(id).subscribe({
-      next: (dentist) => {
-        this.dentist = dentist;
-        this.dentistForm.patchValue(dentist);
-        this.hasChanges = false;
-        this.loading = false;
+  // Configuración de campos - Datos Profesionales
+  professionalFields = signal<FormField[]>([
+    {
+      name: 'licenseNumber',
+      label: 'Número de Matrícula',
+      type: 'text',
+      placeholder: 'MP 12345',
+      validators: [Validators.required],
+      fullWidth: true,
+    },
+    {
+      name: 'specialty',
+      label: 'Especialidad',
+      type: 'text',
+      placeholder: 'Ej: Ortodoncia, Endodoncia',
+      validators: [Validators.required],
+      fullWidth: true,
+    },
+    {
+      name: 'active',
+      label: 'Estado',
+      type: 'select',
+      options: [
+        { label: 'Activo', value: true },
+        { label: 'Inactivo', value: false },
+      ],
+      validators: [Validators.required],
+      fullWidth: true,
+    },
+  ]);
+
+  // Método para actualizar datos personales
+  updatePersonalData(formData: any) {
+    this.loadingPersonal.set(true);
+    this.successPersonal.set(false);
+    this.errorPersonal.set(null);
+    this.userService.updateUserProfile(formData).subscribe({
+      next: () => {
+        this.loadingPersonal.set(false);
+        this.successPersonal.set(true);
+        setTimeout(() => this.successPersonal.set(false), 3000);
       },
-      error: (error) => {
-        console.error('Error loading dentist:', error);
-        this.loading = false;
-      }
+      error: (err) => {
+        this.loadingPersonal.set(false);
+        this.errorPersonal.set(
+          err.error?.message || 'Error al actualizar datos personales'
+        );
+        setTimeout(() => this.errorPersonal.set(null), 5000);
+      },
     });
   }
 
-  onSubmit() {
-    if (this.dentistForm.valid && this.dentist) {
-      this.saving = true;
-      const updateData: DentistUpdateRequest = this.dentistForm.value;
-      
-      this.dentistService.updateDentist(this.dentist.id, updateData).subscribe({
-        next: (updatedDentist) => {
-          this.dentist = updatedDentist;
-          this.saving = false;
-          this.hasChanges = false;
-          // Mostrar mensaje de éxito
-          alert('Datos actualizados correctamente');
+  // Método para actualizar datos profesionales
+  updateProfessionalData(formData: any) {
+    this.loadingProfessional.set(true);
+    this.successProfessional.set(false);
+    this.errorProfessional.set(null);
+
+    const payload = {
+      ...formData,
+      active: formData.active === 'true' || formData.active === true,
+    };
+
+    this.dentistService
+      .updateDentist(this.localStorageService.getDentistId(), payload)
+      .subscribe({
+        next: () => {
+          this.loadingProfessional.set(false);
+          this.successProfessional.set(true);
+          setTimeout(() => this.successProfessional.set(false), 3000);
         },
-        error: (error) => {
-          console.error('Error updating dentist:', error);
-          this.saving = false;
-          // Mostrar mensaje de error
-          alert('Error al actualizar los datos: ' + (error.error?.message || error.message));
-        }
+        error: (err) => {
+          this.loadingProfessional.set(false);
+          this.errorProfessional.set(
+            err.error?.message || 'Error al actualizar datos profesionales'
+          );
+          setTimeout(() => this.errorProfessional.set(null), 5000);
+        },
       });
-    }
   }
 
-  onCancel() {
-    if (this.dentist) {
-      this.loadDentist(this.dentist.id);
-    }
+  // ⭐ MODIFICADO: Guardar los datos en el signal
+  loadUserProfile() {
+    this.userService.getUser().subscribe({
+      next: (user) => {
+        // Formatear la fecha si es necesario
+        const formattedUser = {
+          ...user,
+          birthDate: user.birthDate ? user.birthDate.toISOString().split('T')[0] : '',
+        };
+        this.userProfileData.set(formattedUser);
+      },
+      error: (err) => {
+        console.error('Error cargando perfil de usuario:', err);
+      },
+    });
   }
 
-  // Separar campos personales y profesionales
-  get personalFields() {
-    return ['firstName', 'lastName', 'phone', 'email', 'address'];
-  }
-
-  get professionalFields() {
-    return ['licenseNumber', 'specialty', 'active'];
-  }
-
-  getFieldError(fieldName: string): string {
-    const field = this.dentistForm.get(fieldName);
-    if (field?.invalid && field?.touched) {
-      if (field.errors?.['required']) {
-        return 'Este campo es requerido';
-      }
-      if (field.errors?.['email']) {
-        return 'Formato de email inválido';
-      }
-      if (field.errors?.['pattern']) {
-        return 'Formato inválido';
-      }
-      if (field.errors?.['maxlength']) {
-        return `Máximo ${field.errors['maxlength'].requiredLength} caracteres`;
-      }
-    }
-    return '';
+  // ⭐ MODIFICADO: Guardar los datos en el signal
+  loadDentistProfile() {
+    this.dentistService
+      .getDentistById(this.localStorageService.getDentistId())
+      .subscribe({
+        next: (dentist) => {
+          this.dentistProfileData.set(dentist);
+        },
+        error: (err) => {
+          console.error('Error cargando perfil de dentista:', err);
+        },
+      });
   }
 }

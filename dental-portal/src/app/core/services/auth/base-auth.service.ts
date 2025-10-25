@@ -49,6 +49,8 @@ export abstract class BaseAuthService {
           email: response.email,
           picture: response.picture,
           role: response.role,
+          dentistId: response.dentistId,
+          patientId: response.patientId,
           token: response.token,
         };
         this.localStorageService.setAuthToken(response.token);

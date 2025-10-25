@@ -10,9 +10,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { EmailRegisterRequest } from '../../../interfaces/auth/auth-response.interface';
-import { DentistService } from '../../../features/dentists/services/dentist.service';
 import { LocalStorageService } from '../../../core/services/auth/local-storage.service';
-import { GenericFormComponent, FormField } from '../../../shared/generic-form/generic-form.component';
+import {
+  GenericFormComponent,
+  FormField,
+} from '../../../shared/generic-form/generic-form.component';
 import { Validators } from '@angular/forms';
 
 @Component({
@@ -40,8 +42,7 @@ export class RegisterComponent implements OnInit {
 
   private router = inject(Router);
   private authService = inject(AuthService);
-  private dentistService = inject(DentistService);
-  private localStorage = inject(LocalStorageService); 
+  private localStorage = inject(LocalStorageService);
   ngOnInit(): void {
     // Detectar la ruta actual para establecer el rol correcto
     const currentPath = this.router.url;
@@ -83,7 +84,11 @@ export class RegisterComponent implements OnInit {
         label: 'DNI',
         type: 'number',
         placeholder: 'Ingresa tu DNI',
-        validators: [Validators.required, Validators.min(1000000), Validators.max(99999999)],
+        validators: [
+          Validators.required,
+          Validators.min(1000000),
+          Validators.max(99999999),
+        ],
       },
       {
         name: 'password',
@@ -125,12 +130,7 @@ export class RegisterComponent implements OnInit {
       next: (response) => {
         console.log('Registro exitoso:', response);
 
-        // Si es un paciente, crear el registro de paciente
-        if (this.userType === 'PATIENT') {
-          this.createPatientAfterRegistration(response.id, data.dni);
-        } else {
-          this.router.navigate(['/dashboard']);
-        }
+        this.router.navigate(['/dashboard']);
       },
       error: (error) => {
         this.isLoading = false;
@@ -147,28 +147,6 @@ export class RegisterComponent implements OnInit {
             error.error?.message || 'Error al registrar usuario';
         }
       },
-    });
-  }
-
-  private createPatientAfterRegistration(userId: number, dni: number) {
-    const patientRequest = {
-      userId: userId,
-      dni: dni
-    };
-
-    this.dentistService.createPatient(this.localStorage.getDentistId(), patientRequest).subscribe({
-      next: (response) => {
-        console.log('Paciente creado exitosamente:', response);
-        this.router.navigate(['/dashboard']);
-      },
-      error: (error) => {
-        console.error('Error al crear paciente:', error);
-        this.errorMessage = 'Usuario registrado pero error al crear perfil de paciente';
-        this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-      }
     });
   }
 
