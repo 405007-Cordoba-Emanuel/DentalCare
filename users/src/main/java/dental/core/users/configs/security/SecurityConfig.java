@@ -39,35 +39,29 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-		http.
-				authorizeHttpRequests(request -> request
-						// Swagger UI - permitir acceso sin autenticación
+		http
+				.authorizeHttpRequests(request -> request
 						.requestMatchers("/swagger-ui/**",
 								"/swagger-ui.html/**",
 								"/v3/api-docs/**",
 								"/v3/api-docs.yaml",
 								"/v3/api-docs/swagger-config").permitAll()
-						// H2 Console
 						.requestMatchers("/h2-console/**").permitAll()
-						// Endpoints de autenticación (ambas rutas)
 						.requestMatchers("/api/auth/**").permitAll()
 						.requestMatchers("/api/users/auth/**").permitAll()
-						// Endpoints internos para comunicación entre microservicios
 						.requestMatchers("/api/internal/**").permitAll()
-						// Endpoints públicos para comunicación entre microservicios
 						.requestMatchers("/public/**").permitAll()
-						// Actuator endpoints para health checks
 						.requestMatchers("/api/health").permitAll()
 						.requestMatchers("/api/users/api/health").permitAll()
-						// Cualquier otra petición requiere autenticación
-						.anyRequest().authenticated())
+						.anyRequest().authenticated()
+				)
 				.csrf(AbstractHttpConfigurer::disable)
-				// CORS deshabilitado - el Gateway maneja CORS
-				.cors(AbstractHttpConfigurer::disable)
-				.sessionManagement(sessionManager -> sessionManager
+				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+				.sessionManagement(session -> session
 						.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authenticationProvider(authenticationProvider())
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
 		return http.build();
 	}
 	

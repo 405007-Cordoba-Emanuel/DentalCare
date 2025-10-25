@@ -120,20 +120,19 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
             throw new RuntimeException("Authentication failed: " + e.getMessage());
         }
     }
-    
+
     private UserEntity findOrCreateUser(String email, String name, String picture) {
-        Optional<UserEntity> existingUser = userRepository.findByEmail(email);
-        
-        if (existingUser.isPresent()) {
-            UserEntity user = existingUser.get();
-            // Update user information if needed
+        Optional<UserEntity> optionalUser = userRepository.findByEmail(email);
+
+        // Separar el nombre en firstName y lastName
+        String[] nameParts = splitName(name);
+        String firstName = nameParts[0];
+        String lastName = nameParts[1];
+
+        if (optionalUser.isPresent()) {
+            UserEntity user = optionalUser.get();
             boolean updated = false;
-            
-            // Split name into firstName and lastName
-            String[] nameParts = splitName(name);
-            String firstName = nameParts[0];
-            String lastName = nameParts[1];
-            
+
             if (firstName != null && !firstName.equals(user.getFirstName())) {
                 user.setFirstName(firstName);
                 updated = true;
@@ -146,19 +145,14 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                 user.setPicture(picture);
                 updated = true;
             }
-            
+
             if (updated) {
                 user = userRepository.save(user);
-                log.info("Updated user information for: {}", email);
+                log.info("User {} updated successfully during Google login", email);
             }
-            
+
             return user;
         } else {
-            // Split name into firstName and lastName
-            String[] nameParts = splitName(name);
-            String firstName = nameParts[0];
-            String lastName = nameParts[1];
-            
             UserEntity newUser = UserEntity.builder()
                     .email(email)
                     .firstName(firstName)
@@ -167,9 +161,9 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                     .role(Role.PATIENT)
                     .isActive(true)
                     .build();
-            
+
             UserEntity savedUser = userRepository.save(newUser);
-            log.info("Created new user: {}", email);
+            log.info("New Google user created with email: {}", email);
             return savedUser;
         }
     }
