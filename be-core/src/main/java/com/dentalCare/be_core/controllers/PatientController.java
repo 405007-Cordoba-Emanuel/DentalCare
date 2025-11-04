@@ -376,6 +376,20 @@ public class PatientController {
     }
 
     /**
+     * Ver Historial de Turnos del Paciente
+     * El paciente consulta únicamente sus turnos pasados (que ya han ocurrido).
+     * Útil para revisar el historial de citas anteriores.
+     */
+	@Operation(summary = "Listar turnos pasados del paciente")
+    @GetMapping("/{id}/appointments/past")
+    public ResponseEntity<List<AppointmentResponseDto>> getPastAppointmentsByPatientId(
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long id) {
+        List<AppointmentResponseDto> appointments = appointmentService.getPastAppointmentsByPatientId(id);
+        return ResponseEntity.ok(appointments);
+    }
+
+    /**
      * Ver Detalle de un Turno
      * El paciente consulta la información completa de un turno específico.
      * Incluye fecha/hora, motivo, observaciones del dentista y datos del profesional.

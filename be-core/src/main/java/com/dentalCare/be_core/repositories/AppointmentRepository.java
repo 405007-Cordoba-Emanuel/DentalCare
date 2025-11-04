@@ -51,6 +51,12 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findUpcomingByPatientId(@Param("patientId") Long patientId,
                                             @Param("currentDateTime") LocalDateTime currentDateTime);
 
+    @Query("SELECT a FROM Appointment a WHERE a.patient.id = :patientId AND a.active = true " +
+           "AND a.startDateTime < :currentDateTime " +
+           "ORDER BY a.startDateTime DESC")
+    List<Appointment> findPastByPatientId(@Param("patientId") Long patientId,
+                                         @Param("currentDateTime") LocalDateTime currentDateTime);
+
     @Query("SELECT COUNT(a) > 0 FROM Appointment a WHERE a.dentist.id = :dentistId AND a.active = true " +
            "AND a.status NOT IN (com.dentalCare.be_core.entities.AppointmentStatus.CANCELADO, com.dentalCare.be_core.entities.AppointmentStatus.AUSENTE) " +
            "AND ((a.startDateTime < :endTime AND a.endDateTime > :startTime))")

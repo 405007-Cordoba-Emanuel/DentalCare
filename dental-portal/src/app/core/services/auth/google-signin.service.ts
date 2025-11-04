@@ -122,9 +122,16 @@ export class GoogleSignInService {
       next: (authResponse) => {
         console.log('Login con Google exitoso:', authResponse);
         
-        // Redirigir usando el guard de redirección automática
+        // Redirigir directamente según el rol del usuario
         this.ngZone.run(() => {
-          this.router.navigate(['/dashboard']);
+          if (authResponse.role === 'DENTIST') {
+            this.router.navigate(['/dentist']);
+          } else if (authResponse.role === 'PATIENT') {
+            this.router.navigate(['/patient']);
+          } else {
+            // Por defecto, redirigir al dashboard genérico
+            this.router.navigate(['/dashboard']);
+          }
         });
       },
       error: (error) => {

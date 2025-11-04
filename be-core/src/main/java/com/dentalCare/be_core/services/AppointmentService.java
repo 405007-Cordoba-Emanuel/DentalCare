@@ -42,6 +42,8 @@ public interface AppointmentService {
 
     List<AppointmentResponseDto> getUpcomingAppointmentsByPatientId(Long patientId);
 
+    List<AppointmentResponseDto> getPastAppointmentsByPatientId(Long patientId);
+
     boolean hasTimeConflict(Long dentistId, LocalDateTime startTime, LocalDateTime endTime);
 
     boolean hasTimeConflictExcluding(Long dentistId, Long excludeAppointmentId, LocalDateTime startTime, LocalDateTime endTime);

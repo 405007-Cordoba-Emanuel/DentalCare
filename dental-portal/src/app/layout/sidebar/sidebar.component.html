@@ -54,8 +54,9 @@
             <span class="ml-3 font-medium relative z-10">Vista General</span>
           </a>
 
-          <!-- Citas -->
+          <!-- Citas - Solo para dentistas -->
           <a
+            *ngIf="(currentUser$ | async)?.role !== 'PATIENT'"
             routerLink="dentist/appointments"
             routerLinkActive="bg-blue-100 text-blue-800 border-blue-300 shadow-blue-100"
             class="w-full px-3 py-3 text-left rounded-xl transition-all duration-200 flex items-center hover:bg-blue-50 hover:border-blue-200 hover-lift border border-transparent group relative overflow-hidden"
@@ -70,8 +71,9 @@
             <span class="ml-3 font-medium relative z-10">Citas</span>
           </a>
 
-          <!-- Pacientes -->
+          <!-- Pacientes - Solo para dentistas -->
           <a
+            *ngIf="(currentUser$ | async)?.role !== 'PATIENT'"
             routerLink="/patients"
             routerLinkActive="bg-blue-100 text-blue-800 border-blue-300 shadow-blue-100"
             class="w-full px-3 py-3 text-left rounded-xl transition-all duration-200 flex items-center hover:bg-blue-50 hover:border-blue-200 hover-lift border border-transparent group relative overflow-hidden"
@@ -136,6 +138,23 @@
             <span class="ml-3 font-medium relative z-10">Recetas</span>
           </a>
 
+          <!-- Mis Citas - Solo para pacientes -->
+          <a
+            *ngIf="(currentUser$ | async)?.role === 'PATIENT'"
+            routerLink="/patient/appointments"
+            routerLinkActive="bg-blue-100 text-blue-800 border-blue-300 shadow-blue-100"
+            class="w-full px-3 py-3 text-left rounded-xl transition-all duration-200 flex items-center hover:bg-blue-50 hover:border-blue-200 hover-lift border border-transparent group relative overflow-hidden"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-transparent via-blue-50/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"
+            ></div>
+            <mat-icon
+              class="group-hover:scale-110 transition-transform duration-200 relative z-10 text-stone-600 group-hover:text-blue-700"
+              >event</mat-icon
+            >
+            <span class="ml-3 font-medium relative z-10">Mis Citas</span>
+          </a>
+
           <!-- Mi Historia - Solo para pacientes -->
           <a
             *ngIf="(currentUser$ | async)?.role === 'PATIENT'"
@@ -155,8 +174,8 @@
         </div>
       </div>
 
-      <!-- Acciones Rápidas -->
-      <div class="mb-6 animate-fadeInUp" style="animation-delay: 0.2s;">
+      <!-- Acciones Rápidas - Solo para dentistas -->
+      <div *ngIf="(currentUser$ | async)?.role !== 'PATIENT'" class="mb-6 animate-fadeInUp" style="animation-delay: 0.2s;">
         <h2
           class="text-sm font-semibold uppercase mt-2 text-blue-700 tracking-wider mb-3"
         >

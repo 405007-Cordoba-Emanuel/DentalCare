@@ -215,6 +215,15 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<AppointmentResponseDto> getPastAppointmentsByPatientId(Long patientId) {
+        List<Appointment> appointments = appointmentRepository.findPastByPatientId(patientId, LocalDateTime.now());
+        return appointments.stream()
+                .map(this::mapToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public boolean hasTimeConflict(Long dentistId, LocalDateTime startTime, LocalDateTime endTime) {
         return appointmentRepository.existsTimeConflict(dentistId, startTime, endTime);
     }

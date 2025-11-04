@@ -1,0 +1,93 @@
+<div class="appointments-container">
+  <div class="appointments-header">
+    <h1 class="page-title">Mis Citas</h1>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-container">
+      <mat-icon class="loading-icon">refresh</mat-icon>
+      <p>Cargando citas...</p>
+    </div>
+  } @else if (errorMessage) {
+    <div class="error-container">
+      <mat-icon>error</mat-icon>
+      <p>{{ errorMessage }}</p>
+    </div>
+  } @else {
+    <!-- Próxima Cita -->
+    <div class="section">
+      <h2 class="section-title">Próxima Cita</h2>
+      
+      @if (nextAppointment) {
+        <mat-card class="next-appointment-card">
+          <div class="appointment-content">
+            <div class="appointment-icon">
+              <mat-icon>event</mat-icon>
+            </div>
+            <div class="appointment-details">
+              <div class="appointment-date-time">
+                {{ formatDateOnly(nextAppointment.startDateTime) }} - {{ formatTime(nextAppointment.startDateTime) }}
+              </div>
+              <div class="appointment-reason">
+                {{ nextAppointment.reason || 'Consulta general' }}
+              </div>
+              <div class="appointment-dentist">
+                Con {{ nextAppointment.dentistName }}
+              </div>
+            </div>
+          </div>
+        </mat-card>
+      } @else {
+        <mat-card class="no-appointment-card">
+          <div class="no-appointment-content">
+            <mat-icon>event_available</mat-icon>
+            <p>No tienes citas programadas</p>
+          </div>
+        </mat-card>
+      }
+    </div>
+
+    <!-- Historial de Citas -->
+    <div class="section">
+      <h2 class="section-title">Historial de Citas</h2>
+      
+      @if (pastAppointments.length > 0) {
+        <div class="appointments-list">
+          @for (appointment of pastAppointments; track appointment.id) {
+            <mat-card class="appointment-card">
+              <div class="appointment-content">
+                <div class="appointment-icon past">
+                  <mat-icon>schedule</mat-icon>
+                </div>
+                <div class="appointment-details">
+                  <div class="appointment-reason">
+                    {{ appointment.reason || 'Consulta general' }}
+                  </div>
+                  <div class="appointment-date">
+                    {{ formatShortDate(appointment.startDateTime) }}
+                  </div>
+                  <div class="appointment-dentist">
+                    {{ appointment.dentistName }}
+                  </div>
+                </div>
+                <div class="appointment-status">
+                  <mat-chip [class]="getStatusColor(appointment.status)" selected>
+                    {{ getStatusLabel(appointment.status) }}
+                  </mat-chip>
+                </div>
+              </div>
+            </mat-card>
+          }
+        </div>
+      } @else {
+        <mat-card class="no-appointment-card">
+          <div class="no-appointment-content">
+            <mat-icon>history</mat-icon>
+            <p>No hay citas anteriores</p>
+          </div>
+        </mat-card>
+      }
+    </div>
+  }
+</div>
+

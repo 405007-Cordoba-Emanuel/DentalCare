@@ -27,6 +27,7 @@ import { CreateAppointmentComponent } from './features/appointments/create-appoi
 import { PatientProfileComponent } from './features/patient-profile/patient-profile.component';
 import { PrescriptionListComponent } from './features/prescriptions/prescription-list.component';
 import { ClinicalHistoryListComponent } from './features/clinical-history/clinical-history-list.component';
+import { PatientAppointmentsComponent } from './features/patient-appointments/patient-appointments.component';
 
 
 export const routes: Routes = [
@@ -96,6 +97,12 @@ export const routes: Routes = [
       {
         path: 'patient/clinical-history',
         component: ClinicalHistoryListComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['PATIENT'] }
+      },
+      {
+        path: 'patient/appointments',
+        component: PatientAppointmentsComponent,
         canActivate: [authGuard, roleGuard],
         data: { roles: ['PATIENT'] }
       },
