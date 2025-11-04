@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -70,7 +71,11 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
         MedicalHistory medicalHistory = new MedicalHistory();
         medicalHistory.setPatient(patient);
         medicalHistory.setDentist(dentist);
-        medicalHistory.setEntryDate(requestDto.getEntryDate());
+        // Entry date will be set automatically in @PrePersist, but we can also set it from DTO if provided
+        if (requestDto.getEntryDate() != null) {
+            medicalHistory.setEntryDate(requestDto.getEntryDate());
+        }
+        // Otherwise, it will be set to LocalDate.now() in @PrePersist
         medicalHistory.setDescription(requestDto.getDescription());
         medicalHistory.setActive(true);
 
@@ -127,7 +132,7 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
     @Transactional(readOnly = true)
     public MedicalHistoryResponseDto getMedicalHistoryEntryById(Long entryId, Long dentistId) {
         MedicalHistory entry = medicalHistoryRepository.findByIdAndDentistIdAndActiveTrue(entryId, dentistId)
-                .orElseThrow(() -> new IllegalArgumentException("No medical history entry found with ID: " + entryId));
+                .orElseThrow(() -> new IllegalArgumentException("No clinical history entry found with ID: " + entryId));
         return mapToResponseDto(entry);
     }
 
@@ -135,14 +140,14 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
     @Transactional(readOnly = true)
     public MedicalHistoryResponseDto getMedicalHistoryEntryByIdForPatient(Long entryId, Long patientId) {
         MedicalHistory entry = medicalHistoryRepository.findByIdAndPatientIdAndActiveTrue(entryId, patientId)
-                .orElseThrow(() -> new IllegalArgumentException("No medical history entry found with ID: " + entryId));
+                .orElseThrow(() -> new IllegalArgumentException("No clinical history entry found with ID: " + entryId));
         return mapToResponseDto(entry);
     }
 
     @Override
     public MedicalHistoryResponseDto updateMedicalHistoryEntry(Long entryId, Long dentistId, MedicalHistoryRequestDto requestDto, MultipartFile file) {
         MedicalHistory entry = medicalHistoryRepository.findByIdAndDentistIdAndActiveTrue(entryId, dentistId)
-                .orElseThrow(() -> new IllegalArgumentException("No medical history entry found with ID: " + entryId));
+                .orElseThrow(() -> new IllegalArgumentException("No clinical history entry found with ID: " + entryId));
 
         Patient patient = patientRepository.findById(requestDto.getPatientId())
                 .orElseThrow(() -> new IllegalArgumentException("No patient found with ID: " + requestDto.getPatientId()));
@@ -152,7 +157,8 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
         }
 
         entry.setPatient(patient);
-        entry.setEntryDate(requestDto.getEntryDate());
+        // Entry date is not updatable - it's set once at creation
+        // entry.setEntryDate(requestDto.getEntryDate()); // Removed - entry date cannot be changed
         entry.setDescription(requestDto.getDescription());
 
         if (requestDto.getPrescriptionId() != null) {
@@ -188,7 +194,7 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
     @Override
     public void deleteMedicalHistoryEntry(Long entryId, Long dentistId) {
         MedicalHistory entry = medicalHistoryRepository.findByIdAndDentistIdAndActiveTrue(entryId, dentistId)
-                .orElseThrow(() -> new IllegalArgumentException("No medical history entry found with ID: " + entryId));
+                .orElseThrow(() -> new IllegalArgumentException("No clinical history entry found with ID: " + entryId));
         entry.setActive(false);
         if (entry.getFileUrl() != null) {
             fileStorageService.deleteFile(entry.getFileUrl());
@@ -228,5 +234,66 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
         dto.setActive(entry.getActive());
 
         return dto;
+    }
+
+    // Métodos de búsqueda
+    @Override
+    @Transactional(readOnly = true)
+    public List<MedicalHistoryResponseDto> searchByText(Long patientId, String searchText) {
+        if (searchText == null || searchText.trim().isEmpty()) {
+            return getMedicalHistoryByPatient(patientId);
+        }
+        List<MedicalHistory> entries = medicalHistoryRepository.findByPatientIdAndActiveTrueAndDescriptionContaining(patientId, searchText.trim());
+        return entries.stream()
+                .map(this::mapToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MedicalHistoryResponseDto> searchByText(Long dentistId, Long patientId, String searchText) {
+        if (searchText == null || searchText.trim().isEmpty()) {
+            return getMedicalHistoryByDentistAndPatient(dentistId, patientId);
+        }
+        List<MedicalHistory> entries = medicalHistoryRepository.findByDentistIdAndPatientIdAndActiveTrueAndDescriptionContaining(dentistId, patientId, searchText.trim());
+        return entries.stream()
+                .map(this::mapToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MedicalHistoryResponseDto> searchByDate(Long patientId, LocalDate entryDate) {
+        List<MedicalHistory> entries = medicalHistoryRepository.findByPatientIdAndActiveTrueAndEntryDate(patientId, entryDate);
+        return entries.stream()
+                .map(this::mapToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MedicalHistoryResponseDto> searchByDate(Long dentistId, Long patientId, LocalDate entryDate) {
+        List<MedicalHistory> entries = medicalHistoryRepository.findByDentistIdAndPatientIdAndActiveTrueAndEntryDate(dentistId, patientId, entryDate);
+        return entries.stream()
+                .map(this::mapToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MedicalHistoryResponseDto> searchByDateRange(Long patientId, LocalDate startDate, LocalDate endDate) {
+        List<MedicalHistory> entries = medicalHistoryRepository.findByPatientIdAndActiveTrueAndEntryDateBetween(patientId, startDate, endDate);
+        return entries.stream()
+                .map(this::mapToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MedicalHistoryResponseDto> searchByDateRange(Long dentistId, Long patientId, LocalDate startDate, LocalDate endDate) {
+        List<MedicalHistory> entries = medicalHistoryRepository.findByDentistIdAndPatientIdAndActiveTrueAndEntryDateBetween(dentistId, patientId, startDate, endDate);
+        return entries.stream()
+                .map(this::mapToResponseDto)
+                .collect(Collectors.toList());
     }
 }

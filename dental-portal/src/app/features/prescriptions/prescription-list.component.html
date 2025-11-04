@@ -1,0 +1,94 @@
+<div class="prescription-container">
+  <div class="header-section">
+    <div class="title-section">
+      <h1 class="main-title">Mis Recetas</h1>
+      <p class="subtitle">Visualiza tus recetas médicas y medicamentos</p>
+    </div>
+
+    <!-- KPI Section -->
+    <div class="kpi-section" *ngIf="!isLoading">
+      <div class="kpi-card">
+        <div class="kpi-icon">
+          <mat-icon>description</mat-icon>
+        </div>
+        <div class="kpi-content">
+          <div class="kpi-value">{{ totalPrescriptions }}</div>
+          <div class="kpi-label">Total de recetas</div>
+        </div>
+      </div>
+      
+      <div class="kpi-card accent">
+        <div class="kpi-icon">
+          <mat-icon>calendar_month</mat-icon>
+        </div>
+        <div class="kpi-content">
+          <div class="kpi-value">{{ thisMonthPrescriptions }}</div>
+          <div class="kpi-label">Este mes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search and Filter Section -->
+  <div class="search-filter-section">
+    <mat-form-field appearance="fill" class="search-field">
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput [(ngModel)]="searchTerm" (input)="onSearchChange()" placeholder="Buscar medicamento, observación o dentista" />
+    </mat-form-field>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+    <p>Cargando recetas...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredPrescriptions.length === 0" class="empty-state">
+    <mat-icon>description</mat-icon>
+    <h3>No hay recetas disponibles</h3>
+    <p>{{ searchTerm ? 'No se encontraron recetas con ese criterio de búsqueda' : 'Aún no tienes recetas registradas' }}</p>
+  </div>
+
+  <!-- Prescription List -->
+  <div *ngIf="!isLoading && filteredPrescriptions.length > 0" class="prescription-list">
+    <mat-card *ngFor="let prescription of filteredPrescriptions" class="prescription-card">
+      <div class="prescription-header">
+        <div class="patient-info">
+          <div class="patient-avatar">
+            {{ getInitials(prescription.patientName) }}
+          </div>
+          <div class="patient-details">
+            <div class="patient-name">{{ prescription.patientName }}</div>
+            <div class="prescription-meta">
+              <mat-icon>calendar_today</mat-icon>
+              <span>{{ formatDate(prescription.prescriptionDate) }}</span>
+              <mat-icon>person</mat-icon>
+              <span>{{ prescription.dentistName }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="prescription-actions">
+          <button mat-icon-button (click)="openPrescriptionDetail(prescription)" class="view-button">
+            <mat-icon>visibility</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="prescription-content">
+        <div class="medications-section">
+          <h3 class="section-label">Medicamentos:</h3>
+          <div class="medication-tags">
+            <span class="medication-tag" *ngFor="let med of getMedicationsPreview(prescription.medications)">
+              {{ med }}
+            </span>
+          </div>
+          <p class="more-medications" *ngIf="hasMoreMedications(prescription.medications)">
+            {{ getRemainingMedicationsCount(prescription.medications) }} más...
+          </p>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+</div>
+

@@ -4,6 +4,7 @@ import com.dentalCare.be_core.dtos.request.medicalhistory.MedicalHistoryRequestD
 import com.dentalCare.be_core.dtos.response.medicalhistory.MedicalHistoryResponseDto;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface MedicalHistoryService {
@@ -21,4 +22,17 @@ public interface MedicalHistoryService {
     MedicalHistoryResponseDto updateMedicalHistoryEntry(Long entryId, Long dentistId, MedicalHistoryRequestDto requestDto, MultipartFile file);
 
     void deleteMedicalHistoryEntry(Long entryId, Long dentistId);
+
+    // Búsqueda
+    List<MedicalHistoryResponseDto> searchByText(Long patientId, String searchText);
+
+    List<MedicalHistoryResponseDto> searchByText(Long dentistId, Long patientId, String searchText);
+
+    List<MedicalHistoryResponseDto> searchByDate(Long patientId, LocalDate entryDate);
+
+    List<MedicalHistoryResponseDto> searchByDate(Long dentistId, Long patientId, LocalDate entryDate);
+
+    List<MedicalHistoryResponseDto> searchByDateRange(Long patientId, LocalDate startDate, LocalDate endDate);
+
+    List<MedicalHistoryResponseDto> searchByDateRange(Long dentistId, Long patientId, LocalDate startDate, LocalDate endDate);
 }

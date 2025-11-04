@@ -23,4 +23,7 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 
     @Query("SELECT COUNT(o) FROM Patient o WHERE o.active = true")
     long countActivePatient();
+    
+    @Query("SELECT p FROM Patient p WHERE p.active = true AND p.dentist IS NULL")
+    java.util.List<Patient> findAvailablePatients();
 }

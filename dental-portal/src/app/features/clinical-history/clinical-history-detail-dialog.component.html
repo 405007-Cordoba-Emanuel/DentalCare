@@ -1,0 +1,114 @@
+<div class="dialog-container">
+  <div class="dialog-header">
+    <h2 class="dialog-title">Detalle de Entrada</h2>
+    <button mat-icon-button (click)="close()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <div class="dialog-content">
+    <!-- Date Section -->
+    <div class="detail-section">
+      <div class="section-label">
+        <mat-icon>calendar_today</mat-icon>
+        <span>Fecha</span>
+      </div>
+      <div class="section-value">{{ formatDate(entry.entryDate) }}</div>
+    </div>
+
+    <!-- Dentist Section -->
+    <div class="detail-section">
+      <div class="section-label">
+        <mat-icon>person</mat-icon>
+        <span>Profesional</span>
+      </div>
+      <div class="section-value">
+        <div class="dentist-info">
+          <strong>{{ entry.dentistName }}</strong>
+          <span class="license-number" *ngIf="entry.dentistLicenseNumber">
+            ({{ entry.dentistLicenseNumber }})
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Description Section -->
+    <div class="detail-section description-section">
+      <div class="section-label">
+        <mat-icon>description</mat-icon>
+        <span>Descripción</span>
+      </div>
+      <div class="section-value description-text">
+        <p>{{ entry.description }}</p>
+      </div>
+    </div>
+
+    <!-- Linked Items -->
+    <div class="detail-section" *ngIf="entry.treatmentId || entry.prescriptionId">
+      <div class="section-label">
+        <mat-icon>link</mat-icon>
+        <span>Elementos Vinculados</span>
+      </div>
+      <div class="linked-items">
+        <mat-chip *ngIf="entry.treatmentId" class="detail-chip treatment-chip">
+          <mat-icon>medical_services</mat-icon>
+          <div class="chip-content">
+            <strong>Tratamiento:</strong>
+            <span>{{ entry.treatmentName || 'Tratamiento vinculado' }}</span>
+          </div>
+        </mat-chip>
+        <mat-chip *ngIf="entry.prescriptionId" class="detail-chip prescription-chip">
+          <mat-icon>receipt</mat-icon>
+          <div class="chip-content">
+            <strong>Receta:</strong>
+            <span>{{ entry.prescriptionSummary || 'Receta vinculada' }}</span>
+          </div>
+        </mat-chip>
+      </div>
+    </div>
+
+    <!-- File Attachment -->
+    <div class="detail-section" *ngIf="entry.hasFile && entry.fileUrl">
+      <div class="section-label">
+        <mat-icon>attachment</mat-icon>
+        <span>Archivo Adjunto</span>
+      </div>
+      <div class="file-section">
+        <div class="file-info">
+          <mat-icon class="file-icon">{{ isImageFile() ? 'image' : isPdfFile() ? 'picture_as_pdf' : 'insert_drive_file' }}</mat-icon>
+          <div class="file-details">
+            <div class="file-name">{{ entry.fileName || 'Archivo adjunto' }}</div>
+            <div class="file-type" *ngIf="entry.fileType">{{ entry.fileType }}</div>
+          </div>
+        </div>
+        <button mat-stroked-button 
+                color="primary" 
+                (click)="downloadFile()"
+                class="download-button">
+          <mat-icon>download</mat-icon>
+          <span>{{ isImageFile() ? 'Ver imagen' : 'Abrir archivo' }}</span>
+        </button>
+      </div>
+      
+      <!-- Image Preview -->
+      <div class="image-preview" *ngIf="isImageFile()">
+        <img [src]="entry.fileUrl" 
+             [alt]="entry.fileName || 'Imagen adjunta'"
+             (error)="($any($event.target)).style.display='none'" />
+      </div>
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <div class="dialog-actions">
+    <button mat-button (click)="close()" class="close-action-button">
+      Cerrar
+    </button>
+  </div>
+</div>
+

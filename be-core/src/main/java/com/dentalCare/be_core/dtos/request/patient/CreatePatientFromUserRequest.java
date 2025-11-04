@@ -9,8 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,7 +22,4 @@ public class CreatePatientFromUserRequest {
     @Size(max = 20, message = "DNI cannot exceed 20 characters")
     @Pattern(regexp = "\\d+", message = "DNI must contain only numbers")
     private String dni;
-
-    @NotNull(message = "Birth Date is required")
-    private LocalDate birthDate;
 }

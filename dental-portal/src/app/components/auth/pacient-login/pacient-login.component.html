@@ -13,14 +13,14 @@
     <form class="login-form" (ngSubmit)="onSubmit()">
       <!-- Mensaje de Error -->
       @if (errorMessage) {
-        <div class="error-message bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          <mat-icon class="inline-block align-middle mr-2">error</mat-icon>
-          <span class="align-middle">{{ errorMessage }}</span>
+        <div class="error-message">
+          <mat-icon>error</mat-icon>
+          <span>{{ errorMessage }}</span>
         </div>
       }
 
       <!-- Email -->
-      <mat-form-field class="form-field" appearance="outline">
+      <mat-form-field class="form-field" appearance="fill">
         <mat-label>Email</mat-label>
         <input 
           matInput 
@@ -31,11 +31,10 @@
           [disabled]="isLoading"
           required
         >
-        <mat-icon matSuffix>email</mat-icon>
       </mat-form-field>
 
       <!-- Contraseña -->
-      <mat-form-field class="form-field" appearance="outline">
+      <mat-form-field class="form-field" appearance="fill">
         <mat-label>Contraseña</mat-label>
         <input 
           matInput 
@@ -67,25 +66,25 @@
         [disabled]="!email || !password || isLoading"
       >
         @if (isLoading) {
-          <ng-container>
-            <mat-icon class="inline-block mr-2">refresh</mat-icon>
+          <div class="loading-content">
+            <mat-icon>refresh</mat-icon>
             <span>Iniciando sesión...</span>
-          </ng-container>
+          </div>
         } @else {
           <span>Iniciar Sesión</span>
         }
       </button>
 
       <!-- Divider -->
-      <div class="flex items-center my-6">
-        <div class="flex-1 border-t border-gray-300"></div>
-        <span class="px-4 text-gray-500 text-sm">O continúa con</span>
-        <div class="flex-1 border-t border-gray-300"></div>
+      <div class="divider">
+        <div class="divider-line"></div>
+        <span class="divider-text">O continúa con</span>
+        <div class="divider-line"></div>
       </div>
 
       <!-- Google Sign-In Button -->
       <div class="google-button-container">
-        <div #googleButton class="w-full flex justify-center"></div>
+        <div #googleButton></div>
       </div>
     </form>
 

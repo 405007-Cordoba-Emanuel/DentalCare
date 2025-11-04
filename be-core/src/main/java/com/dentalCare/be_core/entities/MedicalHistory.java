@@ -32,8 +32,7 @@ public class MedicalHistory {
     @NotNull(message = "Dentist is required")
     private Dentist dentist;
 
-    @Column(name = "entry_date", nullable = false)
-    @NotNull(message = "Entry date is required")
+    @Column(name = "entry_date", nullable = false, updatable = false)
     private LocalDate entryDate;
 
     @Column(name = "description", columnDefinition = "TEXT", nullable = false)
@@ -67,6 +66,9 @@ public class MedicalHistory {
     protected void onCreate() {
         if (this.active == null) {
             this.active = true;
+        }
+        if (this.entryDate == null) {
+            this.entryDate = LocalDate.now();
         }
     }
 }

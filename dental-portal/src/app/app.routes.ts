@@ -24,6 +24,9 @@ import { PrivacyPolicyComponent } from './features/policies/components/privacy-p
 import { FaqComponent } from './features/policies/components/faq/faq.component';
 import { AppointmentsComponent } from './features/appointments/appointments.component';
 import { CreateAppointmentComponent } from './features/appointments/create-appointment/create-appointment.component';
+import { PatientProfileComponent } from './features/patient-profile/patient-profile.component';
+import { PrescriptionListComponent } from './features/prescriptions/prescription-list.component';
+import { ClinicalHistoryListComponent } from './features/clinical-history/clinical-history-list.component';
 
 
 export const routes: Routes = [
@@ -75,6 +78,24 @@ export const routes: Routes = [
       {
         path: 'patient',
         component: PatientDashboardComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['PATIENT'] }
+      },
+      {
+        path: 'patient/profile',
+        component: PatientProfileComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['PATIENT'] }
+      },
+      {
+        path: 'patient/prescriptions',
+        component: PrescriptionListComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['PATIENT'] }
+      },
+      {
+        path: 'patient/clinical-history',
+        component: ClinicalHistoryListComponent,
         canActivate: [authGuard, roleGuard],
         data: { roles: ['PATIENT'] }
       },

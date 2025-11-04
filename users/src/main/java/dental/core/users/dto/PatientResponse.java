@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,6 +14,5 @@ public class PatientResponse {
     private Long id;
     private Long userId;
     private String dni;
-    private LocalDate birthDate;
     private Boolean active;
 }

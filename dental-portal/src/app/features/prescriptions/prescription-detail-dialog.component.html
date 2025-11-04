@@ -1,0 +1,64 @@
+<div class="dialog-container">
+  <div class="dialog-header">
+    <h2 class="dialog-title">Receta Médica - {{ prescription.patientName }}</h2>
+    <button mat-icon-button (click)="close()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="dialog-content">
+    <!-- General Information -->
+    <div class="info-section">
+      <div class="info-row">
+        <span class="info-label">Fecha:</span>
+        <span class="info-value">{{ formatDate(prescription.prescriptionDate) }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Dentista:</span>
+        <span class="info-value">{{ prescription.dentistName }}</span>
+      </div>
+      <div class="info-row" *ngIf="prescription.dentistLicenseNumber">
+        <span class="info-label">Matrícula:</span>
+        <span class="info-value">{{ prescription.dentistLicenseNumber }}</span>
+      </div>
+      <div class="info-row" *ngIf="prescription.dentistSpecialty">
+        <span class="info-label">Especialidad:</span>
+        <span class="info-value">{{ prescription.dentistSpecialty }}</span>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Medications Section -->
+    <div class="medications-section">
+      <h3 class="section-title">
+        <mat-icon>medication</mat-icon>
+        Medicamentos
+      </h3>
+      <div class="medications-list">
+        <div class="medication-item" *ngFor="let medication of getMedicationsList()">
+          <div class="medication-content">
+            <div class="medication-name">{{ medication }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Observations Section -->
+    <div class="observations-section" *ngIf="hasObservations()">
+      <mat-divider></mat-divider>
+      <h3 class="section-title">
+        <mat-icon>notes</mat-icon>
+        Instrucciones Generales
+      </h3>
+      <p class="observations-text">{{ prescription.observations }}</p>
+    </div>
+  </div>
+
+  <div class="dialog-actions">
+    <button mat-raised-button color="primary" (click)="close()">
+      Cerrar
+    </button>
+  </div>
+</div>
+

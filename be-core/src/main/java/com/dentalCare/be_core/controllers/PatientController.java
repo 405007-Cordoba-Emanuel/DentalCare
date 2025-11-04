@@ -143,6 +143,23 @@ public class PatientController {
     }
 
     /**
+     * Asignar Dentista a un Paciente
+     * Permite asignar un paciente disponible a un dentista específico.
+     * Una vez asignado, el paciente ya no aparecerá en la lista de pacientes disponibles.
+     */
+	@Operation(summary = "Asignar dentista a paciente")
+    @PutMapping("/{patientId}/assign-dentist/{dentistId}")
+    public ResponseEntity<PatientResponseDto> assignDentistToPatient(
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long patientId,
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long dentistId) {
+
+        PatientResponseDto patientResponseDto = patientService.assignDentistToPatient(patientId, dentistId);
+        return ResponseEntity.ok(patientResponseDto);
+    }
+
+    /**
      * Eliminar Paciente
      * Elimina físicamente un paciente del sistema.
      * IMPORTANTE: Esto es una eliminación permanente, no es eliminación lógica.
@@ -221,7 +238,7 @@ public class PatientController {
      * Las entradas se ordenan por fecha descendente (más recientes primero).
      */
 	@Operation(summary = "Listar historia clínica del paciente")
-    @GetMapping("/{id}/medical-history")
+    @GetMapping("/{id}/clinical-history")
     public ResponseEntity<List<MedicalHistoryResponseDto>> getMedicalHistoryByPatient(
             @Parameter(description = "Patient ID", required = true)
             @PathVariable Long id) {
@@ -235,7 +252,7 @@ public class PatientController {
      * Incluye descripción, fecha, receta asociada e información del archivo adjunto si existe.
      */
 	@Operation(summary = "Obtener entrada de historia clínica por ID para el paciente")
-    @GetMapping("/{id}/medical-history/{entryId}")
+    @GetMapping("/{id}/clinical-history/{entryId}")
     public ResponseEntity<MedicalHistoryResponseDto> getMedicalHistoryEntry(
             @Parameter(description = "Patient ID", required = true)
             @PathVariable Long id,
@@ -243,6 +260,57 @@ public class PatientController {
             @PathVariable Long entryId) {
         MedicalHistoryResponseDto entry = medicalHistoryService.getMedicalHistoryEntryByIdForPatient(entryId, id);
         return ResponseEntity.ok(entry);
+    }
+
+    /**
+     * Buscar Historia Clínica por Texto
+     * Busca entradas de historia clínica por texto en la descripción.
+     * Si el texto está vacío, retorna todas las entradas.
+     */
+    @Operation(summary = "Buscar historia clínica por texto")
+    @GetMapping("/{id}/clinical-history/search")
+    public ResponseEntity<List<MedicalHistoryResponseDto>> searchClinicalHistoryByText(
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Texto a buscar en la descripción", required = true)
+            @RequestParam("searchText") String searchText) {
+        List<MedicalHistoryResponseDto> results = medicalHistoryService.searchByText(id, searchText);
+        return ResponseEntity.ok(results);
+    }
+
+    /**
+     * Buscar Historia Clínica por Fecha
+     * Busca entradas de historia clínica por fecha específica.
+     */
+    @Operation(summary = "Buscar historia clínica por fecha")
+    @GetMapping("/{id}/clinical-history/search/date")
+    public ResponseEntity<List<MedicalHistoryResponseDto>> searchClinicalHistoryByDate(
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Fecha a buscar (format: yyyy-MM-dd)", required = true)
+            @RequestParam("entryDate") String entryDate) {
+        java.time.LocalDate date = java.time.LocalDate.parse(entryDate);
+        List<MedicalHistoryResponseDto> results = medicalHistoryService.searchByDate(id, date);
+        return ResponseEntity.ok(results);
+    }
+
+    /**
+     * Buscar Historia Clínica por Rango de Fechas
+     * Busca entradas de historia clínica dentro de un rango de fechas.
+     */
+    @Operation(summary = "Buscar historia clínica por rango de fechas")
+    @GetMapping("/{id}/clinical-history/search/date-range")
+    public ResponseEntity<List<MedicalHistoryResponseDto>> searchClinicalHistoryByDateRange(
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Fecha de inicio (format: yyyy-MM-dd)", required = true)
+            @RequestParam("startDate") String startDate,
+            @Parameter(description = "Fecha de fin (format: yyyy-MM-dd)", required = true)
+            @RequestParam("endDate") String endDate) {
+        java.time.LocalDate start = java.time.LocalDate.parse(startDate);
+        java.time.LocalDate end = java.time.LocalDate.parse(endDate);
+        List<MedicalHistoryResponseDto> results = medicalHistoryService.searchByDateRange(id, start, end);
+        return ResponseEntity.ok(results);
     }
 
 	// ------- Bloque Tratamientos del Paciente -------

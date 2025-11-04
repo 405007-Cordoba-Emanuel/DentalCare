@@ -30,4 +30,10 @@ public interface PatientService {
     long countActivePatient();
 
     Long getPatientIdByUserId(Long userId);
+
+    /**
+     * Asignar un dentista a un paciente
+     * Actualiza el campo dentist_id del paciente para vincularlo a un dentista
+     */
+    PatientResponseDto assignDentistToPatient(Long patientId, Long dentistId);
 }

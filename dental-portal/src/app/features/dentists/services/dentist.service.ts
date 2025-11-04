@@ -10,7 +10,7 @@ import { AppointmentRequest, AppointmentResponse } from '../interfaces/appointme
 })
 export class DentistService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8081/api/core/dentist';
+  private apiUrl = 'http://localhost:8082/api/core/dentist';
 
   // Obtener datos del odontólogo por ID
   getDentistById(id: number): Observable<DentistResponse> {

@@ -11,10 +11,10 @@ export class UserService {
   private apiUrl = 'http://localhost:8081/api/users';
 
   getUser(): Observable<UserProfileRequest> {
-    return this.http.get<UserProfileRequest>(`${this.apiUrl}`);
+    return this.http.get<UserProfileRequest>(`${this.apiUrl}/profile`);
   }
 
   updateUserProfile(updateData: UserProfileUpdateRequest): Observable<UserProfileUpdateRequest> {
-    return this.http.put<UserProfileUpdateRequest>(`${this.apiUrl}`, updateData);
+    return this.http.put<UserProfileUpdateRequest>(`${this.apiUrl}/profile`, updateData);
   }
 }

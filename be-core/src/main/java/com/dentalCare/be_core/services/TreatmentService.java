@@ -28,7 +28,7 @@ public interface TreatmentService {
 
     /**
      * Increments the completed sessions count for a treatment
-     * Used when a medical history entry is created with this treatment
+     * Used when a clinical history entry is created with this treatment
      */
     void incrementTreatmentSessions(Long treatmentId);
 

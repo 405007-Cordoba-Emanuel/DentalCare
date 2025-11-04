@@ -58,8 +58,8 @@ public class CoreServiceClientImpl implements CoreServiceClient {
         try {
             String url = coreServiceUrl + "/api/core/patient/create-from-user";
             log.info("Calling core MS to create patient: {}", url);
-            log.info("Request payload: userId={}, dni={}, birthDate={}", 
-                request.getUserId(), request.getDni(), request.getBirthDate());
+            log.info("Request payload: userId={}, dni={}", 
+                request.getUserId(), request.getDni());
             
             HttpEntity<CreatePatientFromUserRequest> httpEntity = new HttpEntity<>(request);
             ResponseEntity<PatientResponse> response = restTemplate.exchange(

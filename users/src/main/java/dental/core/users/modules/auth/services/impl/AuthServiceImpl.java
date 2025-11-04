@@ -136,7 +136,6 @@ public class AuthServiceImpl implements AuthService {
                 CreatePatientFromUserRequest patientRequest = new CreatePatientFromUserRequest();
                 patientRequest.setUserId(savedUser.getId());
                 patientRequest.setDni("0000000" + savedUser.getId()); // DNI temporal
-                patientRequest.setBirthDate(LocalDateTime.now().minusYears(30).toLocalDate()); // Fecha temporal
 
                 PatientResponse patientResponse = coreServiceClient.createPatientFromUser(patientRequest);
                 patientId = patientResponse.getId();

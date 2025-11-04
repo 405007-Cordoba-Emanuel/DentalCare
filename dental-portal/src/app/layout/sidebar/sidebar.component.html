@@ -38,9 +38,9 @@
           Navegación
         </h2>
         <div class="space-y-2">
-          <!-- Dashboard -->
+          <!-- Dashboard - Rol dinámico -->
           <a
-            routerLink="/dentist-dashboard"
+            [routerLink]="(currentUser$ | async)?.role === 'PATIENT' ? '/patient' : '/dentist'"
             routerLinkActive="bg-blue-100 text-blue-800 border-blue-300 shadow-blue-100"
             class="w-full px-3 py-3 text-left rounded-xl transition-all duration-200 flex items-center hover:bg-blue-50 hover:border-blue-200 hover-lift border border-transparent group relative overflow-hidden"
           >
@@ -119,9 +119,10 @@
             <span class="ml-3 font-medium relative z-10">Fotos de Progreso</span>
           </a>
 
-          <!-- Recetas -->
+          <!-- Recetas - Solo para pacientes -->
           <a
-            routerLink="/prescriptions"
+            *ngIf="(currentUser$ | async)?.role === 'PATIENT'"
+            routerLink="/patient/prescriptions"
             routerLinkActive="bg-blue-100 text-blue-800 border-blue-300 shadow-blue-100"
             class="w-full px-3 py-3 text-left rounded-xl transition-all duration-200 flex items-center hover:bg-blue-50 hover:border-blue-200 hover-lift border border-transparent group relative overflow-hidden"
           >
@@ -133,6 +134,23 @@
               >receipt</mat-icon
             >
             <span class="ml-3 font-medium relative z-10">Recetas</span>
+          </a>
+
+          <!-- Mi Historia - Solo para pacientes -->
+          <a
+            *ngIf="(currentUser$ | async)?.role === 'PATIENT'"
+            routerLink="/patient/clinical-history"
+            routerLinkActive="bg-blue-100 text-blue-800 border-blue-300 shadow-blue-100"
+            class="w-full px-3 py-3 text-left rounded-xl transition-all duration-200 flex items-center hover:bg-blue-50 hover:border-blue-200 hover-lift border border-transparent group relative overflow-hidden"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-transparent via-blue-50/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"
+            ></div>
+            <mat-icon
+              class="group-hover:scale-110 transition-transform duration-200 relative z-10 text-stone-600 group-hover:text-blue-700"
+              >history</mat-icon
+            >
+            <span class="ml-3 font-medium relative z-10">Mi Historia</span>
           </a>
         </div>
       </div>
@@ -181,14 +199,14 @@
     <!-- Footer del Sidebar -->
     <div class="pt-4 border-t border-blue-200 animate-fadeInUp" style="animation-delay: 0.3s;">
       <div class="space-y-2">
-        <!-- Perfil -->
+        <!-- Perfil - Rol dinámico -->
         <a
-          routerLink="/dentist/profile"
+          [routerLink]="(currentUser$ | async)?.role === 'PATIENT' ? '/patient/profile' : '/dentist/profile'"
           routerLinkActive="bg-blue-100 text-blue-800 border-blue-300 shadow-blue-100"
           class="w-full px-3 py-2 text-left rounded-lg transition-all duration-200 flex items-center hover:bg-blue-50 hover:border-blue-200 hover-lift border border-transparent group relative overflow-hidden"
         >
           <mat-icon class="text-stone-500 group-hover:text-blue-700 transition-colors duration-200">person</mat-icon>
-          <span class="ml-3 text-sm">Perfil</span>
+          <span class="ml-3 text-sm">Mi Perfil</span>
         </a>
 
         <!-- Cerrar Sesión -->

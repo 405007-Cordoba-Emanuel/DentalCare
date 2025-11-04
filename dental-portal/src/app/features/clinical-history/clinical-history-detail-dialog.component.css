@@ -1,0 +1,243 @@
+.dialog-container {
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  padding-bottom: 16px;
+}
+
+.dialog-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.close-button {
+  color: #64748b;
+}
+
+.close-button:hover {
+  background: #f1f5f9;
+}
+
+.dialog-content {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.detail-section {
+  margin-bottom: 24px;
+}
+
+.detail-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.section-label mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.section-value {
+  font-size: 1rem;
+  color: #1e293b;
+  line-height: 1.6;
+}
+
+.dentist-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.license-number {
+  font-size: 0.875rem;
+  color: #64748b;
+  font-weight: normal;
+}
+
+.description-section {
+  margin-bottom: 32px;
+}
+
+.description-text p {
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.linked-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-chip {
+  padding: 12px 16px !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: auto;
+}
+
+.detail-chip mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: #3b82f6;
+  flex-shrink: 0;
+}
+
+.chip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.chip-content strong {
+  font-size: 0.875rem;
+  color: #475569;
+  font-weight: 600;
+}
+
+.chip-content span {
+  font-size: 0.9375rem;
+  color: #1e293b;
+}
+
+.treatment-chip {
+  border-left: 4px solid #3b82f6 !important;
+}
+
+.prescription-chip {
+  border-left: 4px solid #10b981 !important;
+}
+
+.prescription-chip mat-icon {
+  color: #10b981;
+}
+
+/* File Section */
+.file-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.file-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #3b82f6;
+}
+
+.file-details {
+  flex: 1;
+}
+
+.file-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.file-type {
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.download-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.image-preview {
+  margin-top: 16px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  max-width: 100%;
+}
+
+.image-preview img {
+  width: 100%;
+  height: auto;
+  display: block;
+  max-height: 400px;
+  object-fit: contain;
+  background: #f8fafc;
+}
+
+.dialog-actions {
+  padding: 16px 24px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.close-action-button {
+  color: #64748b;
+}
+
+.close-action-button:hover {
+  background: #f1f5f9;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .dialog-header,
+  .dialog-content,
+  .dialog-actions {
+    padding: 16px;
+  }
+
+  .file-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .download-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+

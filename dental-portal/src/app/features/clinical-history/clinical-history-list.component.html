@@ -1,0 +1,143 @@
+<div class="clinical-history-container">
+  <div class="header-section">
+    <div class="title-section">
+      <h1 class="main-title">Mi Historia</h1>
+      <p class="subtitle">Registro completo de tu historia clínica</p>
+    </div>
+  </div>
+
+  <!-- Search Section -->
+  <div class="search-section">
+    <div class="search-controls">
+      <mat-form-field appearance="fill" class="search-field">
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput 
+               [(ngModel)]="searchTerm" 
+               (input)="onSearchChange()" 
+               placeholder="Buscar en descripción, dentista, tratamiento o receta" />
+        <button mat-icon-button 
+                matSuffix 
+                *ngIf="searchTerm" 
+                (click)="searchTerm = ''; onSearchChange()">
+          <mat-icon>clear</mat-icon>
+        </button>
+      </mat-form-field>
+      
+      <button mat-stroked-button 
+              (click)="toggleAdvancedSearch()" 
+              class="advanced-search-button">
+        <mat-icon>{{ showAdvancedSearch ? 'expand_less' : 'expand_more' }}</mat-icon>
+        <span>Filtros</span>
+      </button>
+    </div>
+
+    <!-- Advanced Search Panel -->
+    <div class="advanced-search-panel" *ngIf="showAdvancedSearch">
+      <div class="search-filters">
+        <!-- Date Range Filter -->
+        <div class="date-range-filters">
+          <mat-form-field appearance="fill" class="filter-field">
+            <mat-label>Fecha desde</mat-label>
+            <input matInput 
+                   [matDatepicker]="startDatePicker" 
+                   [(ngModel)]="startDate" 
+                   (dateChange)="onDateRangeSearch()"
+                   placeholder="Fecha inicio">
+            <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #startDatePicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="filter-field">
+            <mat-label>Fecha hasta</mat-label>
+            <input matInput 
+                   [matDatepicker]="endDatePicker" 
+                   [(ngModel)]="endDate" 
+                   (dateChange)="onDateRangeSearch()"
+                   placeholder="Fecha fin">
+            <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #endDatePicker></mat-datepicker>
+          </mat-form-field>
+        </div>
+        
+        <!-- Clear Button -->
+        <div class="filter-actions">
+          <button mat-stroked-button 
+                  *ngIf="startDate || endDate"
+                  (click)="clearDateRangeFilter()">
+            <mat-icon>clear</mat-icon>
+            <span>Limpiar filtros</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+    <p>Cargando historia clínica...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredEntries.length === 0" class="empty-state">
+    <mat-icon>history</mat-icon>
+    <h3>No hay entradas disponibles</h3>
+    <p>{{ searchTerm ? 'No se encontraron entradas con ese criterio de búsqueda' : 'Aún no tienes entradas en tu historia clínica' }}</p>
+  </div>
+
+  <!-- Journal View -->
+  <div *ngIf="!isLoading && filteredEntries.length > 0" class="journal-container">
+    <div *ngFor="let entry of filteredEntries; let i = index" class="journal-entry">
+      <!-- Year Header -->
+      <div *ngIf="shouldShowYearHeader(i)" class="year-header">
+        <div class="year-line"></div>
+        <span class="year-text">{{ getYear(entry.entryDate) }}</span>
+        <div class="year-line"></div>
+      </div>
+
+      <!-- Month Header -->
+      <div *ngIf="shouldShowMonthHeader(i)" class="month-header">
+        {{ getMonthName(entry.entryDate) | titlecase }}
+      </div>
+
+      <!-- Entry Card -->
+      <div class="entry-card">
+        <div class="entry-date-badge">
+          <div class="date-day">{{ formatShortDate(entry.entryDate).split(' ')[0] }}</div>
+          <div class="date-month">{{ formatShortDate(entry.entryDate).split(' ')[1] }}</div>
+        </div>
+
+        <div class="entry-content">
+          <div class="entry-header">
+            <div class="dentist-info">
+              <mat-icon class="dentist-icon">person</mat-icon>
+              <span class="dentist-name">{{ entry.dentistName }}</span>
+            </div>
+          </div>
+
+          <div class="entry-description">
+            <p>{{ entry.description }}</p>
+          </div>
+
+          <!-- Linked Items - Refined style -->
+          <div class="entry-footer" *ngIf="hasLinkedItems(entry)">
+            <div class="linked-items">
+              <div *ngIf="entry.treatmentId" class="link-badge treatment-link">
+                <mat-icon>medical_services</mat-icon>
+                <span>{{ entry.treatmentName }}</span>
+              </div>
+              <div *ngIf="entry.prescriptionId" class="link-badge prescription-link">
+                <mat-icon>receipt</mat-icon>
+                <span>Receta vinculada</span>
+              </div>
+              <div *ngIf="entry.hasFile" class="link-badge file-link">
+                <mat-icon>attachment</mat-icon>
+                <span>{{ entry.fileName || 'Archivo' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -19,7 +19,7 @@ public class MedicalHistoryRequestDto {
     @NotNull(message = "Patient ID is required")
     private Long patientId;
 
-    @NotNull(message = "Entry date is required")
+    // Entry date is optional - will be set automatically to current date if not provided
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate entryDate;
 

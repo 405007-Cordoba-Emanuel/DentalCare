@@ -9,7 +9,6 @@ import com.dentalCare.be_core.dtos.request.prescription.PrescriptionRequestDto;
 import com.dentalCare.be_core.dtos.request.treatment.TreatmentRequestDto;
 import com.dentalCare.be_core.dtos.request.appointment.AppointmentRequestDto;
 import com.dentalCare.be_core.dtos.request.appointment.AppointmentUpdateRequestDto;
-import com.dentalCare.be_core.dtos.response.AvailableUserDto;
 import com.dentalCare.be_core.dtos.response.dentist.DentistResponseDto;
 import com.dentalCare.be_core.dtos.response.dentist.DentistPatientsResponseDto;
 import com.dentalCare.be_core.dtos.response.medicalhistory.MedicalHistoryResponseDto;
@@ -23,6 +22,7 @@ import com.dentalCare.be_core.services.DentistService;
 import com.dentalCare.be_core.services.MedicalHistoryService;
 import com.dentalCare.be_core.services.PrescriptionPdfService;
 import com.dentalCare.be_core.services.PrescriptionService;
+import com.dentalCare.be_core.services.UserServiceClient;
 import com.dentalCare.be_core.services.TreatmentService;
 import com.dentalCare.be_core.services.AppointmentService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -65,6 +65,9 @@ public class DentistController {
 
     @Autowired
     private AppointmentService appointmentService;
+
+    @Autowired
+    private UserServiceClient userServiceClient;
 
     // ------- Bloque Dentista -------
     /**
@@ -239,9 +242,9 @@ public class DentistController {
 
     @Operation(summary = "Obtener usuarios pacientes disponibles")
     @GetMapping("/available-patients")
-    public ResponseEntity<List<AvailableUserDto>> getAvailablePatientUsers() {
+    public ResponseEntity<List<PatientResponseDto>> getAvailablePatientUsers() {
         try {
-            List<AvailableUserDto> availableUsers = dentistService.getAvailablePatientUsers();
+            List<PatientResponseDto> availableUsers = dentistService.getAvailablePatientUsers();
             return ResponseEntity.ok(availableUsers);
         } catch (Exception e) {
             throw new RuntimeException("Internal error getting available patient users", e);
@@ -402,12 +405,26 @@ public class DentistController {
                 prescriptionService.getPrescriptionEntityById(prescriptionId, id);
             
             byte[] pdfBytes = prescriptionPdfService.generatePrescriptionPdf(prescription);
-            
+
+            // Construir nombre de archivo: Receta_YYYY-MM-DD_Nombre_Apellido.pdf
+            String datePart = prescription.getPrescriptionDate() != null
+                    ? prescription.getPrescriptionDate().toString()
+                    : java.time.LocalDate.now().toString();
+            com.dentalCare.be_core.dtos.external.UserDetailDto patientUser =
+                    userServiceClient.getUserById(prescription.getPatient().getUserId());
+            String firstName = patientUser.getFirstName() != null ? patientUser.getFirstName() : "Paciente";
+            String lastName = patientUser.getLastName() != null ? patientUser.getLastName() : "";
+            String rawFileName = String.format("Receta_%s_%s_%s.pdf", datePart, firstName, lastName).trim();
+            // Sanitizar para encabezado HTTP (evitar espacios/acentos problemáticos)
+            String safeFileName = rawFileName
+                    .replaceAll("[\\\\/:*?\"<>|]", "-")
+                    .replaceAll("\\s+", "_");
+
             org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
             headers.setContentType(org.springframework.http.MediaType.APPLICATION_PDF);
             headers.setContentDisposition(
                 org.springframework.http.ContentDisposition.attachment()
-                    .filename("Receta_" + prescriptionId + ".pdf")
+                    .filename(safeFileName)
                     .build()
             );
             
@@ -425,18 +442,19 @@ public class DentistController {
     /**
      * Crear Entrada en Historia Clínica
      * El dentista registra una nueva entrada en la historia clínica del paciente.
-     * Incluye descripción, fecha, opcionalmente receta y archivo adjunto (foto/PDF).
+     * Incluye descripción, opcionalmente receta, tratamiento y archivo adjunto (foto/PDF).
+     * La fecha se asigna automáticamente al momento de la creación.
      * Los campos se envían como form-data individual compatible con Swagger.
      */
     @Operation(summary = "Crear entrada de historia clínica")
-    @PostMapping(value = "/{id}/patients/{patientId}/medical-history", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{id}/patients/{patientId}/clinical-history", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MedicalHistoryResponseDto> createMedicalHistoryEntry(
             @Parameter(description = "Dentist ID", required = true)
             @PathVariable Long id,
             @Parameter(description = "Patient ID", required = true)
             @PathVariable Long patientId,
-            @Parameter(description = "Entry date (format: yyyy-MM-dd)", required = true)
-            @RequestParam("entryDate") String entryDate,
+            @Parameter(description = "Entry date (format: yyyy-MM-dd) - Opcional, se asigna automáticamente si no se proporciona", required = false)
+            @RequestParam(value = "entryDate", required = false) String entryDate,
             @Parameter(description = "Description", required = true)
             @RequestParam("description") String description,
             @Parameter(description = "Prescription ID", required = false)
@@ -448,7 +466,10 @@ public class DentistController {
         try {
             MedicalHistoryRequestDto requestDto = new MedicalHistoryRequestDto();
             requestDto.setPatientId(patientId);
-            requestDto.setEntryDate(java.time.LocalDate.parse(entryDate));
+            if (entryDate != null && !entryDate.isEmpty()) {
+                requestDto.setEntryDate(java.time.LocalDate.parse(entryDate));
+            }
+            // Si no se proporciona entryDate, se asignará automáticamente en @PrePersist
             requestDto.setDescription(description);
             requestDto.setPrescriptionId(prescriptionId);
             requestDto.setTreatmentId(treatmentId);
@@ -458,7 +479,7 @@ public class DentistController {
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (Exception e) {
-            throw new RuntimeException("Internal error creating medical history entry", e);
+            throw new RuntimeException("Internal error creating clinical history entry", e);
         }
     }
 
@@ -468,7 +489,7 @@ public class DentistController {
      * Las entradas se ordenan por fecha descendente (más recientes primero).
      */
     @Operation(summary = "Listar historia clínica de un paciente")
-    @GetMapping("/{id}/patients/{patientId}/medical-history")
+    @GetMapping("/{id}/patients/{patientId}/clinical-history")
     public ResponseEntity<List<MedicalHistoryResponseDto>> getMedicalHistoryByPatient(
             @Parameter(description = "Dentist ID", required = true)
             @PathVariable Long id,
@@ -484,7 +505,7 @@ public class DentistController {
      * Incluye descripción, fecha, receta asociada e información del archivo adjunto si existe.
      */
     @Operation(summary = "Obtener entrada de historia clínica por ID")
-    @GetMapping("/{id}/medical-history/{entryId}")
+    @GetMapping("/{id}/clinical-history/{entryId}")
     public ResponseEntity<MedicalHistoryResponseDto> getMedicalHistoryEntry(
             @Parameter(description = "Dentist ID", required = true)
             @PathVariable Long id,
@@ -496,11 +517,12 @@ public class DentistController {
 
     /**
      * Modificar Entrada de Historia Clínica
-     * Actualiza una entrada existente de la historia clínica (descripción, fecha, archivo, etc.).
+     * Actualiza una entrada existente de la historia clínica (descripción, archivo, etc.).
+     * La fecha no se puede modificar (se mantiene la fecha de creación).
      * Si se envía un nuevo archivo, reemplaza el anterior. Los campos se envían individualmente.
      */
     @Operation(summary = "Actualizar entrada de historia clínica")
-    @PutMapping(value = "/{id}/medical-history/{entryId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{id}/clinical-history/{entryId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MedicalHistoryResponseDto> updateMedicalHistoryEntry(
             @Parameter(description = "Dentist ID", required = true)
             @PathVariable Long id,
@@ -508,8 +530,6 @@ public class DentistController {
             @PathVariable Long entryId,
             @Parameter(description = "Patient ID", required = true)
             @RequestParam("patientId") Long patientId,
-            @Parameter(description = "Entry date (format: yyyy-MM-dd)", required = true)
-            @RequestParam("entryDate") String entryDate,
             @Parameter(description = "Description", required = true)
             @RequestParam("description") String description,
             @Parameter(description = "Prescription ID", required = false)
@@ -521,7 +541,7 @@ public class DentistController {
         try {
             MedicalHistoryRequestDto requestDto = new MedicalHistoryRequestDto();
             requestDto.setPatientId(patientId);
-            requestDto.setEntryDate(java.time.LocalDate.parse(entryDate));
+            // Entry date no se actualiza - se mantiene la fecha de creación original
             requestDto.setDescription(description);
             requestDto.setPrescriptionId(prescriptionId);
             requestDto.setTreatmentId(treatmentId);
@@ -531,7 +551,7 @@ public class DentistController {
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (Exception e) {
-            throw new RuntimeException("Internal error updating medical history entry", e);
+            throw new RuntimeException("Internal error updating clinical history entry", e);
         }
     }
 
@@ -541,7 +561,7 @@ public class DentistController {
      * La entrada no se borra físicamente, solo se marca como inactiva.
      */
     @Operation(summary = "Eliminar entrada de historia clínica")
-    @DeleteMapping("/{id}/medical-history/{entryId}")
+    @DeleteMapping("/{id}/clinical-history/{entryId}")
     public ResponseEntity<Void> deleteMedicalHistoryEntry(
             @Parameter(description = "Dentist ID", required = true)
             @PathVariable Long id,
@@ -549,6 +569,63 @@ public class DentistController {
             @PathVariable Long entryId) {
         medicalHistoryService.deleteMedicalHistoryEntry(entryId, id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Buscar Historia Clínica por Texto
+     * Busca entradas de historia clínica por texto en la descripción.
+     * Si el texto está vacío, retorna todas las entradas.
+     */
+    @Operation(summary = "Buscar historia clínica por texto")
+    @GetMapping("/{id}/patients/{patientId}/clinical-history/search")
+    public ResponseEntity<List<MedicalHistoryResponseDto>> searchClinicalHistoryByText(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long patientId,
+            @Parameter(description = "Texto a buscar en la descripción", required = true)
+            @RequestParam("searchText") String searchText) {
+        List<MedicalHistoryResponseDto> results = medicalHistoryService.searchByText(id, patientId, searchText);
+        return ResponseEntity.ok(results);
+    }
+
+    /**
+     * Buscar Historia Clínica por Fecha
+     * Busca entradas de historia clínica por fecha específica.
+     */
+    @Operation(summary = "Buscar historia clínica por fecha")
+    @GetMapping("/{id}/patients/{patientId}/clinical-history/search/date")
+    public ResponseEntity<List<MedicalHistoryResponseDto>> searchClinicalHistoryByDate(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long patientId,
+            @Parameter(description = "Fecha a buscar (format: yyyy-MM-dd)", required = true)
+            @RequestParam("entryDate") String entryDate) {
+        LocalDate date = LocalDate.parse(entryDate);
+        List<MedicalHistoryResponseDto> results = medicalHistoryService.searchByDate(id, patientId, date);
+        return ResponseEntity.ok(results);
+    }
+
+    /**
+     * Buscar Historia Clínica por Rango de Fechas
+     * Busca entradas de historia clínica dentro de un rango de fechas.
+     */
+    @Operation(summary = "Buscar historia clínica por rango de fechas")
+    @GetMapping("/{id}/patients/{patientId}/clinical-history/search/date-range")
+    public ResponseEntity<List<MedicalHistoryResponseDto>> searchClinicalHistoryByDateRange(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long patientId,
+            @Parameter(description = "Fecha de inicio (format: yyyy-MM-dd)", required = true)
+            @RequestParam("startDate") String startDate,
+            @Parameter(description = "Fecha de fin (format: yyyy-MM-dd)", required = true)
+            @RequestParam("endDate") String endDate) {
+        LocalDate start = LocalDate.parse(startDate);
+        LocalDate end = LocalDate.parse(endDate);
+        List<MedicalHistoryResponseDto> results = medicalHistoryService.searchByDateRange(id, patientId, start, end);
+        return ResponseEntity.ok(results);
     }
 
     // ------- Bloque Tratamientos -------

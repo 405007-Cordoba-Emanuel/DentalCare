@@ -5,7 +5,6 @@ import com.dentalCare.be_core.dtos.request.dentist.DentistRequestDto;
 import com.dentalCare.be_core.dtos.request.dentist.DentistUpdateRequestDto;
 import com.dentalCare.be_core.dtos.request.dentist.CreateDentistFromUserRequest;
 import com.dentalCare.be_core.dtos.request.patient.PatientRequestDto;
-import com.dentalCare.be_core.dtos.response.AvailableUserDto;
 import com.dentalCare.be_core.dtos.response.dentist.DentistResponseDto;
 import com.dentalCare.be_core.dtos.response.dentist.DentistPatientsResponseDto;
 import com.dentalCare.be_core.dtos.response.patient.PatientResponseDto;
@@ -141,13 +140,26 @@ public class DentistServiceImpl implements DentistService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AvailableUserDto> getAvailablePatientUsers() {
-        List<UserDetailDto> patientUsers = userServiceClient.getUsersByRole("PATIENT");
-        List<Long> existingPatientUserIds = getExistingPatientUserIds();
+    public List<PatientResponseDto> getAvailablePatientUsers() {
+        // Buscar pacientes que existen en la tabla patients pero NO tienen dentista asignado (dentist_id IS NULL)
+        List<Patient> patientsWithoutDentist = patientRepository.findAvailablePatients();
         
-        return patientUsers.stream()
-                .filter(user -> user.getIsActive() && !existingPatientUserIds.contains(user.getUserId()))
-                .map(this::mapToAvailableUserDto)
+        // Mapear a PatientResponseDto con información completa del usuario y paciente
+        return patientsWithoutDentist.stream()
+                .map(patient -> {
+                    UserDetailDto user = userServiceClient.getUserById(patient.getUserId());
+                    PatientResponseDto dto = new PatientResponseDto();
+                    dto.setId(patient.getId());
+                    dto.setUserId(patient.getUserId());
+                    dto.setFirstName(user.getFirstName());
+                    dto.setLastName(user.getLastName());
+                    dto.setEmail(user.getEmail());
+                    dto.setPhone(user.getPhone());
+                    dto.setAddress(user.getAddress());
+                    dto.setDni(patient.getDni());
+                    dto.setActive(patient.getActive());
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -266,7 +278,6 @@ public class DentistServiceImpl implements DentistService {
         Patient patient = new Patient();
         patient.setUserId(userId);
         patient.setDni(dni);
-        patient.setBirthDate(birthDate);
         patient.setDentist(dentist);
         patient.setActive(true);
         return patient;
@@ -317,13 +328,6 @@ public class DentistServiceImpl implements DentistService {
         return patientDto;
     }
 
-    private List<Long> getExistingPatientUserIds() {
-        return patientRepository.findAll()
-                .stream()
-                .map(Patient::getUserId)
-                .collect(Collectors.toList());
-    }
-
     // ==================== MAPPING METHODS ====================
 
     private DentistResponseDto mapToResponseDto(Dentist dentist, UserDetailDto user) {
@@ -351,20 +355,8 @@ public class DentistServiceImpl implements DentistService {
         dto.setPhone(user.getPhone());
         dto.setAddress(user.getAddress());
         dto.setDni(patient.getDni());
-        dto.setBirthDate(patient.getBirthDate().toString());
         dto.setActive(patient.getActive());
         return dto;
     }
 
-    private AvailableUserDto mapToAvailableUserDto(UserDetailDto user) {
-        AvailableUserDto dto = new AvailableUserDto();
-        dto.setUserId(user.getUserId());
-        dto.setFirstName(user.getFirstName());
-        dto.setLastName(user.getLastName());
-        dto.setEmail(user.getEmail());
-        dto.setPicture(user.getPicture());
-        dto.setRole(user.getRole());
-        dto.setActive(user.getIsActive());
-        return dto;
-    }
 }

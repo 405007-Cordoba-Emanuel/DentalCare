@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,4 +24,25 @@ public interface MedicalHistoryRepository extends JpaRepository<MedicalHistory, 
 
     @Query("SELECT m FROM MedicalHistory m WHERE m.id = :id AND m.patient.id = :patientId AND m.active = true")
     Optional<MedicalHistory> findByIdAndPatientIdAndActiveTrue(@Param("id") Long id, @Param("patientId") Long patientId);
+
+    // Búsqueda por texto en descripción
+    @Query("SELECT m FROM MedicalHistory m WHERE m.patient.id = :patientId AND m.active = true AND LOWER(m.description) LIKE LOWER(CONCAT('%', :searchText, '%')) ORDER BY m.entryDate DESC")
+    List<MedicalHistory> findByPatientIdAndActiveTrueAndDescriptionContaining(@Param("patientId") Long patientId, @Param("searchText") String searchText);
+
+    @Query("SELECT m FROM MedicalHistory m WHERE m.dentist.id = :dentistId AND m.patient.id = :patientId AND m.active = true AND LOWER(m.description) LIKE LOWER(CONCAT('%', :searchText, '%')) ORDER BY m.entryDate DESC")
+    List<MedicalHistory> findByDentistIdAndPatientIdAndActiveTrueAndDescriptionContaining(@Param("dentistId") Long dentistId, @Param("patientId") Long patientId, @Param("searchText") String searchText);
+
+    // Búsqueda por fecha
+    @Query("SELECT m FROM MedicalHistory m WHERE m.patient.id = :patientId AND m.active = true AND m.entryDate = :entryDate ORDER BY m.entryDate DESC")
+    List<MedicalHistory> findByPatientIdAndActiveTrueAndEntryDate(@Param("patientId") Long patientId, @Param("entryDate") LocalDate entryDate);
+
+    @Query("SELECT m FROM MedicalHistory m WHERE m.dentist.id = :dentistId AND m.patient.id = :patientId AND m.active = true AND m.entryDate = :entryDate ORDER BY m.entryDate DESC")
+    List<MedicalHistory> findByDentistIdAndPatientIdAndActiveTrueAndEntryDate(@Param("dentistId") Long dentistId, @Param("patientId") Long patientId, @Param("entryDate") LocalDate entryDate);
+
+    // Búsqueda por rango de fechas
+    @Query("SELECT m FROM MedicalHistory m WHERE m.patient.id = :patientId AND m.active = true AND m.entryDate BETWEEN :startDate AND :endDate ORDER BY m.entryDate DESC")
+    List<MedicalHistory> findByPatientIdAndActiveTrueAndEntryDateBetween(@Param("patientId") Long patientId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT m FROM MedicalHistory m WHERE m.dentist.id = :dentistId AND m.patient.id = :patientId AND m.active = true AND m.entryDate BETWEEN :startDate AND :endDate ORDER BY m.entryDate DESC")
+    List<MedicalHistory> findByDentistIdAndPatientIdAndActiveTrueAndEntryDateBetween(@Param("dentistId") Long dentistId, @Param("patientId") Long patientId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 }

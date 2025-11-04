@@ -11,7 +11,7 @@
   background: white;
   border-radius: 20px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  padding: 48px;
+  padding: 32px;
   width: 100%;
   max-width: 450px;
   text-align: center;
@@ -20,18 +20,18 @@
 
 /* Header del Login */
 .login-header {
-  margin-bottom: 40px;
+  margin-bottom: 28px;
 }
 
 .logo-container {
-  width: 80px;
-  height: 80px;
+  width: 70px;
+  height: 70px;
   background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
   border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 24px;
+  margin: 0 auto 20px;
   box-shadow: 0 8px 16px rgba(25, 118, 210, 0.3);
   flex-shrink: 0;
 }
@@ -41,7 +41,7 @@
 }
 
 .login-title {
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: #1e293b;
   margin: 0 0 8px;
@@ -50,7 +50,7 @@
 }
 
 .login-subtitle {
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #64748b;
   margin: 0;
   line-height: 1.5;
@@ -60,24 +60,54 @@
 
 /* Formulario */
 .login-form {
-  margin-bottom: 32px;
+  margin-bottom: 24px;
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #fee2e2;
+  border: 1px solid #f87171;
+  color: #991b1b;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  animation: fadeInUp 0.5s ease-out 0.1s both;
+}
+
+.error-message mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.error-message span {
+  font-size: 0.95rem;
+  font-weight: 500;
 }
 
 .form-field {
   width: 100%;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .form-field .mat-form-field-wrapper {
   padding-bottom: 0;
 }
 
-.form-field .mat-form-field-outline {
+.form-field .mdc-text-field--filled {
+  background-color: #f8fafc;
   border-radius: 12px;
 }
 
-.form-field .mat-form-field-outline-thick {
-  color: #1976d2;
+.form-field .mat-mdc-text-field-wrapper {
+  background-color: #f8fafc;
+}
+
+.form-field .mat-mdc-form-field-focus-overlay {
+  background-color: #e0e7ff;
 }
 
 .form-field .mat-form-field-label {
@@ -85,13 +115,8 @@
   font-weight: 500;
 }
 
-.form-field .mat-form-field-outline-start,
-.form-field .mat-form-field-outline-end {
-  border-width: 2px;
-}
-
-.form-field .mat-form-field-outline-gap {
-  border-width: 2px;
+.form-field .mdc-line-ripple--active {
+  border-color: #1976d2;
 }
 
 .form-field input,
@@ -117,23 +142,67 @@
   transition: all 0.3s ease;
   margin-top: 8px;
   white-space: nowrap;
+  color: white !important;
 }
 
 .login-button:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 12px 24px rgba(25, 118, 210, 0.4);
+  color: white !important;
 }
 
 .login-button:disabled {
   background: #cbd5e1;
-  color: #64748b;
+  color: #64748b !important;
   box-shadow: none;
+}
+
+.login-button span {
+  color: inherit;
+}
+
+.login-button mat-icon {
+  color: inherit;
+}
+
+.loading-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.loading-content mat-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Divider */
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 16px 0;
+}
+
+.divider-line {
+  flex: 1;
+  border-top: 1px solid #d1d5db;
+}
+
+.divider-text {
+  padding: 0 16px;
+  color: #6b7280;
+  font-size: 0.875rem;
 }
 
 /* Footer del Login */
 .login-footer {
   border-top: 1px solid #e2e8f0;
-  padding-top: 24px;
+  padding-top: 20px;
 }
 
 .register-text {

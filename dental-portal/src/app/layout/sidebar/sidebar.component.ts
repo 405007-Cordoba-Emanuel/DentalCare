@@ -1,13 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, NgIf } from '@angular/common';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { SidebarService } from '../../shared/services/sidebar.service';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Router } from '@angular/router';
 @Component({
   selector: 'app-sidebar',
-  imports: [MatIconModule, AsyncPipe, RouterLink, RouterLinkActive],
+  standalone: true,
+  imports: [MatIconModule, AsyncPipe, NgIf, RouterLink, RouterLinkActive],
   templateUrl: './sidebar.component.html'
 })
 export class SidebarComponent {

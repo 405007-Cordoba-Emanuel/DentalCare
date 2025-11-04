@@ -10,7 +10,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -35,9 +34,7 @@ public class Patient {
     @Pattern(regexp = "\\d+", message = "DNI must contain only numbers")
     private String dni;
 
-    @Column(name = "birth_date", nullable = false)
-    private LocalDate birthDate;
-
+    @Column(name = "active", nullable = false)
     private Boolean active;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -55,4 +52,11 @@ public class Patient {
 
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Appointment> appointments;
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.active == null) {
+            this.active = true;
+        }
+    }
 }

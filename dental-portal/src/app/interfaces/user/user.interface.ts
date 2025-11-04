@@ -25,9 +25,9 @@ export interface User {
 }
 
 export interface UserProfileUpdateRequest {
-  firstName: string;
-  lastName: string;
-  phone: string;
-  address: string;
-  birthDate: Date;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  address?: string;
+  birthDate?: Date;
 }
