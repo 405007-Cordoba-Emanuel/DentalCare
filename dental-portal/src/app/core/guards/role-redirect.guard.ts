@@ -1,6 +1,8 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth/auth.service';
+import { LocalStorageService } from '../services/auth/local-storage.service';
+import { User } from '../../interfaces/user/user.interface';
 
 /**
  * Guard que redirige automáticamente al dashboard apropiado basado en el rol del usuario
@@ -11,6 +13,7 @@ import { AuthService } from '../services/auth/auth.service';
 export const roleRedirectGuard: CanActivateFn = (route) => {
   const router = inject(Router);
   const authService = inject(AuthService);
+  const localStorageService = inject(LocalStorageService);
 
   // Verificar si el usuario está autenticado
   if (!authService.isAuthenticated()) {
@@ -19,7 +22,19 @@ export const roleRedirectGuard: CanActivateFn = (route) => {
     return false;
   }
 
-  const currentUser = authService.currentUser;
+  let currentUser = authService.currentUser;
+  
+  // Si currentUser es null, leer desde localStorage
+  if (!currentUser) {
+    const userDataString = localStorageService.getUserData();
+    if (userDataString) {
+      try {
+        currentUser = JSON.parse(userDataString) as User;
+      } catch (error) {
+        console.error('Error parsing user data from localStorage:', error);
+      }
+    }
+  }
   
   if (!currentUser) {
     console.log('No user data found, redirecting to login');
