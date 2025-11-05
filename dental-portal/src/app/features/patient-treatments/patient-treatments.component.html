@@ -35,6 +35,7 @@
                 {{ treatment.dentistName || 'Sin asignar' }}
               </p>
             </div>
+              <app-badge [text]="getStatusLabel(treatment.status)" [variant]="getStatusVariant(treatment.status)" />
           </div>
 
           <div class="treatment-content">
@@ -76,13 +77,6 @@
               ></mat-progress-bar>
             </div>
 
-                        @if (treatment.status) {
-              <div class="treatment-status">
-                <mat-chip [class]="getStatusColor(treatment.status)" selected>                                                               
-                  {{ getStatusLabel(treatment.status) }}
-                </mat-chip>
-              </div>
-            }
           </div>
         </mat-card>
       }

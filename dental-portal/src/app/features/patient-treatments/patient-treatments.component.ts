@@ -3,13 +3,15 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LocalStorageService } from '../../core/services/auth/local-storage.service';
 import { User } from '../../interfaces/user/user.interface';
 import { TreatmentService } from '../../core/services/treatment.service';
 import { PatientService } from '../../core/services/patient.service';
 import { TreatmentResponse } from '../dentists/interfaces/treatment.interface';
+import { BadgeComponent } from '../../shared/badge/badge.component';
+
+type BadgeVariant = 'ausente' | 'en-curso' | 'completado' | 'abandonado' | 'default';
 
 @Component({
   selector: 'app-patient-treatments',
@@ -19,8 +21,8 @@ import { TreatmentResponse } from '../dentists/interfaces/treatment.interface';
     MatCardModule,
     MatIconModule,
     MatProgressBarModule,
-    MatChipsModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    BadgeComponent
   ],
   templateUrl: './patient-treatments.component.html',
   styleUrl: './patient-treatments.component.css'
@@ -133,19 +135,24 @@ export class PatientTreatmentsComponent implements OnInit {
     return 'Recién comenzado';
   }
 
-  getStatusColor(status: string): string {
-    const statusUpper = status?.toUpperCase() || '';
-    if (statusUpper === 'COMPLETADO') return 'status-completado';
-    if (statusUpper === 'EN_CURSO' || statusUpper === 'EN CURSO') return 'status-en-curso';
-    if (statusUpper === 'ABANDONADO') return 'status-abandonado';
-    return 'status-default';
-  }
-
   getStatusLabel(status: string): string {
     const statusUpper = status?.toUpperCase() || '';
     if (statusUpper === 'COMPLETADO') return 'Completado';
     if (statusUpper === 'EN_CURSO' || statusUpper === 'EN CURSO') return 'En Curso';
     if (statusUpper === 'ABANDONADO') return 'Abandonado';
     return status || 'Sin estado';
+  }
+
+  getStatusVariant(status: string): BadgeVariant {
+    switch (status.toLowerCase()) {
+      case 'en_curso':
+        return 'en-curso';
+      case 'completado':
+        return 'completado';
+      case 'abandonado':
+        return 'abandonado';
+      default:
+        return 'default';
+    }
   }
 }
