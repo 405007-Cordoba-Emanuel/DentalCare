@@ -8,6 +8,7 @@ import com.dentalCare.be_core.entities.MedicalHistory;
 import com.dentalCare.be_core.entities.Patient;
 import com.dentalCare.be_core.entities.Prescription;
 import com.dentalCare.be_core.entities.Treatment;
+import com.dentalCare.be_core.entities.TreatmentStatus;
 import com.dentalCare.be_core.repositories.DentistRepository;
 import com.dentalCare.be_core.repositories.MedicalHistoryRepository;
 import com.dentalCare.be_core.repositories.PatientRepository;
@@ -90,8 +91,9 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
                     .orElseThrow(() -> new IllegalArgumentException("No treatment found with ID: " + requestDto.getTreatmentId()));
             medicalHistory.setTreatment(treatment);
             
-            if (treatment.getStatus().equals("pendiente")) {
-                treatment.setStatus("en progreso");
+            // Si el status es null, establecerlo a EN_CURSO (el tratamiento ya debería estar en curso cuando se agrega una sesión)
+            if (treatment.getStatus() == null) {
+                treatment.setStatus(TreatmentStatus.EN_CURSO);
             }
             treatment.setCompletedSessions(treatment.getCompletedSessions() + 1);
             treatmentRepository.save(treatment);

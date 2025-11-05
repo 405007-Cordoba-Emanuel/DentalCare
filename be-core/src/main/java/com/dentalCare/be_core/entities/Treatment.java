@@ -53,8 +53,9 @@ public class Treatment {
     @Column(name = "actual_end_date")
     private LocalDate actualEndDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
-    private String status;
+    private TreatmentStatus status;
 
     @Column(name = "total_sessions")
     private Integer totalSessions;
@@ -77,7 +78,7 @@ public class Treatment {
             this.active = true;
         }
         if (this.status == null) {
-            this.status = "pending";
+            this.status = TreatmentStatus.EN_CURSO;
         }
         if (this.completedSessions == null) {
             this.completedSessions = 0;
