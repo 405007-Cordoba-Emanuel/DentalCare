@@ -55,7 +55,7 @@ export class DentistProfileComponent implements OnInit {
     },
     {
       name: 'phone',
-      label: 'Teléfono',
+      label: 'Ingrese su número de teléfono',
       type: 'text',
       placeholder: '+54 9 11 1234-5678',
       validators: [Validators.required],

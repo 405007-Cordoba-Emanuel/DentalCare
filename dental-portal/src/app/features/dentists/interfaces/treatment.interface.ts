@@ -1,7 +1,5 @@
 export interface TreatmentResponse {
   id: number;
-  patientId: number;
-  patientName: string;
   dentistId: number;
   dentistName: string;
   name: string;
@@ -14,6 +12,12 @@ export interface TreatmentResponse {
   completedSessions: number;
   progressPercentage: number;
   notes: string;
+  patient: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    dni: string;
+  };
   active: boolean;
 }
 

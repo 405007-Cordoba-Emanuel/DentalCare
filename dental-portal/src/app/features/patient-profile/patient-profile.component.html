@@ -5,113 +5,29 @@
 
   <mat-card class="profile-card">
     <mat-card-content>
-      <div class="section-header">
-        <h2 class="section-title">Información Personal</h2>
-        <p class="section-description">Gestiona tu información de contacto y médica</p>
-      </div>
-
       <div *ngIf="isLoading" class="loading-container">
         <mat-icon class="loading-icon">hourglass_empty</mat-icon>
         <p>Cargando información...</p>
       </div>
 
-      <div *ngIf="!isLoading" class="info-container">
-        <div class="info-grid">
-          <!-- Nombre -->
-          <div class="info-field">
-            <label class="info-label">Nombre</label>
-            <div *ngIf="!isEditing" class="info-value">{{ editForm.firstName || 'No especificado' }}</div>
-            <input 
-              *ngIf="isEditing" 
-              matInput 
-              [(ngModel)]="editForm.firstName" 
-              placeholder="Nombre"
-              class="info-input"
-            />
-          </div>
-
-          <!-- Apellido -->
-          <div class="info-field">
-            <label class="info-label">Apellido</label>
-            <div *ngIf="!isEditing" class="info-value">{{ editForm.lastName || 'No especificado' }}</div>
-            <input 
-              *ngIf="isEditing" 
-              matInput 
-              [(ngModel)]="editForm.lastName" 
-              placeholder="Apellido"
-              class="info-input"
-            />
-          </div>
-
-          <!-- Teléfono -->
-          <div class="info-field">
-            <label class="info-label">Teléfono</label>
-            <div *ngIf="!isEditing" class="info-value">{{ editForm.phone || 'No especificado' }}</div>
-            <input 
-              *ngIf="isEditing" 
-              matInput 
-              [(ngModel)]="editForm.phone" 
-              placeholder="Teléfono"
-              class="info-input"
-            />
-          </div>
-
-          <!-- Email -->
-          <div class="info-field">
-            <label class="info-label">Email</label>
-            <div class="info-value">{{ editForm.email }}</div>
-            <p class="info-hint">* El email no se puede modificar</p>
-          </div>
-
-          <!-- Fecha de Nacimiento -->
-          <div class="info-field">
-            <label class="info-label">Fecha de Nacimiento</label>
-            <div *ngIf="!isEditing" class="info-value">{{ displayDate }}</div>
-            <mat-form-field *ngIf="isEditing" class="info-input-full">
-              <input 
-                matInput 
-                [(ngModel)]="editForm.birthDate" 
-                [matDatepicker]="picker"
-                placeholder="Fecha de nacimiento"
-                [max]="maxDate"
-              />
-              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
-          </div>
-
-          <!-- DNI (solo para paciente) -->
-          <div class="info-field" *ngIf="user?.role === 'PATIENT'">
-            <label class="info-label">DNI</label>
-            <div *ngIf="!isEditing" class="info-value">{{ editForm.dni || 'No especificado' }}</div>
-            <input 
-              *ngIf="isEditing" 
-              matInput 
-              [(ngModel)]="editForm.dni" 
-              placeholder="DNI"
-              class="info-input"
-            />
-          </div>
-
-          <!-- Dirección -->
-          <div class="info-field full-width">
-            <label class="info-label">Dirección</label>
-            <div *ngIf="!isEditing" class="info-value">{{ editForm.address || 'No especificado' }}</div>
-            <input 
-              *ngIf="isEditing" 
-              matInput 
-              [(ngModel)]="editForm.address" 
-              placeholder="Dirección"
-              class="info-input"
-            />
-          </div>
-        </div>
+      <!-- Formulario genérico (modo lectura/edición) -->
+      <div *ngIf="!isLoading">
+        <app-generic-form
+          [fields]="formFields"
+          [formTitle]="'Información Personal'"
+          [submitText]="'Guardar Cambios'"
+          [initialData]="formData"
+          [readonly]="!isEditing"
+          [disabledFields]="['email']"
+          (formSubmit)="onFormSubmit($event)"
+        ></app-generic-form>
       </div>
 
-      <div class="actions-container">
-        <button 
-          *ngIf="!isEditing" 
-          mat-raised-button 
+      <!-- Botones de acción -->
+      <div class="actions-container" *ngIf="!isLoading">
+        <button
+          *ngIf="!isEditing"
+          mat-raised-button
           color="primary"
           (click)="toggleEdit()"
           class="action-button"
@@ -120,31 +36,17 @@
           Editar Información
         </button>
 
-        <div *ngIf="isEditing" class="edit-actions">
-          <button 
-            mat-raised-button 
-            color="accent"
-            (click)="saveChanges()"
-            [disabled]="isLoading"
-            class="save-button"
-          >
-            <mat-icon>save</mat-icon>
-            Guardar Cambios
-          </button>
-          
-          <button 
-            mat-stroked-button 
-            color="primary"
-            (click)="cancelEdit()"
-            [disabled]="isLoading"
-            class="cancel-button"
-          >
-            <mat-icon>cancel</mat-icon>
-            Cancelar
-          </button>
-        </div>
+        <button
+          *ngIf="isEditing"
+          mat-stroked-button
+          color="primary"
+          (click)="toggleEdit()"
+          class="cancel-button"
+        >
+          <mat-icon>cancel</mat-icon>
+          Cancelar
+        </button>
       </div>
     </mat-card-content>
   </mat-card>
 </div>
-

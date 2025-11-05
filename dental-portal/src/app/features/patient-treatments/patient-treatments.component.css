@@ -262,14 +262,9 @@
   border-radius: 20px;
 }
 
-/* Estados de tratamiento con colores */
 .status-completado {
   background-color: #4caf50 !important;
   color: white !important;
-}
-
-.status-completado:hover {
-  background-color: #45a049 !important;
 }
 
 .status-en-curso {
@@ -277,25 +272,11 @@
   color: white !important;
 }
 
-.status-en-curso:hover {
-  background-color: #1976d2 !important;
-}
-
 .status-abandonado {
   background-color: #f44336 !important;
   color: white !important;
 }
 
-.status-abandonado:hover {
-  background-color: #d32f2f !important;
-}
-
-.status-default {
-  background-color: #9e9e9e !important;
-  color: white !important;
-}
-
-/* Responsive Design */
 @media (max-width: 1024px) {
   .treatments-grid {
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -345,7 +326,6 @@
   }
 }
 
-/* Animaciones */
 @keyframes fadeInUp {
   from {
     opacity: 0;
