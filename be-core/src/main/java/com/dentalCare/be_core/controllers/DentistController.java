@@ -708,30 +708,30 @@ public class DentistController {
         }
     }
 
-    /**
-     * Cambiar Estado del Tratamiento
-     * Actualiza únicamente el estado de un tratamiento.
-     * Estados válidos: "pendiente", "en progreso", "completado", "cancelado".
-     * Si se marca como "completado", automáticamente se establece la fecha real de fin.
-     */
-    @Operation(summary = "Cambiar estado del tratamiento")
-    @PutMapping("/{id}/treatments/{treatmentId}/status")
-    public ResponseEntity<TreatmentResponseDto> updateTreatmentStatus(
-            @Parameter(description = "Dentist ID", required = true)
-            @PathVariable Long id,
-            @Parameter(description = "Treatment ID", required = true)
-            @PathVariable Long treatmentId,
-            @Parameter(description = "New status", required = true)
-            @RequestParam("status") String status) {
-        try {
-            TreatmentResponseDto response = treatmentService.updateTreatmentStatus(treatmentId, id, status);
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Internal error updating treatment status", e);
-        }
-    }
+          /**
+       * Cambiar Estado del Tratamiento
+       * Actualiza únicamente el estado de un tratamiento.
+       * Estados válidos: EN_CURSO, COMPLETADO, ABANDONADO.
+       * Si se marca como COMPLETADO, automáticamente se establece la fecha real de fin.
+       */
+      @Operation(summary = "Cambiar estado del tratamiento")
+      @PutMapping("/{id}/treatments/{treatmentId}/status")
+      public ResponseEntity<TreatmentResponseDto> updateTreatmentStatus(        
+              @Parameter(description = "Dentist ID", required = true)
+              @PathVariable Long id,
+              @Parameter(description = "Treatment ID", required = true)
+              @PathVariable Long treatmentId,
+              @Parameter(description = "New status", required = true)
+              @RequestParam("status") com.dentalCare.be_core.entities.TreatmentStatus status) {
+          try {
+              TreatmentResponseDto response = treatmentService.updateTreatmentStatus(treatmentId, id, status.name());
+              return ResponseEntity.ok(response);
+          } catch (IllegalArgumentException e) {
+              throw e;
+          } catch (Exception e) {
+              throw new RuntimeException("Internal error updating treatment status", e);
+          }
+      }
 
     /**
      * Eliminar Tratamiento

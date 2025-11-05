@@ -1,0 +1,91 @@
+<div class="treatments-container">
+  <div class="header-section">
+    <h1 class="page-title">Mis Tratamientos</h1>
+    <p class="page-subtitle">Seguimiento del progreso de tus tratamientos dentales</p>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-indicator">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Cargando tratamientos...</p>
+    </div>
+  } @else if (errorMessage) {
+    <div class="error-message">
+      <mat-icon>error</mat-icon>
+      <span>{{ errorMessage }}</span>
+    </div>
+  } @else if (treatments.length === 0) {
+    <div class="empty-state">
+      <mat-icon class="empty-icon">medical_services</mat-icon>
+      <h2>No tienes tratamientos registrados</h2>
+      <p>Cuando tu dentista registre un tratamiento, aparecerá aquí.</p>
+    </div>
+  } @else {
+    <div class="treatments-grid">
+      @for (treatment of treatments; track treatment.id) {
+        <mat-card class="treatment-card">
+          <div class="treatment-card-header">
+            <div class="treatment-icon-container">
+              <mat-icon class="treatment-icon">healing</mat-icon>
+            </div>
+            <div class="treatment-title-section">
+              <h2 class="treatment-name">{{ treatment.name || 'Tratamiento' }}</h2>
+              <p class="treatment-dentist">
+                <mat-icon>person</mat-icon>
+                {{ treatment.dentistName || 'Sin asignar' }}
+              </p>
+            </div>
+          </div>
+
+          <div class="treatment-content">
+            @if (treatment.description) {
+              <p class="treatment-description">{{ treatment.description }}</p>
+            }
+
+            <div class="treatment-dates">
+              @if (treatment.startDate) {
+                <div class="date-item">
+                  <mat-icon class="date-icon">calendar_today</mat-icon>
+                  <div class="date-info">
+                    <span class="date-label">Inicio</span>
+                    <span class="date-value">{{ formatDate(treatment.startDate) }}</span>
+                  </div>
+                </div>
+              }
+              @if (treatment.estimatedEndDate) {
+                <div class="date-item">
+                  <mat-icon class="date-icon">event</mat-icon>
+                  <div class="date-info">
+                    <span class="date-label">Fin estimado</span>
+                    <span class="date-value">{{ formatDate(treatment.estimatedEndDate) }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <div class="progress-section">
+              <div class="progress-header">
+                <span class="progress-label">{{ getProgressLabel(treatment.progressPercentage || 0) }}</span>
+                <span class="progress-percentage">{{ treatment.progressPercentage || 0 }}%</span>
+              </div>
+              <mat-progress-bar
+                mode="determinate"
+                [value]="treatment.progressPercentage || 0"
+                [color]="getProgressColor(treatment.progressPercentage || 0)"
+                class="progress-bar"
+              ></mat-progress-bar>
+            </div>
+
+                        @if (treatment.status) {
+              <div class="treatment-status">
+                <mat-chip [class]="getStatusColor(treatment.status)" selected>                                                               
+                  {{ getStatusLabel(treatment.status) }}
+                </mat-chip>
+              </div>
+            }
+          </div>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

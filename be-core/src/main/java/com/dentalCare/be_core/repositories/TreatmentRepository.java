@@ -1,6 +1,7 @@
 package com.dentalCare.be_core.repositories;
 
 import com.dentalCare.be_core.entities.Treatment;
+import com.dentalCare.be_core.entities.TreatmentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,8 +26,8 @@ public interface TreatmentRepository extends JpaRepository<Treatment, Long> {
     Optional<Treatment> findByIdAndPatientIdAndActiveTrue(@Param("id") Long id, @Param("patientId") Long patientId);
 
     @Query("SELECT t FROM Treatment t WHERE t.patient.id = :patientId AND t.status = :status AND t.active = true ORDER BY t.startDate DESC")
-    List<Treatment> findByPatientIdAndStatusAndActiveTrue(@Param("patientId") Long patientId, @Param("status") String status);
+    List<Treatment> findByPatientIdAndStatusAndActiveTrue(@Param("patientId") Long patientId, @Param("status") TreatmentStatus status);
 
     @Query("SELECT COUNT(t) FROM Treatment t WHERE t.patient.id = :patientId AND t.status = :status AND t.active = true")
-    long countByPatientIdAndStatus(@Param("patientId") Long patientId, @Param("status") String status);
+    long countByPatientIdAndStatus(@Param("patientId") Long patientId, @Param("status") TreatmentStatus status);
 }

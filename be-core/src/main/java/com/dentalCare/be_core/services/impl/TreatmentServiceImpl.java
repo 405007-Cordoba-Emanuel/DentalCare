@@ -10,6 +10,7 @@ import com.dentalCare.be_core.entities.Dentist;
 import com.dentalCare.be_core.entities.MedicalHistory;
 import com.dentalCare.be_core.entities.Patient;
 import com.dentalCare.be_core.entities.Treatment;
+import com.dentalCare.be_core.entities.TreatmentStatus;
 import com.dentalCare.be_core.repositories.DentistRepository;
 import com.dentalCare.be_core.repositories.MedicalHistoryRepository;
 import com.dentalCare.be_core.repositories.PatientRepository;
@@ -68,7 +69,8 @@ public class TreatmentServiceImpl implements TreatmentService {
         treatment.setId(null);
         treatment.setDentist(dentist);
         treatment.setPatient(patient);
-        treatment.setStatus("pendiente");
+        // El status se establece automáticamente en EN_CURSO por @PrePersist si es null
+        treatment.setStatus(TreatmentStatus.EN_CURSO);
         treatment.setCompletedSessions(0);
         treatment.setActive(true);
 
@@ -134,23 +136,26 @@ public class TreatmentServiceImpl implements TreatmentService {
         return mapToResponseDto(updatedTreatment);
     }
 
-    @Override
-    public TreatmentResponseDto updateTreatmentStatus(Long treatmentId, Long dentistId, String status) {
-        Treatment treatment = treatmentRepository.findByIdAndDentistIdAndActiveTrue(treatmentId, dentistId)
-                .orElseThrow(() -> new IllegalArgumentException("No treatment found with ID: " + treatmentId));
+        @Override
+    public TreatmentResponseDto updateTreatmentStatus(Long treatmentId, Long dentistId, String status) {                                                        
+        Treatment treatment = treatmentRepository.findByIdAndDentistIdAndActiveTrue(treatmentId, dentistId)                                                     
+                .orElseThrow(() -> new IllegalArgumentException("No treatment found with ID: " + treatmentId));                                                 
 
-        List<String> validStatuses = List.of("pendiente", "en progreso", "completado", "cancelado");
-        if (!validStatuses.contains(status)) {
-            throw new IllegalArgumentException("Invalid status. Valid values: pendiente, en progreso, completado, cancelado");
+        // Convertir String a enum
+        TreatmentStatus treatmentStatus;
+        try {
+            treatmentStatus = TreatmentStatus.valueOf(status.toUpperCase().replace(" ", "_"));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid status. Valid values: EN_CURSO, COMPLETADO, ABANDONADO");                                  
         }
 
-        treatment.setStatus(status);
+        treatment.setStatus(treatmentStatus);
 
-        if (status.equals("completado") && treatment.getActualEndDate() == null) {
+        if (treatmentStatus == TreatmentStatus.COMPLETADO && treatment.getActualEndDate() == null) {                                                                              
             treatment.setActualEndDate(LocalDate.now());
         }
 
-        Treatment updatedTreatment = treatmentRepository.save(treatment);
+        Treatment updatedTreatment = treatmentRepository.save(treatment);       
         return mapToResponseDto(updatedTreatment);
     }
 
@@ -162,10 +167,18 @@ public class TreatmentServiceImpl implements TreatmentService {
         treatmentRepository.save(treatment);
     }
 
-    @Override
+        @Override
     @Transactional(readOnly = true)
-    public List<TreatmentResponseDto> getTreatmentsByPatientAndStatus(Long patientId, String status) {
-        List<Treatment> treatments = treatmentRepository.findByPatientIdAndStatusAndActiveTrue(patientId, status);
+    public List<TreatmentResponseDto> getTreatmentsByPatientAndStatus(Long patientId, String status) {                                                          
+        // Convertir String a enum
+        TreatmentStatus treatmentStatus;
+        try {
+            treatmentStatus = TreatmentStatus.valueOf(status.toUpperCase().replace(" ", "_"));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid status. Valid values: EN_CURSO, COMPLETADO, ABANDONADO");
+        }
+        
+        List<Treatment> treatments = treatmentRepository.findByPatientIdAndStatusAndActiveTrue(patientId, treatmentStatus);                                              
         return treatments.stream()
                 .map(this::mapToResponseDto)
                 .collect(Collectors.toList());
@@ -182,10 +195,13 @@ public class TreatmentServiceImpl implements TreatmentService {
         dto.setDentistId(treatment.getDentist().getId());
         dto.setDentistName(dentistUser.getFirstName() + " " + dentistUser.getLastName());
 
-        if (treatment.getTotalSessions() != null && treatment.getTotalSessions() > 0) {
-            double progress = (treatment.getCompletedSessions() * 100.0) / treatment.getTotalSessions();
-            dto.setProgressPercentage(Math.round(progress * 100.0) / 100.0);
+                if (treatment.getTotalSessions() != null && treatment.getTotalSessions() > 0) {                                                                         
+            double progress = (treatment.getCompletedSessions() * 100.0) / treatment.getTotalSessions();                                                        
+            dto.setProgressPercentage(Math.round(progress * 100.0) / 100.0);    
         }
+
+        // Convertir enum a String para el DTO
+        dto.setStatus(treatment.getStatus() != null ? treatment.getStatus().name() : null);
 
         return dto;
     }
@@ -205,7 +221,8 @@ public class TreatmentServiceImpl implements TreatmentService {
         dto.setStartDate(treatment.getStartDate());
         dto.setEstimatedEndDate(treatment.getEstimatedEndDate());
         dto.setActualEndDate(treatment.getActualEndDate());
-        dto.setStatus(treatment.getStatus());
+        // El enum se serializa automáticamente a String en JSON
+        dto.setStatus(treatment.getStatus() != null ? treatment.getStatus().name() : null);
         dto.setTotalSessions(treatment.getTotalSessions());
         dto.setCompletedSessions(treatment.getCompletedSessions());
         dto.setNotes(treatment.getNotes());
@@ -258,18 +275,18 @@ public class TreatmentServiceImpl implements TreatmentService {
         return dto;
     }
 
-    @Override
+        @Override
     public void incrementTreatmentSessions(Long treatmentId) {
         Treatment treatment = treatmentRepository.findById(treatmentId)
-                .orElseThrow(() -> new IllegalArgumentException("No treatment found with ID: " + treatmentId));
+                .orElseThrow(() -> new IllegalArgumentException("No treatment found with ID: " + treatmentId));                                                 
         
-        // Update status if it's pending
-        if (treatment.getStatus().equals("pendiente")) {
-            treatment.setStatus("en progreso");
+        // El status ya debería estar en EN_CURSO o COMPLETADO, pero si por alguna razón está null, lo establecemos
+        if (treatment.getStatus() == null) {
+            treatment.setStatus(TreatmentStatus.EN_CURSO);
         }
-        
+
         // Increment completed sessions
-        treatment.setCompletedSessions(treatment.getCompletedSessions() + 1);
+        treatment.setCompletedSessions(treatment.getCompletedSessions() + 1);   
         treatmentRepository.save(treatment);
     }
 

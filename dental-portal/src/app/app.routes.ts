@@ -15,6 +15,11 @@ import { loginGuard } from './core/guards/login.guard';
 // Dentist feature components
 import { DentistPatientsComponent } from './features/dentists/components/dentist-patients/dentist-patients.component';
 import { DentistTreatmentsComponent } from './features/dentists/components/dentist-treatments/dentist-treatments.component';
+
+// Patient feature components
+import { PatientAppointmentsComponent } from './features/patient-appointments/patient-appointments.component';
+import { ClinicalHistoryListComponent } from './features/clinical-history/clinical-history-list.component';
+import { PatientTreatmentsComponent } from './features/patient-treatments/patient-treatments.component';
 import { DentistProfileComponent } from './features/dentists/components/dentist-profile/dentist-profile.component';
 import { DentistDetailComponent } from './features/dentists/components/dentist-detail/dentist-detail.component';
 
@@ -26,8 +31,6 @@ import { AppointmentsComponent } from './features/appointments/appointments.comp
 import { CreateAppointmentComponent } from './features/appointments/create-appointment/create-appointment.component';
 import { PatientProfileComponent } from './features/patient-profile/patient-profile.component';
 import { PrescriptionListComponent } from './features/prescriptions/prescription-list.component';
-import { ClinicalHistoryListComponent } from './features/clinical-history/clinical-history-list.component';
-import { PatientAppointmentsComponent } from './features/patient-appointments/patient-appointments.component';
 
 
 export const routes: Routes = [
@@ -103,6 +106,12 @@ export const routes: Routes = [
       {
         path: 'patient/appointments',
         component: PatientAppointmentsComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['PATIENT'] }
+      },
+      {
+        path: 'patient/treatments',
+        component: PatientTreatmentsComponent,
         canActivate: [authGuard, roleGuard],
         data: { roles: ['PATIENT'] }
       },

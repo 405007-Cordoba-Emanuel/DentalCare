@@ -71,20 +71,20 @@ INSERT INTO patients (id, user_id, dentist_id, dni, active) VALUES
 -- Campos: id, patient_id, dentist_id, name, description, start_date, estimated_end_date, actual_end_date, status, total_sessions, completed_sessions, notes, active
 INSERT INTO treatments (id, patient_id, dentist_id, name, description, start_date, estimated_end_date, actual_end_date, status, total_sessions, completed_sessions, notes, active) VALUES
 -- Tratamientos completados
-(1, 1, 1, 'Limpieza Dental', 'Limpieza profesional y profilaxis dental', '2025-01-15', '2025-01-15', '2025-01-15', 'completado', 1, 1, 'Paciente con buena higiene oral', true),
-(2, 2, 1, 'Empaste Dental', 'Restauración de caries en molar superior derecho', '2025-02-01', '2025-02-01', '2025-02-01', 'completado', 1, 1, 'Caries moderada, restauración exitosa con resina compuesta', true),
-(6, 1, 1, 'Blanqueamiento Dental', 'Tratamiento de blanqueamiento con peróxido de carbamida', '2025-03-01', '2025-03-15', '2025-03-15', 'completado', 3, 3, 'Resultado excelente, paciente muy satisfecho. Color mejorado en 4 tonos', true),
-(8, 3, 2, 'Extracción de Cordal', 'Extracción quirúrgica de muela del juicio superior derecha impactada', '2025-02-15', '2025-02-15', '2025-02-15', 'completado', 1, 1, 'Extracción exitosa, sin complicaciones. Cicatrización normal', true),
+  (1, 1, 1, 'Limpieza Dental', 'Limpieza profesional y profilaxis dental', '2025-01-15', '2025-01-15', '2025-01-15', 'COMPLETADO', 1, 1, 'Paciente con buena higiene oral', true),
+  (2, 2, 1, 'Empaste Dental', 'Restauración de caries en molar superior derecho', '2025-02-01', '2025-02-01', '2025-02-01', 'COMPLETADO', 1, 1, 'Caries moderada, restauración exitosa con resina compuesta', true),
+  (6, 1, 1, 'Blanqueamiento Dental', 'Tratamiento de blanqueamiento con peróxido de carbamida', '2025-03-01', '2025-03-15', '2025-03-15', 'COMPLETADO', 3, 3, 'Resultado excelente, paciente muy satisfecho. Color mejorado en 4 tonos', true),
+  (8, 3, 2, 'Extracción de Cordal', 'Extracción quirúrgica de muela del juicio superior derecha impactada', '2025-02-15', '2025-02-15', '2025-02-15', 'COMPLETADO', 1, 1, 'Extracción exitosa, sin complicaciones. Cicatrización normal', true),
 
 -- Tratamientos en progreso
-(3, 3, 2, 'Tratamiento de Ortodoncia', 'Corrección de maloclusión clase II con brackets metálicos', '2025-01-10', '2026-06-30', NULL, 'en progreso', 24, 8, 'Progreso satisfactorio, paciente colaborador. Alineación mejorando notablemente', true),
-(4, 4, 3, 'Endodoncia', 'Tratamiento de conducto radicular en premolar inferior derecho', '2025-03-05', '2025-03-19', NULL, 'en progreso', 3, 1, 'Primera sesión completada exitosamente. Necrosis pulpar confirmada. Próxima sesión en 7 días', true),
-(5, 5, 4, 'Tratamiento Periodontal', 'Limpieza profunda y curetaje para tratamiento de periodontitis', '2025-02-20', '2025-03-20', NULL, 'en progreso', 4, 2, 'Mejora notable en salud gingival. Reducción de bolsones de 6mm a 3mm', true),
-(7, 2, 1, 'Corona Dental', 'Colocación de corona de porcelana en molar tratado endodónticamente', '2025-03-10', '2025-04-10', NULL, 'en progreso', 2, 1, 'Preparación del diente completada exitosamente. Próxima sesión para colocación de corona definitiva', true),
-(9, 4, 3, 'Implante Dental', 'Colocación de implante de titanio en zona posterior mandibular', '2025-04-01', '2025-07-01', NULL, 'en progreso', 6, 2, 'Primera fase completada exitosamente. Implante colocado con buen anclaje óseo. Esperando osteointegración (3-4 meses)', true),
-(10, 5, 4, 'Rehabilitación Oral', 'Tratamiento integral de rehabilitación oral con prótesis parcial removible', '2025-01-20', '2025-06-20', NULL, 'en progreso', 12, 6, 'Progreso satisfactorio. Paciente muy comprometido con el tratamiento. Prótesis parcial funcionando bien', true),
-(11, 1, 1, 'Tratamiento de Sensibilidad', 'Tratamiento para sensibilidad dental con aplicación de flúor y sellantes', '2025-11-01', '2025-12-15', NULL, 'en progreso', 3, 2, 'Mejora notable en la sensibilidad. Dos sesiones completadas exitosamente', true),
-(12, 2, 1, 'Rehabilitación Estética', 'Mejora estética con carillas de porcelana en sector anterior', '2025-10-15', '2026-01-15', NULL, 'en progreso', 4, 2, 'Dos carillas colocadas exitosamente. Buen resultado estético', true);
+  (3, 3, 2, 'Tratamiento de Ortodoncia', 'Corrección de maloclusión clase II con brackets metálicos', '2025-01-10', '2026-06-30', NULL, 'EN_CURSO', 24, 8, 'Progreso satisfactorio, paciente colaborador. Alineación mejorando notablemente', true),
+  (4, 4, 3, 'Endodoncia', 'Tratamiento de conducto radicular en premolar inferior derecho', '2025-03-05', '2025-03-19', NULL, 'EN_CURSO', 3, 1, 'Primera sesión completada exitosamente. Necrosis pulpar confirmada. Próxima sesión en 7 días', true),
+  (5, 5, 4, 'Tratamiento Periodontal', 'Limpieza profunda y curetaje para tratamiento de periodontitis', '2025-02-20', '2025-03-20', NULL, 'EN_CURSO', 4, 2, 'Mejora notable en salud gingival. Reducción de bolsones de 6mm a 3mm', true),
+  (7, 2, 1, 'Corona Dental', 'Colocación de corona de porcelana en molar tratado endodónticamente', '2025-03-10', '2025-04-10', NULL, 'EN_CURSO', 2, 1, 'Preparación del diente completada exitosamente. Próxima sesión para colocación de corona definitiva', true),
+  (9, 4, 3, 'Implante Dental', 'Colocación de implante de titanio en zona posterior mandibular', '2025-04-01', '2025-07-01', NULL, 'EN_CURSO', 6, 2, 'Primera fase completada exitosamente. Implante colocado con buen anclaje óseo. Esperando osteointegración (3-4 meses)', true),
+  (10, 5, 4, 'Rehabilitación Oral', 'Tratamiento integral de rehabilitación oral con prótesis parcial removible', '2025-01-20', '2025-06-20', NULL, 'EN_CURSO', 12, 6, 'Progreso satisfactorio. Paciente muy comprometido con el tratamiento. Prótesis parcial funcionando bien', true),
+  (11, 1, 1, 'Tratamiento de Sensibilidad', 'Tratamiento para sensibilidad dental con aplicación de flúor y sellantes', '2025-11-01', '2025-12-15', NULL, 'EN_CURSO', 3, 2, 'Mejora notable en la sensibilidad. Dos sesiones completadas exitosamente', true),
+  (12, 2, 1, 'Rehabilitación Estética', 'Mejora estética con carillas de porcelana en sector anterior', '2025-10-15', '2026-01-15', NULL, 'ABANDONADO', 4, 2, 'Paciente abandonó el tratamiento después de dos sesiones', true);
 
 -- ===============================================
 -- INSERTAR CITAS MÉDICAS
@@ -217,7 +217,7 @@ INSERT INTO medical_history (id, patient_id, dentist_id, entry_date, description
 -- ===============================================
 -- NOTAS IMPORTANTES PARA TESTING
 -- ===============================================
---
+-- 
 -- DENTISTAS DISPONIBLES:
 -- - ID: 1-5, user_id: 101-105
 -- - Todos activos, especialidades variadas

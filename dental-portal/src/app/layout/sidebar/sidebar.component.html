@@ -171,6 +171,23 @@
             >
             <span class="ml-3 font-medium relative z-10">Mi Historia</span>
           </a>
+
+          <!-- Mis Tratamientos - Solo para pacientes -->
+          <a
+            *ngIf="(currentUser$ | async)?.role === 'PATIENT'"
+            routerLink="/patient/treatments"
+            routerLinkActive="bg-blue-100 text-blue-800 border-blue-300 shadow-blue-100"
+            class="w-full px-3 py-3 text-left rounded-xl transition-all duration-200 flex items-center hover:bg-blue-50 hover:border-blue-200 hover-lift border border-transparent group relative overflow-hidden"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-transparent via-blue-50/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"
+            ></div>
+            <mat-icon
+              class="group-hover:scale-110 transition-transform duration-200 relative z-10 text-stone-600 group-hover:text-blue-700"
+              >healing</mat-icon
+            >
+            <span class="ml-3 font-medium relative z-10">Mis Tratamientos</span>
+          </a>
         </div>
       </div>
 
