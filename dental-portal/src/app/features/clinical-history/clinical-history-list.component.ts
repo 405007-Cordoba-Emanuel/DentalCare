@@ -13,6 +13,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { LocalStorageService } from '../../core/services/auth/local-storage.service';
 import { ClinicalHistoryService, ClinicalHistoryEntry } from '../../core/services/clinical-history.service';
+import { PatientService } from '../../core/services/patient.service';
 import { User } from '../../interfaces/user/user.interface';
 import { ClinicalHistoryDetailDialogComponent } from './clinical-history-detail-dialog.component';
 
@@ -39,6 +40,7 @@ import { ClinicalHistoryDetailDialogComponent } from './clinical-history-detail-
 export class ClinicalHistoryListComponent implements OnInit {
   private clinicalHistoryService = inject(ClinicalHistoryService);
   private localStorage = inject(LocalStorageService);
+  private patientService = inject(PatientService);
   private dialog = inject(MatDialog);
 
   user: User | null = null;
@@ -74,23 +76,55 @@ export class ClinicalHistoryListComponent implements OnInit {
 
     this.user = JSON.parse(userStr);
 
-    // Obtener historia clínica
-    if (this.user?.patientId) {
-      this.clinicalHistoryService.getClinicalHistoryByPatientId(this.user.patientId).subscribe({
-        next: (data) => {
-          // Ordenar por fecha descendente (más reciente primero)
-          this.entries = data.sort((a, b) => 
-            new Date(b.entryDate).getTime() - new Date(a.entryDate).getTime()
-          );
-          this.filteredEntries = this.entries;
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Error al cargar historia clínica:', error);
-          this.isLoading = false;
-        }
-      });
+    // Si no tiene patientId, obtenerlo usando userId
+    if (!this.user?.patientId && this.user?.id) {
+      const userId = parseInt(this.user.id, 10);
+      if (!isNaN(userId)) {
+        this.patientService.getPatientIdByUserId(userId).subscribe({
+          next: (patientId) => {
+            this.user!.patientId = patientId;
+            // Actualizar en localStorage
+            this.localStorage.setUserData(this.user!);
+            this.loadClinicalHistory();
+          },
+          error: (error) => {
+            console.error('Error al obtener patientId:', error);
+            this.isLoading = false;
+          }
+        });
+        return;
+      }
     }
+
+    // Si ya tiene patientId, cargar directamente
+    if (this.user?.patientId) {
+      this.loadClinicalHistory();
+    } else {
+      console.error('No se pudo obtener patientId');
+      this.isLoading = false;
+    }
+  }
+
+  private loadClinicalHistory() {
+    if (!this.user?.patientId) {
+      this.isLoading = false;
+      return;
+    }
+
+    this.clinicalHistoryService.getClinicalHistoryByPatientId(this.user.patientId).subscribe({
+      next: (data) => {
+        // Ordenar por fecha descendente (más reciente primero)
+        this.entries = data.sort((a, b) => 
+          new Date(b.entryDate).getTime() - new Date(a.entryDate).getTime()
+        );
+        this.filteredEntries = this.entries;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar historia clínica:', error);
+        this.isLoading = false;
+      }
+    });
   }
 
   onSearchChange() {
