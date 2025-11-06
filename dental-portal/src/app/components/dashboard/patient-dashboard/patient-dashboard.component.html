@@ -1,260 +1,117 @@
 <div class="min-h-screen bg-gray-50">
-  <!-- Header con Material Toolbar -->
-  <mat-toolbar class="dashboard-header">
-    <div class="header-content">
-      <div class="header-left">
-        <div class="logo-section">
-          <div class="logo-container">
-            <app-icon name="shield" size="24" class="logo-icon"></app-icon>
-          </div>
-          <h1 class="brand-title">DentalCare</h1>
-        </div>
-        <span class="dashboard-subtitle">Panel del Paciente</span>
-      </div>
-      <div class="header-right">
-        <button 
-          mat-raised-button 
-          color="primary"
-          (click)="scheduleAppointment()"
-          class="schedule-btn"
-        >
-          <mat-icon>event</mat-icon>
-          + Agendar Cita
-        </button>
-        <button 
-          mat-icon-button
-          class="notification-btn"
-          matTooltip="Notificaciones"
-        >
-          <mat-icon>notifications</mat-icon>
-        </button>
-        <button 
-          mat-icon-button
-          (click)="logout()"
-          class="profile-btn"
-          matTooltip="Perfil"
-        >
-          <div class="profile-avatar">MG</div>
-        </button>
-      </div>
-    </div>
-  </mat-toolbar>
-
-  <!-- Layout Principal con Sidebar Izquierdo -->
-  <div class="dashboard-layout">
-    <!-- Sidebar Izquierdo -->
-    <div class="sidebar-left">
-      <!-- Navegación Principal -->
-      <nav class="main-navigation">
-        <div class="nav-section">
-          <h3 class="nav-title">Navegación</h3>
-          <a href="#" class="nav-item active">
-            <mat-icon>dashboard</mat-icon>
-            <span>Vista General</span>
-          </a>
-          <a routerLink="/patient/profile" routerLinkActive="active" class="nav-item">
-            <mat-icon>person</mat-icon>
-            <span>Mi Perfil</span>
-          </a>
-          <a href="#" class="nav-item">
-            <mat-icon>schedule</mat-icon>
-            <span>Mis Citas</span>
-          </a>
-          <a href="#" class="nav-item">
-            <mat-icon>history</mat-icon>
-            <span>Historial</span>
-          </a>
-          <a href="#" class="nav-item">
-            <mat-icon>photo_camera</mat-icon>
-            <span>Fotos de Progreso</span>
-          </a>
-          <a href="#" class="nav-item">
-            <mat-icon>payment</mat-icon>
-            <span>Pagos</span>
-          </a>
-          <a href="#" class="nav-item">
-            <mat-icon>message</mat-icon>
-            <span>Chat</span>
-            <div class="badge">2</div>
-          </a>
-          <a href="#" class="nav-item">
-            <mat-icon>help</mat-icon>
-            <span>Ayuda</span>
-          </a>
-        </div>
-      </nav>
-
-      <!-- Acciones Rápidas -->
-      <div class="quick-actions-section">
-        <h3 class="nav-title">Acciones Rápidas</h3>
-        <button 
-          mat-stroked-button 
-          color="primary"
-          class="action-btn"
-          (click)="scheduleAppointment()"
-        >
-          <mat-icon>event</mat-icon>
-          Agendar Cita
-        </button>
-        
-        <button 
-          mat-stroked-button 
-          color="primary"
-          class="action-btn"
-          (click)="sendMessage()"
-        >
-          <mat-icon>send</mat-icon>
-          Contactar Dentista
-        </button>
-        
-        <button 
-          mat-stroked-button 
-          color="primary"
-          class="action-btn"
-        >
-          <mat-icon>description</mat-icon>
-          Ver Documentos
-        </button>
-        
-        <button 
-          mat-stroked-button 
-          color="primary"
-          class="action-btn"
-        >
-          <mat-icon>photo_camera</mat-icon>
-          Subir Fotos
-        </button>
-      </div>
-    </div>
-
+  <div class="flex min-h-[calc(100vh-64px)]">
     <!-- Contenido Principal -->
-    <div class="main-content">
-      <div class="content-header">
-        <h2 class="content-title">Vista General</h2>
-      </div>
-
-      <!-- Información del Paciente -->
-      <mat-card class="patient-info-card">
-        <mat-card-content>
-          <div class="patient-header">
-            <div class="patient-avatar">
-              <mat-icon class="avatar-icon">person</mat-icon>
+    <div class="flex-1 bg-gray-50 p-6 overflow-y-auto min-w-0">
+      <!-- Loading State -->
+      @if (isLoading) {
+        <div class="flex justify-center items-center min-h-[400px]">
+          <mat-spinner diameter="60"></mat-spinner>
+        </div>
+      }
+      
+      <!-- Error State -->
+      @if (!isLoading && errorMessage) {
+        <mat-card class="bg-white rounded-2xl border border-red-200 mb-6 shadow-md">
+          <mat-card-content class="p-6">
+            <div class="flex items-center gap-3 text-red-600">
+              <mat-icon>error</mat-icon>
+              <p class="m-0">{{ errorMessage }}</p>
             </div>
-            <div class="patient-details">
-              <h2 class="patient-name">{{ patientInfo.name }}</h2>
-              <p class="patient-age">Edad: {{ patientInfo.age }} años</p>
-              <p class="patient-last-visit">
-                Última visita: {{ patientInfo.lastVisit | date:'longDate' }}
-              </p>
-            </div>
-            <div class="patient-actions">
-              <button 
-                mat-stroked-button 
-                color="primary"
-                class="action-btn"
-              >
-                <mat-icon>edit</mat-icon>
-                Editar Perfil
-              </button>
-            </div>
-          </div>
-          
-          <div class="treatment-progress">
-            <div class="progress-header">
-              <h3>Progreso del Tratamiento</h3>
-              <span class="progress-percentage">{{ patientInfo.treatmentProgress }}%</span>
-            </div>
-            <mat-progress-bar 
-              mode="determinate" 
-              [value]="patientInfo.treatmentProgress"
-              class="progress-bar"
-            ></mat-progress-bar>
-            <p class="progress-description">
-              {{ patientInfo.treatmentProgress }}% del tratamiento completado
-            </p>
-          </div>
-        </mat-card-content>
-      </mat-card>
+          </mat-card-content>
+        </mat-card>
+      }
+      
+      <!-- Content -->
+      @if (!isLoading && !errorMessage) {
 
       <!-- Estadísticas y Contenido -->
-      <div class="content-grid">
+      <div class="grid grid-cols-1 lg:grid-cols-[repeat(auto-fit,minmax(350px,1fr))] gap-6 mb-8">
         <!-- Próxima Cita -->
-        <mat-card class="next-appointment-card">
-          <mat-card-header>
+        <mat-card class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+          <mat-card-header class="p-5 pb-0">
             <mat-card-title>Próxima Cita</mat-card-title>
           </mat-card-header>
           
-          <mat-card-content>
-            <div class="next-appointment-info">
-              <div class="appointment-date-large">
-                <span class="day-large">{{ patientInfo.nextAppointment | date:'d' }}</span>
-                <span class="month-large">{{ patientInfo.nextAppointment | date:'MMM' }}</span>
-              </div>
-              
-              <div class="appointment-details-large">
-                <h3 class="appointment-type-large">Limpieza Dental</h3>
-                <p class="appointment-time-large">
-                  <mat-icon>access_time</mat-icon>
-                  10:00 AM
-                </p>
-                <p class="appointment-dentist-large">
-                  <mat-icon>medical_services</mat-icon>
-                  Dr. Carlos Rodríguez
-                </p>
-              </div>
-              
-              <button 
-                mat-raised-button 
-                color="primary"
-                class="reschedule-btn"
-              >
-                <mat-icon>edit_calendar</mat-icon>
-                Reagendar
-              </button>
+          <mat-card-content class="p-5">
+            <div class="text-center">
+              @if (upcomingAppointments.length > 0) {
+                @let appointment = upcomingAppointments[0];
+                <div class="flex flex-col items-center bg-gradient-to-br from-blue-600 to-blue-700 text-white p-5 rounded-2xl mb-5">
+                  <span class="text-4xl font-bold leading-none">{{ formatDay(appointment.date) }}</span>
+                  <span class="text-base font-medium uppercase mt-1">{{ formatMonth(appointment.date) }}</span>
+                </div>
+                
+                <div>
+                  <h3 class="text-xl font-semibold text-slate-800 m-0 mb-3 break-words">{{ appointment.type }}</h3>
+                  <p class="flex items-center justify-center gap-2 text-slate-500 m-0 mb-2 text-sm break-words">
+                    <mat-icon>access_time</mat-icon>
+                    {{ appointment.time }}
+                  </p>
+                  <p class="flex items-center justify-center gap-2 text-slate-500 m-0 mb-2 text-sm break-words">
+                    <mat-icon>medical_services</mat-icon>
+                    {{ appointment.dentist }}
+                  </p>
+                </div>
+                
+                <button 
+                  mat-raised-button 
+                  color="primary"
+                  class="mt-4 w-full whitespace-nowrap bg-blue-600 hover:bg-blue-700"
+                  (click)="scheduleAppointment()"
+                >
+                  <mat-icon>edit_calendar</mat-icon>
+                  Reagendar
+                </button>
+              } @else {
+                <div class="flex flex-col items-center gap-3 py-8">
+                  <mat-icon class="text-slate-400 text-5xl">calendar_today</mat-icon>
+                  <p class="text-slate-500 m-0">No hay citas programadas</p>
+                </div>
+              }
             </div>
           </mat-card-content>
         </mat-card>
 
         <!-- Mensajes Recientes -->
-        <mat-card class="messages-card">
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon class="card-title-icon">message</mat-icon>
+        <mat-card class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+          <mat-card-header class="p-5 pb-0">
+            <mat-card-title class="flex items-center">
+              <mat-icon class="mr-3 text-blue-600 flex-shrink-0">message</mat-icon>
               Mensajes Recientes
             </mat-card-title>
           </mat-card-header>
           
-          <mat-card-content>
-            <div class="messages-list">
+          <mat-card-content class="p-5">
+            <div class="flex flex-col gap-4 mb-5">
+              @for (message of recentMessages; track message.from) {
               <div 
-                *ngFor="let message of recentMessages" 
-                class="message-item"
-                [class.unread]="message.unread"
-              >
-                <div class="message-avatar">
-                  <mat-icon class="message-avatar-icon">
-                    {{ message.from === 'Sistema' ? 'notifications' : 'medical_services' }}
-                  </mat-icon>
+                class="flex items-start gap-3 p-3 rounded-lg transition-all duration-300 overflow-hidden"
+                [class.bg-blue-50]="message.unread"
+                [class.border-l-4]="message.unread" [class.border-blue-600]="message.unread" [class.bg-gray-50]="!message.unread" [class.hover:bg-slate-100]="!message.unread">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <mat-icon class="text-blue-600 text-xl w-5 h-5">{{ message.from === 'Sistema' ? 'notifications' : 'medical_services' }}</mat-icon>
                 </div>
-                
-                <div class="message-content">
-                  <div class="message-header">
-                    <h4 class="message-from">{{ message.from }}</h4>
-                    <span class="message-time">{{ message.time }}</span>
+                <div class="flex-1 min-w-0">
+                  <div class="flex justify-between items-center mb-1 flex-wrap gap-2">
+                    <h4 class="text-sm font-semibold text-slate-800 m-0 break-words">{{ message.from }}</h4>
+                    <span class="text-slate-400 text-xs whitespace-nowrap">{{ message.time }}</span>
                   </div>
-                  <p class="message-text">{{ message.message }}</p>
+                  <p class="text-slate-500 m-0 text-sm leading-relaxed break-words">{{ message.message }}</p>
                 </div>
                 
-                <div class="message-indicator" *ngIf="message.unread">
-                  <div class="unread-dot"></div>
-                </div>
+                @if (message.unread) {
+                  <div class="flex-shrink-0 mt-2">
+                    <div class="w-2 h-2 bg-blue-600 rounded-full"></div>
+                  </div>
+                }
               </div>
+            }
             </div>
             
             <button 
               mat-stroked-button 
               color="primary"
-              class="send-message-btn"
+              class="w-full justify-center whitespace-nowrap"
               (click)="sendMessage()"
             >
               <mat-icon>send</mat-icon>
@@ -265,102 +122,99 @@
       </div>
 
       <!-- Contenido de Listas -->
-      <div class="lists-container">
+      <div class="grid grid-cols-1 lg:grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-6">
         <!-- Citas Próximas -->
-        <mat-card class="list-card">
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon class="card-title-icon">schedule</mat-icon>
+        <mat-card class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+          <mat-card-header class="p-6 pb-0">
+            <mat-card-title class="flex items-center">
+              <mat-icon class="mr-3 text-blue-600 flex-shrink-0">schedule</mat-icon>
               Próximas Citas
             </mat-card-title>
             <mat-card-subtitle>Citas programadas</mat-card-subtitle>
           </mat-card-header>
           
-          <mat-card-content>
-            <div class="appointments-list">
+          <mat-card-content class="p-6">
+            <div class="flex flex-col gap-4">
+              @for (appointment of upcomingAppointments; track appointment.id) {
               <div 
-                *ngFor="let appointment of upcomingAppointments" 
-                class="appointment-item"
+                class="flex items-center gap-5 p-5 bg-gray-50 rounded-xl transition-all duration-300 overflow-hidden flex-wrap hover:bg-slate-100 hover:translate-x-1"
               >
-                <div class="appointment-date">
-                  <div class="date-container">
-                    <span class="day">{{ appointment.date | date:'d' }}</span>
-                    <span class="month">{{ appointment.date | date:'MMM' }}</span>
+                <div class="flex-shrink-0">
+                  <div class="flex flex-col items-center bg-gradient-to-br from-blue-600 to-blue-700 text-white p-3 rounded-xl min-w-[60px]">
+                    <span class="text-2xl font-bold leading-none">{{ formatDay(appointment.date) }}</span>
+                    <span class="text-xs font-medium uppercase mt-1">{{ formatMonth(appointment.date) }}</span>
                   </div>
                 </div>
                 
-                <div class="appointment-details">
-                  <h4 class="appointment-type">{{ appointment.type }}</h4>
-                  <p class="appointment-time">
-                    <mat-icon class="time-icon">access_time</mat-icon>
+                <div class="flex-1 min-w-0">
+                  <h4 class="text-lg font-semibold text-slate-800 m-0 mb-2 break-words">{{ appointment.type }}</h4>
+                  <p class="flex items-center gap-2 text-slate-500 m-0 mb-1 text-sm break-words">
+                    <mat-icon class="text-base w-4 h-4 text-blue-600 flex-shrink-0">access_time</mat-icon>
                     {{ appointment.time }}
                   </p>
-                  <p class="appointment-dentist">
-                    <mat-icon class="dentist-icon">medical_services</mat-icon>
+                  <p class="flex items-center gap-2 text-slate-500 m-0 text-sm break-words">
+                    <mat-icon class="text-base w-4 h-4 text-blue-600 flex-shrink-0">medical_services</mat-icon>
                     {{ appointment.dentist }}
                   </p>
                 </div>
                 
-                <div class="appointment-status">
-                  <mat-chip 
-                    [color]="appointment.status === 'Confirmada' ? 'primary' : 'warn'"
-                    selected
-                    class="status-chip"
-                  >
-                    {{ appointment.status }}
-                  </mat-chip>
+                <div class="flex-shrink-0">
+                  <app-badge 
+                    [text]="appointment.status"
+                    [variant]="getBadgeVariant(appointment.status)"
+                  ></app-badge>
                 </div>
               </div>
+            }
             </div>
           </mat-card-content>
         </mat-card>
 
         <!-- Historial de Tratamientos -->
-        <mat-card class="list-card">
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon class="card-title-icon">history</mat-icon>
+        <mat-card class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+          <mat-card-header class="p-6 pb-0">
+            <mat-card-title class="flex items-center">
+              <mat-icon class="mr-3 text-blue-600 flex-shrink-0">history</mat-icon>
               Historial de Tratamientos
             </mat-card-title>
             <mat-card-subtitle>Tratamientos recientes</mat-card-subtitle>
           </mat-card-header>
           
-          <mat-card-content>
-            <div class="history-list">
+          <mat-card-content class="p-6">
+            <div class="flex flex-col gap-3">
+              @for (treatment of treatmentHistory; track treatment.id) {
               <div 
-                *ngFor="let treatment of treatmentHistory; let i = index" 
-                class="treatment-item"
-                (click)="viewTreatmentDetails(i + 1)"
+                class="group flex items-center gap-4 p-4 bg-gray-50 rounded-xl cursor-pointer transition-all duration-300 overflow-hidden flex-wrap hover:bg-slate-100 hover:translate-x-1"
+                (click)="viewTreatmentDetails(treatment.id)"
               >
-                <div class="treatment-date">
-                  <span class="date-text">{{ treatment.date | date:'shortDate' }}</span>
+                <div class="flex-shrink-0 min-w-[60px]">
+                  <span class="text-slate-500 text-sm font-medium whitespace-nowrap">{{ formatShortDate(treatment.date) }}</span>
                 </div>
                 
-                <div class="treatment-info">
-                  <h4 class="treatment-procedure">{{ treatment.procedure }}</h4>
-                  <p class="treatment-dentist">{{ treatment.dentist }}</p>
+                <div class="flex-1 min-w-[150px]">
+                  <h4 class="text-base font-semibold text-slate-800 m-0 mb-1 break-words">{{ treatment.procedure }}</h4>
+                  <p class="text-slate-500 m-0 text-sm break-words">{{ treatment.dentist }}</p>
                 </div>
                 
-                <div class="treatment-cost">
-                  <span class="cost-amount">${{ treatment.cost }}</span>
+                <div class="flex-shrink-0 min-w-[60px] text-center">
+                  <span class="text-lg font-semibold text-blue-600 whitespace-nowrap">${{ treatment.cost }}</span>
                 </div>
                 
-                <div class="treatment-status">
-                  <mat-chip 
-                    [color]="getStatusColor(treatment.status)"
-                    selected
-                    [class]="'status-chip ' + treatment.status.toLowerCase()"
-                  >
-                    {{ treatment.status }}
-                  </mat-chip>
+                <div class="flex-shrink-0 min-w-[80px] max-w-[120px]">
+                  <app-badge 
+                    [text]="treatment.status"
+                    [variant]="getBadgeVariant(treatment.status)"
+                  ></app-badge>
                 </div>
                 
-                <mat-icon class="arrow-icon">chevron_right</mat-icon>
+                <mat-icon class="text-slate-300 transition-all duration-300 flex-shrink-0 ml-auto group-hover:text-blue-600 group-hover:translate-x-1">chevron_right</mat-icon>
               </div>
+            }
             </div>
           </mat-card-content>
         </mat-card>
       </div>
+      }
     </div>
   </div>
 </div>
