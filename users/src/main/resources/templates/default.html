@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${subject}">Email Subject</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 15px;
+            text-align: center;
+            border-radius: 0 0 5px 5px;
+            font-size: 12px;
+            color: #6c757d;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 th:text="${title ?: 'Bienvenido'}">Título del Email</h1>
+    </div>
+    
+    <div class="content">
+        <p th:if="${greeting}" th:text="${greeting}">Hola,</p>
+        
+        <div th:if="${message}" th:utext="${message}">
+            <p>Este es el contenido principal del email.</p>
+        </div>
+        
+        <div th:if="${userName}">
+            <p>Hola <strong th:text="${userName}">Usuario</strong>,</p>
+        </div>
+        
+        <div th:if="${actionUrl}">
+            <a th:href="${actionUrl}" class="button" th:text="${actionText ?: 'Hacer clic aquí'}">
+                Acción
+            </a>
+        </div>
+        
+        <div th:if="${details}">
+            <h3>Detalles:</h3>
+            <ul>
+                <li th:each="detail : ${details}" th:text="${detail}">Detalle</li>
+            </ul>
+        </div>
+        
+        <p th:if="${footerMessage}" th:text="${footerMessage}">
+            Gracias por usar nuestro servicio.
+        </p>
+    </div>
+    
+    <div class="footer">
+        <p>Este email fue enviado automáticamente. Por favor no respondas a este mensaje.</p>
+        <p th:if="${companyName}" th:text="${companyName}">Tu Empresa</p>
+    </div>
+</body>
+</html>
