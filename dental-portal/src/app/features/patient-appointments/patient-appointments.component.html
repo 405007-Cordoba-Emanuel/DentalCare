@@ -71,9 +71,7 @@
                   </div>
                 </div>
                 <div class="appointment-status">
-                  <mat-chip [class]="getStatusColor(appointment.status)" selected>
-                    {{ getStatusLabel(appointment.status) }}
-                  </mat-chip>
+                  <app-badge [text]="getStatusLabel(appointment.status)" [variant]="getBadgeVariant(appointment.status)" />
                 </div>
               </div>
             </mat-card>

@@ -22,8 +22,8 @@ export class FaqComponent {
   faqs: FAQItem[] = [
     // General
     {
-      question: '¿Qué es DentalCare Pro?',
-      answer: 'DentalCare Pro es una plataforma integral de gestión dental que conecta pacientes con profesionales odontológicos, facilitando la programación de citas, gestión de historiales médicos y comunicación entre profesionales y pacientes.',
+      question: '¿Qué es DentalCare?',
+      answer: 'DentalCare es una plataforma integral de gestión dental que conecta pacientes con profesionales odontológicos, facilitando la programación de citas, gestión de historiales médicos y comunicación entre profesionales y pacientes.',
       category: 'general'
     },
     {
@@ -84,7 +84,7 @@ export class FaqComponent {
     // Técnico
     {
       question: '¿Qué navegadores son compatibles?',
-      answer: 'DentalCare Pro es compatible con todos los navegadores modernos, incluyendo Chrome, Firefox, Safari, Edge y Opera. Recomendamos usar la versión más reciente para la mejor experiencia.',
+      answer: 'DentalCare es compatible con todos los navegadores modernos, incluyendo Chrome, Firefox, Safari, Edge y Opera. Recomendamos usar la versión más reciente para la mejor experiencia.',
       category: 'tecnico'
     },
     {

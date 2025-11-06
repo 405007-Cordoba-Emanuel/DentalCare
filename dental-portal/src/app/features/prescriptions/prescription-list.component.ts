@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { LocalStorageService } from '../../core/services/auth/local-storage.service';
 import { PrescriptionService, Prescription } from '../../core/services/prescription.service';
+import { PatientService } from '../../core/services/patient.service';
 import { User } from '../../interfaces/user/user.interface';
 import { PrescriptionDetailDialogComponent } from './prescription-detail-dialog.component';
 
@@ -31,6 +32,7 @@ import { PrescriptionDetailDialogComponent } from './prescription-detail-dialog.
 export class PrescriptionListComponent implements OnInit {
   private prescriptionService = inject(PrescriptionService);
   private localStorage = inject(LocalStorageService);
+  private patientService = inject(PatientService);
   private dialog = inject(MatDialog);
 
   user: User | null = null;
@@ -58,31 +60,63 @@ export class PrescriptionListComponent implements OnInit {
 
     this.user = JSON.parse(userStr);
 
-    // Obtener recetas
-    if (this.user?.patientId) {
-      this.prescriptionService.getPrescriptionsByPatientId(this.user.patientId).subscribe({
-        next: (data) => {
-          this.prescriptions = data;
-          this.filteredPrescriptions = data;
-          this.calculateKPIs();
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Error al cargar recetas:', error);
-          this.isLoading = false;
-        }
-      });
-
-      // Obtener conteo de recetas
-      this.prescriptionService.getPrescriptionCount(this.user.patientId).subscribe({
-        next: (count) => {
-          this.totalPrescriptions = count;
-        },
-        error: (error) => {
-          console.error('Error al obtener conteo de recetas:', error);
-        }
-      });
+    // Si no tiene patientId, obtenerlo usando userId
+    if (!this.user?.patientId && this.user?.id) {
+      const userId = parseInt(this.user.id, 10);
+      if (!isNaN(userId)) {
+        this.patientService.getPatientIdByUserId(userId).subscribe({
+          next: (patientId) => {
+            this.user!.patientId = patientId;
+            // Actualizar en localStorage
+            this.localStorage.setUserData(this.user!);
+            this.loadPrescriptions();
+          },
+          error: (error) => {
+            console.error('Error al obtener patientId:', error);
+            this.isLoading = false;
+          }
+        });
+        return;
+      }
     }
+
+    // Si ya tiene patientId, cargar directamente
+    if (this.user?.patientId) {
+      this.loadPrescriptions();
+    } else {
+      console.error('No se pudo obtener patientId');
+      this.isLoading = false;
+    }
+  }
+
+  private loadPrescriptions() {
+    if (!this.user?.patientId) {
+      this.isLoading = false;
+      return;
+    }
+
+    this.prescriptionService.getPrescriptionsByPatientId(this.user.patientId).subscribe({
+      next: (data) => {
+        this.prescriptions = data;
+        this.filteredPrescriptions = data;
+        this.calculateKPIs();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar recetas:', error);
+        this.isLoading = false;
+      }
+    });
+
+    // Obtener conteo de recetas
+    this.prescriptionService.getPrescriptionCount(this.user.patientId).subscribe({
+      next: (count) => {
+        this.totalPrescriptions = count;
+      },
+      error: (error) => {
+        console.error('Error al obtener conteo de recetas:', error);
+      }
+    });
   }
 
   private calculateKPIs() {

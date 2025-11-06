@@ -2,13 +2,29 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../services/auth/auth.service';
+import { LocalStorageService } from '../services/auth/local-storage.service';
+import { User } from '../../interfaces/user/user.interface';
 
 export const roleGuard: CanActivateFn = (route) => {
   const router = inject(Router);
   const snackBar = inject(MatSnackBar);
   const authService = inject(AuthService);
+  const localStorageService = inject(LocalStorageService);
 
-  const currentUser = authService.currentUser;
+  let currentUser = authService.currentUser;
+  
+  // Si currentUser es null, leer desde localStorage
+  if (!currentUser) {
+    const userDataString = localStorageService.getUserData();
+    if (userDataString) {
+      try {
+        currentUser = JSON.parse(userDataString) as User;
+      } catch (error) {
+        console.error('Error parsing user data from localStorage:', error);
+      }
+    }
+  }
+  
   const allowedRoles = route.data?.['roles'] as string[];
   const currentPath = route.routeConfig?.path || '';
 

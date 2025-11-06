@@ -8,6 +8,7 @@ import { LocalStorageService } from '../../core/services/auth/local-storage.serv
 import { AppointmentService, Appointment, AppointmentStatus } from '../../core/services/appointment.service';
 import { User } from '../../interfaces/user/user.interface';
 import { PatientService } from '../../core/services/patient.service';
+import { BadgeComponent } from '../../shared/badge/badge.component';
 
 @Component({
   selector: 'app-patient-appointments',
@@ -17,7 +18,8 @@ import { PatientService } from '../../core/services/patient.service';
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatChipsModule
+    MatChipsModule,
+    BadgeComponent
   ],
   templateUrl: './patient-appointments.component.html',
   styleUrl: './patient-appointments.component.css'
@@ -203,16 +205,20 @@ export class PatientAppointmentsComponent implements OnInit {
     return statusMap[status] || status;
   }
 
-  getStatusColor(status: AppointmentStatus): string {
-    // Retorna la clase CSS personalizada para cada estado
-    const colorMap: { [key: string]: string } = {
-      'PROGRAMADO': 'status-programado',
-      'CONFIRMADO': 'status-confirmado',
-      'COMPLETADO': 'status-completado',
-      'CANCELADO': 'status-cancelado',
-      'AUSENTE': 'status-ausente'
-    };
-    return colorMap[status] || 'status-programado';
+  getBadgeVariant(status: AppointmentStatus): 'ausente' | 'en-curso' | 'completado' | 'abandonado' | 'default' {
+    switch (status) {
+      case AppointmentStatus.COMPLETADO:
+        return 'completado';
+      case AppointmentStatus.PROGRAMADO:
+      case AppointmentStatus.CONFIRMADO:
+        return 'en-curso';
+      case AppointmentStatus.CANCELADO:
+        return 'abandonado';
+      case AppointmentStatus.AUSENTE:
+        return 'ausente';
+      default:
+        return 'default';
+    }
   }
 }
 
