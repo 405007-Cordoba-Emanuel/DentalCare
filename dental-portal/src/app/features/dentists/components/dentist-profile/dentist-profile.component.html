@@ -11,10 +11,32 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Sección: Datos Personales -->
       <div class="bg-white rounded-lg shadow">
+        <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+          <h2 class="text-2xl font-semibold text-gray-900">Datos Personales</h2>
+          @if (!editingPersonal()) {
+            <button
+              (click)="toggleEditPersonal()"
+              class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+              title="Editar datos personales"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+          } @else {
+            <button
+              (click)="toggleEditPersonal()"
+              class="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded transition-colors text-sm font-medium"
+              title="Cancelar edición"
+            >
+              Cancelar
+            </button>
+          }
+        </div>
         <app-generic-form
           [fields]="personalFields()"
-          [formTitle]="'Datos Personales'"
+          [formTitle]="''"
           [submitText]="loadingPersonal() ? 'Guardando...' : 'Guardar Cambios'"
+          [initialData]="userProfileData()"
+          [readonly]="!editingPersonal()"
           (formSubmit)="updatePersonalData($event)"
         />
 
@@ -33,12 +55,34 @@
 
       <!-- Sección: Datos Profesionales -->
       <div class="bg-white rounded-lg shadow">
+        <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+          <h2 class="text-2xl font-semibold text-gray-900">Datos Profesionales</h2>
+          @if (!editingProfessional()) {
+            <button
+              (click)="toggleEditProfessional()"
+              class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+              title="Editar datos profesionales"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+          } @else {
+            <button
+              (click)="toggleEditProfessional()"
+              class="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded transition-colors text-sm font-medium"
+              title="Cancelar edición"
+            >
+              Cancelar
+            </button>
+          }
+        </div>
         <app-generic-form
           [fields]="professionalFields()"
-          [formTitle]="'Datos Profesionales'"
+          [formTitle]="''"
           [submitText]="
             loadingProfessional() ? 'Guardando...' : 'Guardar Cambios'
           "
+          [initialData]="dentistProfileData()"
+          [readonly]="!editingProfessional()"
           (formSubmit)="updateProfessionalData($event)"
         />
 

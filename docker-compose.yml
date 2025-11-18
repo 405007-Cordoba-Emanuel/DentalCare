@@ -86,25 +86,6 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  # ============================================
-  # Gateway Service - API Gateway
-  # ============================================
-  gateway-service:
-    build:
-      context: ./gateway
-      dockerfile: Dockerfile
-    container_name: gateway-service
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    ports:
-      - "8080:8080"
-    networks:
-      - dental-network
-    depends_on:
-      - users-service
-      - be-core-service
-    restart: unless-stopped
-
 volumes:
   mysql_users_data:
   mysql_core_data:
