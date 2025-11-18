@@ -3,6 +3,8 @@ package dental.core.users.modules.auth.services;
 import dental.core.users.entities.Role;
 import dental.core.users.modules.auth.dto.UserDetailResponse;
 import dental.core.users.modules.auth.dto.UserProfileRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -60,11 +62,31 @@ public interface UserAdvancedService {
     List<UserDetailResponse> getAllUsers(String adminEmail);
 
     /**
+     * Obtiene todos los usuarios con paginación (solo ADMIN)
+     * @param adminEmail Email del administrador
+     * @param pageable Configuración de paginación
+     * @return Página de usuarios
+     */
+    Page<UserDetailResponse> getAllUsersPaginated(String adminEmail, Pageable pageable);
+
+    /**
      * Obtiene un usuario por ID (solo ADMIN)
      * @param userId ID del usuario
      * @param adminEmail Email del administrador
      * @return Usuario encontrado
      */
     UserDetailResponse getUserById(Long userId, String adminEmail);
+
+    /**
+     * Crea un dentista directamente desde el panel de administración.
+     * Si el email existe y el usuario es PATIENT, cambia el rol a DENTIST.
+     * Si el email no existe, crea un nuevo usuario con rol DENTIST y password por defecto.
+     * @param request Datos del dentista a crear
+     * @param adminEmail Email del administrador
+     * @return Respuesta con los datos del usuario y dentista creado
+     */
+    dental.core.users.modules.auth.dto.CreateDentistAdminResponse createDentistByAdmin(
+            dental.core.users.modules.auth.dto.CreateDentistAdminRequest request, 
+            String adminEmail);
     
 }
