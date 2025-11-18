@@ -14,7 +14,7 @@ import { CommonModule } from '@angular/common';
 export interface FormField {
   name: string;
   label: string;
-  type: 'text' | 'textarea' | 'select' | 'datetime-local' | 'number';
+  type: 'text' | 'textarea' | 'select' | 'datetime-local' | 'date' | 'number';
   placeholder?: string;
   options?: { label: string; value: any }[];
   validators?: any[];
@@ -129,7 +129,17 @@ export class GenericFormComponent implements OnInit, OnChanges {
 
     const field = this.fields().find((f) => f.name === fieldName);
 
-    // Para fechas, formatear
+    // Para fechas (date), formatear
+    if (field?.type === 'date' && value) {
+      const date = new Date(value);
+      return date.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+    }
+
+    // Para fechas con hora (datetime-local), formatear
     if (field?.type === 'datetime-local' && value) {
       const date = new Date(value);
       return date.toLocaleDateString('es-ES', {

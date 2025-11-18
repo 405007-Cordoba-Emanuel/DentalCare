@@ -4,11 +4,13 @@
   class="w-full max-w-5xl mx-auto bg-white p-6 sm:p-8"
 >
   <!-- Header con título e icono -->
-  <div class="mb-8 border-b border-gray-200 pb-4 flex items-center gap-2">
-    <h2 class="text-2xl font-semibold text-gray-900">
-      {{ formTitle() }}
-    </h2>
-  </div>
+  @if (formTitle() && formTitle().trim() !== '') {
+    <div class="mb-8 border-b border-gray-200 pb-4 flex items-center gap-2">
+      <h2 class="text-2xl font-semibold text-gray-900">
+        {{ formTitle() }}
+      </h2>
+    </div>
+  }
 
   <!-- Grid de campos -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mb-8">
@@ -69,6 +71,17 @@
             }
           </select>
         } 
+        @if (field.type === 'date') {
+          <input
+            type="date"
+            [formControlName]="field.name"
+            [class.bg-gray-100]="isFieldDisabled(field.name)"
+            [class.text-gray-500]="isFieldDisabled(field.name)"
+            [class.cursor-not-allowed]="isFieldDisabled(field.name)"
+            [class.border-gray-200]="isFieldDisabled(field.name)"
+            class="w-full border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2 text-gray-900 focus:border-blue-600 focus:ring-0 focus:outline-none transition-colors"
+          />
+        }
         @if (field.type === 'datetime-local') {
           <input
             type="datetime-local"

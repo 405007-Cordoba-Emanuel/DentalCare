@@ -29,10 +29,10 @@ export class CreateAppointmentComponent {
     this.formFields = [
       {
         name: 'patientId',
-        label: 'Patient',
+        label: 'Paciente',
         type: 'select',
         options: [
-          { label: 'Select a patient', value: '' }, // ✅ Opción por defecto
+          { label: 'Seleccionar un paciente', value: '' }, // ✅ Opción por defecto
           ...this.patients.map((p) => ({
             label: `${p.firstName} ${p.lastName}`,
             value: p.id,
@@ -42,28 +42,28 @@ export class CreateAppointmentComponent {
       },
       {
         name: 'startDateTime',
-        label: 'Start Date and Time',
+        label: 'Fecha y Hora de Inicio',
         type: 'datetime-local',
         validators: [Validators.required], // ✅ Agregado
       },
       {
         name: 'endDateTime',
-        label: 'End Date and Time',
+        label: 'Fecha y Hora de Fin',
         type: 'datetime-local',
         validators: [Validators.required], // ✅ Agregado
       },
       {
         name: 'reason',
-        label: 'Reason',
+        label: 'Motivo',
         type: 'text',
-        placeholder: 'Reason for appointment',
+        placeholder: 'Motivo de la cita',
         validators: [Validators.required], // ✅ Agregado
       },
       {
         name: 'notes',
-        label: 'Notes',
+        label: 'Notas',
         type: 'textarea',
-        placeholder: 'Additional notes...',
+        placeholder: 'Notas adicionales...',
         validators: [], // ✅ Opcional, sin validadores
       },
     ];

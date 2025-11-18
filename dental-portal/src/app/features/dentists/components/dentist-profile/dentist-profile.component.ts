@@ -7,11 +7,13 @@ import {
   GenericFormComponent,
 } from '../../../../shared/generic-form/generic-form.component';
 import { LocalStorageService } from '../../../../core/services/auth/local-storage.service';
+import { MatIconModule } from '@angular/material/icon';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-dentist-profile',
   standalone: true,
-  imports: [GenericFormComponent],
+  imports: [GenericFormComponent, MatIconModule, CommonModule],
   templateUrl: './dentist-profile.component.html',
   styleUrls: ['./dentist-profile.component.css'],
 })
@@ -31,6 +33,10 @@ export class DentistProfileComponent implements OnInit {
   successProfessional = signal(false);
   errorPersonal = signal<string | null>(null);
   errorProfessional = signal<string | null>(null);
+
+  // Estados de edición
+  editingPersonal = signal(false);
+  editingProfessional = signal(false);
 
   ngOnInit(): void {
     this.loadUserProfile();
@@ -70,12 +76,8 @@ export class DentistProfileComponent implements OnInit {
     {
       name: 'birthDate',
       label: 'Fecha de Nacimiento',
-      type: 'text',
-      placeholder: 'YYYY-MM-DD',
-      validators: [
-        Validators.required,
-        Validators.pattern(/^\d{4}-\d{2}-\d{2}$/),
-      ],
+      type: 'date',
+      validators: [Validators.required],
       fullWidth: true,
     },
   ]);
@@ -120,6 +122,8 @@ export class DentistProfileComponent implements OnInit {
       next: () => {
         this.loadingPersonal.set(false);
         this.successPersonal.set(true);
+        this.editingPersonal.set(false); // Volver a modo visual
+        this.loadUserProfile(); // Recargar datos actualizados
         setTimeout(() => this.successPersonal.set(false), 3000);
       },
       error: (err) => {
@@ -149,6 +153,8 @@ export class DentistProfileComponent implements OnInit {
         next: () => {
           this.loadingProfessional.set(false);
           this.successProfessional.set(true);
+          this.editingProfessional.set(false); // Volver a modo visual
+          this.loadDentistProfile(); // Recargar datos actualizados
           setTimeout(() => this.successProfessional.set(false), 3000);
         },
         error: (err) => {
@@ -161,16 +167,33 @@ export class DentistProfileComponent implements OnInit {
       });
   }
 
+  // Métodos para alternar modo edición
+  toggleEditPersonal() {
+    const wasEditing = this.editingPersonal();
+    this.editingPersonal.set(!wasEditing);
+    
+    // Si se está cancelando la edición, recargar datos originales
+    if (wasEditing) {
+      this.loadUserProfile();
+    }
+  }
+
+  toggleEditProfessional() {
+    const wasEditing = this.editingProfessional();
+    this.editingProfessional.set(!wasEditing);
+    
+    // Si se está cancelando la edición, recargar datos originales
+    if (wasEditing) {
+      this.loadDentistProfile();
+    }
+  }
+
   // ⭐ MODIFICADO: Guardar los datos en el signal
   loadUserProfile() {
     this.userService.getUser().subscribe({
       next: (user) => {
-        // Formatear la fecha si es necesario
-        const formattedUser = {
-          ...user,
-          birthDate: user.birthDate ? user.birthDate.toISOString().split('T')[0] : '',
-        };
-        this.userProfileData.set(formattedUser);
+        // birthDate ya viene como string en formato YYYY-MM-DD
+        this.userProfileData.set(user);
       },
       error: (err) => {
         console.error('Error cargando perfil de usuario:', err);
@@ -184,7 +207,13 @@ export class DentistProfileComponent implements OnInit {
       .getDentistById(this.localStorageService.getDentistId())
       .subscribe({
         next: (dentist) => {
-          this.dentistProfileData.set(dentist);
+          // Mapear solo los campos profesionales que necesita el formulario
+          const professionalData = {
+            licenseNumber: dentist.licenseNumber || '',
+            specialty: dentist.specialty || '',
+            active: dentist.active !== undefined ? dentist.active : true,
+          };
+          this.dentistProfileData.set(professionalData);
         },
         error: (err) => {
           console.error('Error cargando perfil de dentista:', err);
