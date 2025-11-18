@@ -82,8 +82,8 @@
         }
 
         <!-- Mensaje de error si el campo es inválido y fue tocado -->
-        @if (formGroup.get(field.name)?.invalid && formGroup.get(field.name)?.touched && !readonly()) {
-          <p class="mt-1 text-xs text-red-600">Este campo es requerido</p>
+        @if (isFieldInvalid(field.name) && !readonly()) {
+          <p class="mt-1 text-xs text-red-600">{{ getFieldError(field.name) }}</p>
         }
       }
     </div>
