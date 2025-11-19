@@ -130,6 +130,33 @@
   color: #94a3b8;
 }
 
+/* Forgot Password Link */
+.forgot-password-container {
+  text-align: right;
+  margin-bottom: 16px;
+}
+
+.forgot-password-link {
+  font-size: 0.875rem;
+  color: #1976d2;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 4px 8px;
+  transition: all 0.3s ease;
+}
+
+.forgot-password-link:hover:not(:disabled) {
+  color: #1565c0;
+  text-decoration: underline;
+  background-color: rgba(25, 118, 210, 0.08);
+  border-radius: 4px;
+}
+
+.forgot-password-link:disabled {
+  color: #cbd5e1;
+  cursor: not-allowed;
+}
+
 /* Botón de Login */
 .login-button {
   width: 100%;

@@ -8,10 +8,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { IconComponent } from '../../../shared/icon/icon.component';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { GoogleSignInService } from '../../../core/services/auth/google-signin.service';
 import { EmailAuthRequest } from '../../../interfaces/auth/auth-response.interface';
+import { ForgotPasswordDialogComponent } from '../forgot-password-dialog/forgot-password-dialog.component';
 
 @Component({
   selector: 'app-login',
@@ -25,6 +27,7 @@ import { EmailAuthRequest } from '../../../interfaces/auth/auth-response.interfa
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
+    MatDialogModule,
     IconComponent
   ],
   templateUrl: './pacient-login.component.html',
@@ -43,6 +46,7 @@ export class LoginComponent implements AfterViewInit {
   private router = inject(Router);
   private authService = inject(AuthService);
   private googleSignInService = inject(GoogleSignInService);
+  private dialog = inject(MatDialog);
 
   onSubmit() {
     if (this.email && this.password) {
@@ -97,6 +101,13 @@ export class LoginComponent implements AfterViewInit {
 
   goBack() {
     this.router.navigate(['/']);
+  }
+
+  openForgotPasswordDialog() {
+    this.dialog.open(ForgotPasswordDialogComponent, {
+      width: '500px',
+      disableClose: false
+    });
   }
 
   ngAfterViewInit(): void {

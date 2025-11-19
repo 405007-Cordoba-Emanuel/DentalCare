@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
 import { LoginComponent } from './components/auth/pacient-login/pacient-login.component';
 import { RegisterComponent } from './components/auth/register/register.component';
+import { ResetPasswordComponent } from './components/auth/reset-password/reset-password.component';
 import { PatientDashboardComponent } from './components/dashboard/patient-dashboard/patient-dashboard.component';
 import { DentistDashboardComponent } from './components/dashboard/dentist-dashboard/dentist-dashboard.component';
 import { LayoutComponent } from './layout/layout.component';
@@ -60,6 +61,12 @@ export const routes: Routes = [
     redirectTo: 'patient-register', 
     pathMatch: 'full'
   }, // Por defecto paciente
+  
+  // Reset password (public access)
+  { 
+    path: 'reset-password', 
+    component: ResetPasswordComponent
+  },
   
   // Policy pages (public access)
   { path: 'terms-conditions', component: TermsConditionsComponent },
