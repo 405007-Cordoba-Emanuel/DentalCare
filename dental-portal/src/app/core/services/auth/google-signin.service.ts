@@ -128,6 +128,8 @@ export class GoogleSignInService {
             this.router.navigate(['/dentist']);
           } else if (authResponse.role === 'PATIENT') {
             this.router.navigate(['/patient']);
+          } else if (authResponse.role === 'ADMIN') {
+            this.router.navigate(['/admin']);
           } else {
             // Por defecto, redirigir al dashboard genérico
             this.router.navigate(['/dashboard']);

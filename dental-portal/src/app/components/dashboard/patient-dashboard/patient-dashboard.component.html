@@ -24,9 +24,8 @@
       <!-- Content -->
       @if (!isLoading && !errorMessage) {
 
-      <!-- Estadísticas y Contenido -->
-      <div class="grid grid-cols-1 lg:grid-cols-[repeat(auto-fit,minmax(350px,1fr))] gap-6 mb-8">
-        <!-- Próxima Cita -->
+      <!-- Próxima Cita - Ancho Completo -->
+      <div class="mb-6">
         <mat-card class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
           <mat-card-header class="p-5 pb-0">
             <mat-card-title>Próxima Cita</mat-card-title>
@@ -52,16 +51,6 @@
                     {{ appointment.dentist }}
                   </p>
                 </div>
-                
-                <button 
-                  mat-raised-button 
-                  color="primary"
-                  class="mt-4 w-full whitespace-nowrap bg-blue-600 hover:bg-blue-700"
-                  (click)="scheduleAppointment()"
-                >
-                  <mat-icon>edit_calendar</mat-icon>
-                  Reagendar
-                </button>
               } @else {
                 <div class="flex flex-col items-center gap-3 py-8">
                   <mat-icon class="text-slate-400 text-5xl">calendar_today</mat-icon>
@@ -69,6 +58,55 @@
                 </div>
               }
             </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Último Tratamiento en Curso y Mensajes Recientes -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Último Tratamiento en Curso -->
+        <mat-card class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+          <mat-card-header class="p-5 pb-0">
+            <mat-card-title class="flex items-center">
+              <mat-icon class="mr-3 text-blue-600 flex-shrink-0">history</mat-icon>
+              Último Tratamiento en Curso
+            </mat-card-title>
+          </mat-card-header>
+          
+          <mat-card-content class="p-5">
+            @if (getLastTreatmentInProgress(); as lastTreatment) {
+              <div 
+                class="group flex items-center gap-4 p-4 bg-gray-50 rounded-xl cursor-pointer transition-all duration-300 overflow-hidden flex-wrap hover:bg-slate-100 hover:translate-x-1"
+                (click)="viewTreatmentDetails(lastTreatment.id)"
+              >
+                <div class="flex-shrink-0 min-w-[60px]">
+                  <span class="text-slate-500 text-sm font-medium whitespace-nowrap">{{ formatShortDate(lastTreatment.date) }}</span>
+                </div>
+                
+                <div class="flex-1 min-w-[150px]">
+                  <h4 class="text-base font-semibold text-slate-800 m-0 mb-1 break-words">{{ lastTreatment.procedure }}</h4>
+                  <p class="text-slate-500 m-0 text-sm break-words">{{ lastTreatment.dentist }}</p>
+                </div>
+                
+                <div class="flex-shrink-0 min-w-[60px] text-center">
+                  <span class="text-lg font-semibold text-blue-600 whitespace-nowrap">${{ lastTreatment.cost }}</span>
+                </div>
+                
+                <div class="flex-shrink-0 min-w-[80px] max-w-[120px]">
+                  <app-badge 
+                    [text]="lastTreatment.status"
+                    [variant]="getBadgeVariant(lastTreatment.status)"
+                  ></app-badge>
+                </div>
+                
+                <mat-icon class="text-slate-300 transition-all duration-300 flex-shrink-0 ml-auto group-hover:text-blue-600 group-hover:translate-x-1">chevron_right</mat-icon>
+              </div>
+            } @else {
+              <div class="flex flex-col items-center gap-3 py-8">
+                <mat-icon class="text-slate-400 text-5xl">medical_services</mat-icon>
+                <p class="text-slate-500 m-0">No hay tratamientos en curso</p>
+              </div>
+            }
           </mat-card-content>
         </mat-card>
 
@@ -121,95 +159,74 @@
         </mat-card>
       </div>
 
-      <!-- Contenido de Listas -->
-      <div class="grid grid-cols-1 lg:grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-6">
-        <!-- Citas Próximas -->
+      <!-- Próximas Citas - Dropdown -->
+      <div class="mb-6">
         <mat-card class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-          <mat-card-header class="p-6 pb-0">
-            <mat-card-title class="flex items-center">
+          <button 
+            (click)="toggleAppointmentsDropdown()"
+            class="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors duration-200 text-left"
+          >
+            <div class="flex items-center">
               <mat-icon class="mr-3 text-blue-600 flex-shrink-0">schedule</mat-icon>
-              Próximas Citas
-            </mat-card-title>
-          </mat-card-header>
+              <h3 class="text-lg font-semibold text-slate-800 m-0">
+                Próximas Citas
+                @if (upcomingAppointments.length > 0) {
+                  <span class="text-sm font-normal text-slate-500 ml-2">({{ upcomingAppointments.length }})</span>
+                }
+              </h3>
+            </div>
+            <mat-icon 
+              [class.rotate-180]="appointmentsDropdownOpen"
+              class="text-slate-400 transition-transform duration-200"
+            >
+              expand_more
+            </mat-icon>
+          </button>
           
-          <mat-card-content class="p-6">
-            <div class="flex flex-col gap-4">
-              @for (appointment of upcomingAppointments; track appointment.id) {
-              <div 
-                class="flex items-center gap-5 p-5 bg-gray-50 rounded-xl transition-all duration-300 overflow-hidden flex-wrap hover:bg-slate-100 hover:translate-x-1"
-              >
-                <div class="flex-shrink-0">
-                  <div class="flex flex-col items-center bg-gradient-to-br from-blue-600 to-blue-700 text-white p-3 rounded-xl min-w-[60px]">
-                    <span class="text-2xl font-bold leading-none">{{ formatDay(appointment.date) }}</span>
-                    <span class="text-xs font-medium uppercase mt-1">{{ formatMonth(appointment.date) }}</span>
+          @if (appointmentsDropdownOpen) {
+            <mat-card-content class="p-6 pt-0 border-t border-slate-100">
+              <div class="flex flex-col gap-4">
+                @if (upcomingAppointments.length > 0) {
+                  @for (appointment of upcomingAppointments; track appointment.id) {
+                    <div 
+                      class="flex items-center gap-5 p-5 bg-gray-50 rounded-xl transition-all duration-300 overflow-hidden flex-wrap hover:bg-slate-100 hover:translate-x-1"
+                    >
+                      <div class="flex-shrink-0">
+                        <div class="flex flex-col items-center bg-gradient-to-br from-blue-600 to-blue-700 text-white p-3 rounded-xl min-w-[60px]">
+                          <span class="text-2xl font-bold leading-none">{{ formatDay(appointment.date) }}</span>
+                          <span class="text-xs font-medium uppercase mt-1">{{ formatMonth(appointment.date) }}</span>
+                        </div>
+                      </div>
+                      
+                      <div class="flex-1 min-w-0">
+                        <h4 class="text-lg font-semibold text-slate-800 m-0 mb-2 break-words">{{ appointment.type }}</h4>
+                        <p class="flex items-center gap-2 text-slate-500 m-0 mb-1 text-sm break-words">
+                          <mat-icon class="text-base w-4 h-4 text-blue-600 flex-shrink-0">access_time</mat-icon>
+                          {{ appointment.time }}
+                        </p>
+                        <p class="flex items-center gap-2 text-slate-500 m-0 text-sm break-words">
+                          <mat-icon class="text-base w-4 h-4 text-blue-600 flex-shrink-0">medical_services</mat-icon>
+                          {{ appointment.dentist }}
+                        </p>
+                      </div>
+                      
+                      <div class="flex-shrink-0">
+                        <app-badge 
+                          [text]="appointment.status"
+                          [variant]="getBadgeVariant(appointment.status)"
+                        ></app-badge>
+                      </div>
+                    </div>
+                  }
+                } @else {
+                  <div class="flex flex-col items-center gap-3 py-8">
+                    <mat-icon class="text-slate-400 text-5xl">calendar_today</mat-icon>
+                    <p class="text-slate-500 m-0">No hay citas próximas</p>
                   </div>
-                </div>
-                
-                <div class="flex-1 min-w-0">
-                  <h4 class="text-lg font-semibold text-slate-800 m-0 mb-2 break-words">{{ appointment.type }}</h4>
-                  <p class="flex items-center gap-2 text-slate-500 m-0 mb-1 text-sm break-words">
-                    <mat-icon class="text-base w-4 h-4 text-blue-600 flex-shrink-0">access_time</mat-icon>
-                    {{ appointment.time }}
-                  </p>
-                  <p class="flex items-center gap-2 text-slate-500 m-0 text-sm break-words">
-                    <mat-icon class="text-base w-4 h-4 text-blue-600 flex-shrink-0">medical_services</mat-icon>
-                    {{ appointment.dentist }}
-                  </p>
-                </div>
-                
-                <div class="flex-shrink-0">
-                  <app-badge 
-                    [text]="appointment.status"
-                    [variant]="getBadgeVariant(appointment.status)"
-                  ></app-badge>
-                </div>
+                }
               </div>
-            }
-            </div>
-          </mat-card-content>
-        </mat-card>
-
-        <!-- Historial de Tratamientos -->
-        <mat-card class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-          <mat-card-header class="p-6 pb-0">
-            <mat-card-title class="flex items-center">
-              <mat-icon class="mr-3 text-blue-600 flex-shrink-0">history</mat-icon>
-              Historial de Tratamientos
-            </mat-card-title>
-          </mat-card-header>
-          
-          <mat-card-content class="p-6">
-            <div class="flex flex-col gap-3">
-              @for (treatment of treatmentHistory; track treatment.id) {
-              <div 
-                class="group flex items-center gap-4 p-4 bg-gray-50 rounded-xl cursor-pointer transition-all duration-300 overflow-hidden flex-wrap hover:bg-slate-100 hover:translate-x-1"
-                (click)="viewTreatmentDetails(treatment.id)"
-              >
-                <div class="flex-shrink-0 min-w-[60px]">
-                  <span class="text-slate-500 text-sm font-medium whitespace-nowrap">{{ formatShortDate(treatment.date) }}</span>
-                </div>
-                
-                <div class="flex-1 min-w-[150px]">
-                  <h4 class="text-base font-semibold text-slate-800 m-0 mb-1 break-words">{{ treatment.procedure }}</h4>
-                  <p class="text-slate-500 m-0 text-sm break-words">{{ treatment.dentist }}</p>
-                </div>
-                
-                <div class="flex-shrink-0 min-w-[60px] text-center">
-                  <span class="text-lg font-semibold text-blue-600 whitespace-nowrap">${{ treatment.cost }}</span>
-                </div>
-                
-                <div class="flex-shrink-0 min-w-[80px] max-w-[120px]">
-                  <app-badge 
-                    [text]="treatment.status"
-                    [variant]="getBadgeVariant(treatment.status)"
-                  ></app-badge>
-                </div>
-                
-                <mat-icon class="text-slate-300 transition-all duration-300 flex-shrink-0 ml-auto group-hover:text-blue-600 group-hover:translate-x-1">chevron_right</mat-icon>
-              </div>
-            }
-            </div>
-          </mat-card-content>
+            </mat-card-content>
+          }
         </mat-card>
       </div>
       }

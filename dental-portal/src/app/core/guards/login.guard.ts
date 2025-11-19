@@ -44,7 +44,7 @@ export const loginGuard: CanActivateFn = (route) => {
         router.navigate(['/patient']);
         return false;
       case 'ADMIN':
-        router.navigate(['/dentist']); // Por defecto al dashboard de dentista
+        router.navigate(['/admin']);
         return false;
       default:
         router.navigate(['/patient']); // Por defecto al dashboard de paciente
