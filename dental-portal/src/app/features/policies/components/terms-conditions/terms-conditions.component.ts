@@ -10,5 +10,5 @@ import { RouterLink } from '@angular/router';
   styleUrls: ['./terms-conditions.component.css']
 })
 export class TermsConditionsComponent {
-  lastUpdated = '2024-01-15';
+  lastUpdated = 'Noviembre 18, 2025';
 }

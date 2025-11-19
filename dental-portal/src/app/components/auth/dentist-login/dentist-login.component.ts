@@ -61,6 +61,8 @@ export class DentistLoginComponent implements AfterViewInit {
           // Redirigir al dashboard del dentista
           if (response.role === 'DENTIST') {
             this.router.navigate(['/dentist']);
+          } else if (response.role === 'ADMIN') {
+            this.router.navigate(['/admin']);
           } else {
             this.router.navigate(['/patient']);
           } 

@@ -55,6 +55,10 @@ export const roleRedirectGuard: CanActivateFn = (route) => {
       console.log('Redirecting to patient dashboard');
       router.navigate(['/patient']);
       return false;
+    case 'ADMIN':
+      console.log('Redirecting to admin dashboard');
+      router.navigate(['/admin']);
+      return false;
     default:
       // Para roles no reconocidos, redirigir al dashboard de paciente por defecto
       console.log('Unknown role, redirecting to patient dashboard');
