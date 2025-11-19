@@ -1,5 +1,10 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Validators } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { DentistService } from '../../services/dentist.service';
 import { UserService } from '../../../../core/services/auth/user.service';
 import {
@@ -7,13 +12,18 @@ import {
   GenericFormComponent,
 } from '../../../../shared/generic-form/generic-form.component';
 import { LocalStorageService } from '../../../../core/services/auth/local-storage.service';
-import { MatIconModule } from '@angular/material/icon';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-dentist-profile',
   standalone: true,
-  imports: [GenericFormComponent, MatIconModule, CommonModule],
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSnackBarModule,
+    GenericFormComponent,
+  ],
   templateUrl: './dentist-profile.component.html',
   styleUrls: ['./dentist-profile.component.css'],
 })
@@ -21,18 +31,15 @@ export class DentistProfileComponent implements OnInit {
   private userService = inject(UserService);
   private dentistService = inject(DentistService);
   private localStorageService = inject(LocalStorageService);
+  private snackBar = inject(MatSnackBar);
 
-  // ⭐ NUEVO: Signals para los datos cargados
+  // Datos cargados
   userProfileData = signal<any>({});
   dentistProfileData = signal<any>({});
 
-  // Estados de carga y mensajes
+  // Estados de carga
   loadingPersonal = signal(false);
   loadingProfessional = signal(false);
-  successPersonal = signal(false);
-  successProfessional = signal(false);
-  errorPersonal = signal<string | null>(null);
-  errorProfessional = signal<string | null>(null);
 
   // Estados de edición
   editingPersonal = signal(false);
@@ -61,7 +68,7 @@ export class DentistProfileComponent implements OnInit {
     },
     {
       name: 'phone',
-      label: 'Ingrese su número de teléfono',
+      label: 'Teléfono',
       type: 'text',
       placeholder: '+54 9 11 1234-5678',
       validators: [Validators.required],
@@ -100,38 +107,22 @@ export class DentistProfileComponent implements OnInit {
       validators: [Validators.required],
       fullWidth: true,
     },
-    {
-      name: 'active',
-      label: 'Estado',
-      type: 'select',
-      options: [
-        { label: 'Activo', value: true },
-        { label: 'Inactivo', value: false },
-      ],
-      validators: [Validators.required],
-      fullWidth: true,
-    },
   ]);
 
   // Método para actualizar datos personales
   updatePersonalData(formData: any) {
     this.loadingPersonal.set(true);
-    this.successPersonal.set(false);
-    this.errorPersonal.set(null);
     this.userService.updateUserProfile(formData).subscribe({
       next: () => {
         this.loadingPersonal.set(false);
-        this.successPersonal.set(true);
-        this.editingPersonal.set(false); // Volver a modo visual
-        this.loadUserProfile(); // Recargar datos actualizados
-        setTimeout(() => this.successPersonal.set(false), 3000);
+        this.editingPersonal.set(false);
+        this.loadUserProfile();
+        this.showSuccessMessage('Información personal actualizada correctamente');
       },
       error: (err) => {
         this.loadingPersonal.set(false);
-        this.errorPersonal.set(
-          err.error?.message || 'Error al actualizar datos personales'
-        );
-        setTimeout(() => this.errorPersonal.set(null), 5000);
+        this.showErrorMessage('Error al actualizar datos personales');
+        console.error('Error:', err);
       },
     });
   }
@@ -139,30 +130,20 @@ export class DentistProfileComponent implements OnInit {
   // Método para actualizar datos profesionales
   updateProfessionalData(formData: any) {
     this.loadingProfessional.set(true);
-    this.successProfessional.set(false);
-    this.errorProfessional.set(null);
-
-    const payload = {
-      ...formData,
-      active: formData.active === 'true' || formData.active === true,
-    };
 
     this.dentistService
-      .updateDentist(this.localStorageService.getDentistId(), payload)
+      .updateDentist(this.localStorageService.getDentistId(), formData)
       .subscribe({
         next: () => {
           this.loadingProfessional.set(false);
-          this.successProfessional.set(true);
-          this.editingProfessional.set(false); // Volver a modo visual
-          this.loadDentistProfile(); // Recargar datos actualizados
-          setTimeout(() => this.successProfessional.set(false), 3000);
+          this.editingProfessional.set(false);
+          this.loadDentistProfile();
+          this.showSuccessMessage('Información profesional actualizada correctamente');
         },
         error: (err) => {
           this.loadingProfessional.set(false);
-          this.errorProfessional.set(
-            err.error?.message || 'Error al actualizar datos profesionales'
-          );
-          setTimeout(() => this.errorProfessional.set(null), 5000);
+          this.showErrorMessage('Error al actualizar datos profesionales');
+          console.error('Error:', err);
         },
       });
   }
@@ -171,7 +152,7 @@ export class DentistProfileComponent implements OnInit {
   toggleEditPersonal() {
     const wasEditing = this.editingPersonal();
     this.editingPersonal.set(!wasEditing);
-    
+
     // Si se está cancelando la edición, recargar datos originales
     if (wasEditing) {
       this.loadUserProfile();
@@ -181,43 +162,64 @@ export class DentistProfileComponent implements OnInit {
   toggleEditProfessional() {
     const wasEditing = this.editingProfessional();
     this.editingProfessional.set(!wasEditing);
-    
+
     // Si se está cancelando la edición, recargar datos originales
     if (wasEditing) {
       this.loadDentistProfile();
     }
   }
 
-  // ⭐ MODIFICADO: Guardar los datos en el signal
+  // Cargar perfil de usuario
   loadUserProfile() {
+    this.loadingPersonal.set(true);
     this.userService.getUser().subscribe({
       next: (user) => {
-        // birthDate ya viene como string en formato YYYY-MM-DD
         this.userProfileData.set(user);
+        this.loadingPersonal.set(false);
       },
       error: (err) => {
         console.error('Error cargando perfil de usuario:', err);
+        this.loadingPersonal.set(false);
       },
     });
   }
 
-  // ⭐ MODIFICADO: Guardar los datos en el signal
+  // Cargar perfil de dentista
   loadDentistProfile() {
+    this.loadingProfessional.set(true);
     this.dentistService
       .getDentistById(this.localStorageService.getDentistId())
       .subscribe({
         next: (dentist) => {
-          // Mapear solo los campos profesionales que necesita el formulario
           const professionalData = {
             licenseNumber: dentist.licenseNumber || '',
             specialty: dentist.specialty || '',
-            active: dentist.active !== undefined ? dentist.active : true,
           };
           this.dentistProfileData.set(professionalData);
+          this.loadingProfessional.set(false);
         },
         error: (err) => {
           console.error('Error cargando perfil de dentista:', err);
+          this.loadingProfessional.set(false);
         },
       });
+  }
+
+  private showSuccessMessage(message: string) {
+    this.snackBar.open(message, 'Cerrar', {
+      duration: 4000,
+      horizontalPosition: 'center',
+      verticalPosition: 'top',
+      panelClass: ['success-snackbar'],
+    });
+  }
+
+  private showErrorMessage(message: string) {
+    this.snackBar.open(message, 'Cerrar', {
+      duration: 5000,
+      horizontalPosition: 'center',
+      verticalPosition: 'top',
+      panelClass: ['error-snackbar'],
+    });
   }
 }

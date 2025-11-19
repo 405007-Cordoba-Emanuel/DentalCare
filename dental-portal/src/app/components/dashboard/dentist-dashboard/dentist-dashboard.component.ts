@@ -83,7 +83,7 @@ export class DentistDashboardComponent implements OnInit {
       }
     }
   }
-
+  
   loadPatients(dentistId: number) {
     this.isLoading = true;
     

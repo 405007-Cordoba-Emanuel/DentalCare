@@ -1,103 +1,111 @@
-<div class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-7xl mx-auto">
-    <!-- Header principal -->
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-900">Mi Perfil</h1>
-      <p class="mt-2 text-sm text-gray-600">
-        Actualiza tu información personal y profesional
-      </p>
-    </div>
+<div class="profile-container">
+  <div class="profile-header">
+    <h1 class="profile-title">Mi Perfil</h1>
+  </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- Sección: Datos Personales -->
-      <div class="bg-white rounded-lg shadow">
-        <div class="p-6 border-b border-gray-200 flex items-center justify-between">
-          <h2 class="text-2xl font-semibold text-gray-900">Datos Personales</h2>
-          @if (!editingPersonal()) {
-            <button
-              (click)="toggleEditPersonal()"
-              class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
-              title="Editar datos personales"
-            >
-              <mat-icon>edit</mat-icon>
-            </button>
-          } @else {
-            <button
-              (click)="toggleEditPersonal()"
-              class="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded transition-colors text-sm font-medium"
-              title="Cancelar edición"
-            >
-              Cancelar
-            </button>
-          }
+  <div class="profile-grid">
+    <!-- Sección: Datos Personales -->
+    <mat-card class="profile-card">
+    <mat-card-content>
+      @if (loadingPersonal()) {
+        <div class="loading-container">
+          <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+          <p>Cargando información...</p>
         </div>
+      }
+
+      @if (!loadingPersonal()) {
         <app-generic-form
           [fields]="personalFields()"
-          [formTitle]="''"
-          [submitText]="loadingPersonal() ? 'Guardando...' : 'Guardar Cambios'"
+          [formTitle]="'Información Personal'"
+          [submitText]="'Guardar Cambios'"
           [initialData]="userProfileData()"
           [readonly]="!editingPersonal()"
           (formSubmit)="updatePersonalData($event)"
-        />
+        ></app-generic-form>
+      }
 
-        @if (successPersonal()) {
-        <div class="mx-6 mb-6 p-4 bg-green-50 border border-green-200 rounded">
-          <p class="text-sm text-green-800">
-            ✓ Datos personales actualizados correctamente
-          </p>
-        </div>
-        } @if (errorPersonal()) {
-        <div class="mx-6 mb-6 p-4 bg-red-50 border border-red-200 rounded">
-          <p class="text-sm text-red-800">✕ {{ errorPersonal() }}</p>
-        </div>
-        }
-      </div>
-
-      <!-- Sección: Datos Profesionales -->
-      <div class="bg-white rounded-lg shadow">
-        <div class="p-6 border-b border-gray-200 flex items-center justify-between">
-          <h2 class="text-2xl font-semibold text-gray-900">Datos Profesionales</h2>
-          @if (!editingProfessional()) {
+      <!-- Botones de acción -->
+      @if (!loadingPersonal()) {
+        <div class="actions-container">
+          @if (!editingPersonal()) {
             <button
-              (click)="toggleEditProfessional()"
-              class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
-              title="Editar datos profesionales"
+              mat-raised-button
+              color="primary"
+              (click)="toggleEditPersonal()"
+              class="action-button"
             >
               <mat-icon>edit</mat-icon>
+              Editar Información Personal
             </button>
-          } @else {
+          }
+
+          @if (editingPersonal()) {
             <button
-              (click)="toggleEditProfessional()"
-              class="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded transition-colors text-sm font-medium"
-              title="Cancelar edición"
+              mat-stroked-button
+              color="primary"
+              (click)="toggleEditPersonal()"
+              class="cancel-button"
             >
+              <mat-icon>cancel</mat-icon>
               Cancelar
             </button>
           }
         </div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Sección: Datos Profesionales -->
+  <mat-card class="profile-card">
+    <mat-card-content>
+      @if (loadingProfessional()) {
+        <div class="loading-container">
+          <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+          <p>Cargando información...</p>
+        </div>
+      }
+
+      @if (!loadingProfessional()) {
         <app-generic-form
           [fields]="professionalFields()"
-          [formTitle]="''"
-          [submitText]="
-            loadingProfessional() ? 'Guardando...' : 'Guardar Cambios'
-          "
+          [formTitle]="'Información Profesional'"
+          [submitText]="'Guardar Cambios'"
           [initialData]="dentistProfileData()"
           [readonly]="!editingProfessional()"
           (formSubmit)="updateProfessionalData($event)"
-        />
+        ></app-generic-form>
+      }
 
-        @if (successProfessional()) {
-        <div class="mx-6 mb-6 p-4 bg-green-50 border border-green-200 rounded">
-          <p class="text-sm text-green-800">
-            ✓ Datos profesionales actualizados correctamente
-          </p>
+      <!-- Botones de acción -->
+      @if (!loadingProfessional()) {
+        <div class="actions-container">
+          @if (!editingProfessional()) {
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="toggleEditProfessional()"
+              class="action-button"
+            >
+              <mat-icon>edit</mat-icon>
+              Editar Información Profesional
+            </button>
+          }
+
+          @if (editingProfessional()) {
+            <button
+              mat-stroked-button
+              color="primary"
+              (click)="toggleEditProfessional()"
+              class="cancel-button"
+            >
+              <mat-icon>cancel</mat-icon>
+              Cancelar
+            </button>
+          }
         </div>
-        } @if (errorProfessional()) {
-        <div class="mx-6 mb-6 p-4 bg-red-50 border border-red-200 rounded">
-          <p class="text-sm text-red-800">✕ {{ errorProfessional() }}</p>
-        </div>
-        }
-      </div>
-    </div>
+      }
+    </mat-card-content>
+  </mat-card>
   </div>
 </div>
