@@ -1,0 +1,279 @@
+<!-- Contenedor Principal -->
+<div class="bg-slate-50 min-h-screen py-6 px-4 md:px-6">
+  <div class="max-w-7xl mx-auto">
+    
+    <!-- Header: Info del Paciente -->
+    <div class="mb-5 bg-white rounded-xl border border-slate-200 shadow-sm p-3 md:p-4">
+      <div class="flex items-center gap-3">
+        <!-- Avatar del Paciente -->
+        <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+          <span class="text-white text-base font-bold">{{ patientInfo.firstName.charAt(0) }}{{ patientInfo.lastName.charAt(0) }}</span>
+        </div>
+        <!-- Info del Paciente -->
+        <div class="flex-1 min-w-0">
+          <h1 class="text-lg md:text-xl font-bold text-slate-800 m-0 mb-0.5 truncate">{{ patientInfo.firstName }} {{ patientInfo.lastName }}</h1>
+          <div class="flex flex-wrap items-center gap-2 md:gap-3 text-xs md:text-sm text-slate-600">
+            <span class="flex items-center gap-1">
+              <mat-icon class="!text-sm md:!text-base">badge</mat-icon>
+              DNI: {{ patientInfo.dni }}
+            </span>
+            <span class="flex items-center gap-1">
+              <mat-icon class="!text-sm md:!text-base">cake</mat-icon>
+              {{ patientInfo.age }} años
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 1: Panel de Control -->
+    <mat-card class="mb-6 bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden">
+      <mat-card-header class="!bg-slate-50 !border-b !border-slate-200 !p-5 !mb-0">
+        <mat-card-title class="!text-lg !font-semibold !text-slate-800 !m-0">Panel de Control</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content class="!p-5">
+        <!-- Selector de Tipo de Dentición -->
+        <div class="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
+          <label class="block text-sm font-semibold mb-3 text-slate-700">Tipo de Dentición:</label>
+          <mat-form-field appearance="outline" class="w-full md:w-80">
+            <mat-select [(value)]="dentitionType" (selectionChange)="changeDentitionType($event.value)">
+              <mat-option value="adult">
+                <span class="flex items-center gap-2">
+                  <span>🦷</span>
+                  <span>Adulto (32 dientes permanentes)</span>
+                </span>
+              </mat-option>
+              <mat-option value="child">
+                <span class="flex items-center gap-2">
+                  <span>🍼</span>
+                  <span>Niño (20 dientes temporales)</span>
+                </span>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Badges de Estados (Leyenda) -->
+        <div class="flex flex-wrap gap-2 mb-6">
+          <span 
+            *ngFor="let status of statusKeys" 
+            class="px-3 py-1.5 rounded-full text-xs font-medium {{ TOOTH_STATUS_CONFIG[status].color }} {{ TOOTH_STATUS_CONFIG[status].textColor }}"
+          >
+            {{ TOOTH_STATUS_CONFIG[status].label }}
+          </span>
+        </div>
+
+        <!-- Panel de Edición de Diente Seleccionado -->
+        <div *ngIf="selectedTooth" class="p-5 bg-slate-50 rounded-xl border border-slate-200">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+            <h3 class="text-base font-semibold text-slate-800 m-0">
+              Diente {{ selectedTooth }} ({{ dentitionType === 'adult' ? 'Permanente' : 'Temporal' }})
+            </h3>
+            <button 
+              mat-stroked-button 
+              (click)="selectedTooth = null"
+              class="!text-slate-700 hover:!text-blue-600 hover:!bg-blue-50 hover:!border-blue-300 !transition-all !duration-300 !border-slate-300"
+            >
+              <mat-icon class="mr-1">close</mat-icon>
+              Deseleccionar
+            </button>
+          </div>
+
+          <p class="text-sm text-slate-600 mb-3">Selecciona uno o más estados para este diente:</p>
+          
+          <!-- Grid de Checkboxes de Estados -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+            <div *ngFor="let status of statusKeys" class="flex items-center">
+              <mat-checkbox 
+                [checked]="isStatusChecked(selectedTooth, status)"
+                (change)="toggleToothStatus(selectedTooth, status)"
+                class="w-full"
+              >
+                <div class="flex items-center gap-2">
+                  <div class="w-4 h-4 rounded {{ TOOTH_STATUS_CONFIG[status].color }}"></div>
+                  <span class="text-sm">{{ TOOTH_STATUS_CONFIG[status].label }}</span>
+                </div>
+              </mat-checkbox>
+            </div>
+          </div>
+
+          <!-- Estados Actuales del Diente -->
+          <div class="p-3 bg-white rounded-lg border border-slate-200">
+            <p class="text-xs text-slate-600 mb-2 font-medium">Estados actuales:</p>
+            <div class="flex flex-wrap gap-2">
+              <span 
+                *ngFor="let status of teeth[selectedTooth].statuses"
+                class="px-2.5 py-1 rounded-full text-xs font-medium {{ TOOTH_STATUS_CONFIG[status].color }} {{ TOOTH_STATUS_CONFIG[status].textColor }}"
+              >
+                {{ TOOTH_STATUS_CONFIG[status].label }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mensaje cuando no hay diente seleccionado -->
+        <div *ngIf="!selectedTooth" class="p-5 bg-slate-50 rounded-xl border border-slate-200 text-center">
+          <mat-icon class="text-slate-400 text-5xl mb-2">touch_app</mat-icon>
+          <p class="text-slate-600 text-sm m-0">Selecciona un diente en el odontograma para editar sus estados</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Card 2: Odontograma -->
+    <mat-card class="mb-6 bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden">
+      <mat-card-header class="!bg-slate-50 !border-b !border-slate-200 !p-5 !mb-0">
+        <mat-card-title class="!text-lg !font-semibold !text-slate-800 !m-0 text-center w-full">
+          Odontograma - {{ dentitionType === 'adult' ? 'Dentición Permanente' : 'Dentición Temporal' }}
+        </mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content class="!p-5 md:!p-8">
+        <!-- Arcada Superior -->
+        <div class="mb-6">
+          <h3 class="text-sm font-semibold text-center text-slate-600 mb-3 uppercase tracking-wide">Arcada Superior</h3>
+          <div class="flex justify-center overflow-x-auto pb-2">
+            <div class="flex gap-1.5">
+              <button
+                *ngFor="let toothNumber of upperTeeth"
+                (click)="selectTooth(toothNumber)"
+                class="relative w-8 h-10 rounded-lg border-2 transition-all duration-200 flex items-center justify-center text-xs font-semibold flex-shrink-0
+                  {{ getToothConfig(toothNumber).color }} {{ getToothConfig(toothNumber).textColor }}
+                  {{ selectedTooth === toothNumber ? '!border-blue-600 ring-2 ring-blue-600/20 scale-110' : 'border-slate-300 hover:border-blue-400/50' }}
+                  hover:scale-105 active:scale-95"
+              >
+                {{ toothNumber }}
+                <!-- Badge de múltiples estados -->
+                <div 
+                  *ngIf="hasMultipleStatuses(toothNumber)"
+                  class="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white text-[8px] flex items-center justify-center text-black font-bold shadow-md"
+                >
+                  {{ teeth[toothNumber].statuses.length }}
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Línea Divisoria -->
+        <div class="border-t-2 border-slate-300 my-6"></div>
+
+        <!-- Arcada Inferior -->
+        <div>
+          <h3 class="text-sm font-semibold text-center text-slate-600 mb-3 uppercase tracking-wide">Arcada Inferior</h3>
+          <div class="flex justify-center overflow-x-auto pb-2">
+            <div class="flex gap-1.5">
+              <button
+                *ngFor="let toothNumber of lowerTeeth"
+                (click)="selectTooth(toothNumber)"
+                class="relative w-8 h-10 rounded-lg border-2 transition-all duration-200 flex items-center justify-center text-xs font-semibold flex-shrink-0
+                  {{ getToothConfig(toothNumber).color }} {{ getToothConfig(toothNumber).textColor }}
+                  {{ selectedTooth === toothNumber ? '!border-blue-600 ring-2 ring-blue-600/20 scale-110' : 'border-slate-300 hover:border-blue-400/50' }}
+                  hover:scale-105 active:scale-95"
+              >
+                {{ toothNumber }}
+                <!-- Badge de múltiples estados -->
+                <div 
+                  *ngIf="hasMultipleStatuses(toothNumber)"
+                  class="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white text-[8px] flex items-center justify-center text-black font-bold shadow-md"
+                >
+                  {{ teeth[toothNumber].statuses.length }}
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Card 3: Resumen del Estado Dental -->
+    <mat-card class="mb-6 bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden">
+      <mat-card-header class="!bg-slate-50 !border-b !border-slate-200 !p-5 !mb-0">
+        <mat-card-title class="!text-lg !font-semibold !text-slate-800 !m-0">
+          Resumen del Estado Dental - {{ dentitionType === 'adult' ? 'Adulto' : 'Niño' }}
+        </mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content class="!p-5">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
+          <div *ngFor="let status of statusKeys" class="text-center p-4 rounded-xl bg-slate-50 border border-slate-200 hover:shadow-md transition-all duration-300">
+            <div class="w-6 h-6 rounded mx-auto mb-2 {{ TOOTH_STATUS_CONFIG[status].color }}"></div>
+            <div class="text-xs font-medium text-slate-700 mb-1">{{ TOOTH_STATUS_CONFIG[status].label }}</div>
+            <div class="text-3xl font-bold text-blue-600">{{ getStatusCount(status) }}</div>
+          </div>
+        </div>
+
+        <div class="mt-5 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <p class="text-sm text-blue-800 m-0 font-medium flex items-center gap-2">
+            <mat-icon class="text-base">info</mat-icon>
+            Dientes con múltiples estados: <strong class="text-lg">{{ getMultipleStatusCount() }}</strong>
+          </p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Botones de Acción -->
+    <div class="flex flex-col sm:flex-row justify-center gap-4 mb-6">
+      <button 
+        mat-raised-button 
+        color="primary"
+        (click)="saveOdontogram()"
+        class="!py-3 !px-8 !text-base !font-semibold !rounded-xl !shadow-lg hover:!shadow-xl !transition-all !duration-300"
+      >
+        <mat-icon class="mr-2">save</mat-icon>
+        Guardar Odontograma
+      </button>
+      
+      <button 
+        mat-raised-button 
+        color="warn"
+        (click)="clearAll()"
+        class="!py-3 !px-8 !text-base !font-semibold !rounded-xl !shadow-lg hover:!shadow-xl !transition-all !duration-300"
+      >
+        <mat-icon class="mr-2">refresh</mat-icon>
+        Limpiar Todo
+      </button>
+    </div>
+
+    <!-- Sección Colapsable: Historial de Odontogramas -->
+    <mat-expansion-panel 
+      [(expanded)]="historyPanelExpanded"
+      class="!bg-white !rounded-2xl !border !border-slate-200 !shadow-md overflow-hidden"
+    >
+      <mat-expansion-panel-header class="!py-4 !px-5">
+        <mat-panel-title class="text-lg font-semibold text-slate-800 flex items-center gap-2">
+          <mat-icon class="text-blue-600">history</mat-icon>
+          <span>Odontogramas Anteriores</span>
+          <span class="ml-2 text-sm font-normal text-slate-500">({{ savedOdontograms.length }})</span>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      
+      <div class="p-5 pt-0">
+        <!-- Si no hay odontogramas guardados -->
+        <div *ngIf="savedOdontograms.length === 0" class="text-center py-8">
+          <mat-icon class="text-slate-300 text-5xl mb-3">folder_open</mat-icon>
+          <p class="text-slate-600 m-0">No hay odontogramas guardados para este paciente</p>
+        </div>
+        
+        <!-- Lista de odontogramas guardados -->
+        <div *ngIf="savedOdontograms.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <button 
+            *ngFor="let saved of savedOdontograms"
+            mat-stroked-button
+            (click)="loadSavedOdontogram(saved)"
+            class="!p-4 !text-left !border-slate-300 hover:!border-blue-300 hover:!bg-blue-50 !transition-all !duration-300 !rounded-xl"
+          >
+            <div class="flex items-center gap-3">
+              <mat-icon class="text-blue-600">calendar_today</mat-icon>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-slate-800 m-0 truncate">{{ saved.date | date:'dd/MM/yyyy' }}</p>
+                <p class="text-xs text-slate-500 m-0">{{ saved.dentitionType === 'adult' ? 'Adulto' : 'Niño' }}</p>
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </mat-expansion-panel>
+
+  </div>
+</div>

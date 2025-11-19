@@ -3,3 +3,28 @@
   Todos los estilos ahora se aplican directamente en el HTML usando clases de Tailwind
   Las animaciones personalizadas se encuentran en styles.css
 */
+
+/* Forzar visibilidad correcta para desktop y mobile */
+.desktop-view {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  .desktop-view {
+    display: block !important;
+  }
+  
+  .mobile-view {
+    display: none !important;
+  }
+}
+
+.mobile-view {
+  display: block !important;
+}
+
+@media (min-width: 768px) {
+  .mobile-view {
+    display: none !important;
+  }
+}

@@ -20,6 +20,7 @@
 -- ===============================================
 SET FOREIGN_KEY_CHECKS = 0;
 
+TRUNCATE TABLE odontograms;
 TRUNCATE TABLE appointments;
 TRUNCATE TABLE medical_history;
 TRUNCATE TABLE prescriptions;
@@ -215,6 +216,57 @@ INSERT INTO medical_history (id, patient_id, dentist_id, entry_date, description
 (25, 5, 4, '2025-11-30', 'Seguimiento rehabilitación oral. Prótesis parcial removible funcionando correctamente. Ajuste menor realizado para mejorar adaptación. Paciente satisfecho con resultado. Instrucciones de cuidado y limpieza reforzadas.', NULL, NULL, true);
 
 -- ===============================================
+-- INSERTAR ODONTOGRAMAS
+-- ===============================================
+-- Campos: id, patient_id, dentition_type, teeth_data, created_at, active
+-- Odontogramas históricos para poder ver la evolución del estado dental de los pacientes
+-- Los teeth_data están en formato JSON con los estados de cada diente
+
+-- Odontogramas de María (patient_id = 1) - Evolución a lo largo del tiempo
+INSERT INTO odontograms (id, patient_id, dentition_type, teeth_data, created_at, active) VALUES
+-- Odontograma inicial de María (enero 2025) - Estado inicial con algunas caries y dientes con trabajos previos
+(1, 1, 'adult', '{"18":{"statuses":["healthy"]},"17":{"statuses":["healthy"]},"16":{"statuses":["cavity-repair"]},"15":{"statuses":["previous-work"]},"14":{"statuses":["healthy"]},"13":{"statuses":["healthy"]},"12":{"statuses":["healthy"]},"11":{"statuses":["healthy"]},"21":{"statuses":["healthy"]},"22":{"statuses":["healthy"]},"23":{"statuses":["healthy"]},"24":{"statuses":["healthy"]},"25":{"statuses":["previous-work"]},"26":{"statuses":["healthy"]},"27":{"statuses":["healthy"]},"28":{"statuses":["missing"]},"48":{"statuses":["missing"]},"47":{"statuses":["healthy"]},"46":{"statuses":["previous-work"]},"45":{"statuses":["healthy"]},"44":{"statuses":["healthy"]},"43":{"statuses":["healthy"]},"42":{"statuses":["healthy"]},"41":{"statuses":["healthy"]},"31":{"statuses":["healthy"]},"32":{"statuses":["healthy"]},"33":{"statuses":["healthy"]},"34":{"statuses":["healthy"]},"35":{"statuses":["healthy"]},"36":{"statuses":["cavity-repair"]},"37":{"statuses":["healthy"]},"38":{"statuses":["healthy"]}}', '2025-01-15 09:30:00', true),
+
+-- Odontograma post-tratamiento empaste (febrero 2025)
+(2, 1, 'adult', '{"18":{"statuses":["healthy"]},"17":{"statuses":["healthy"]},"16":{"statuses":["previous-work"]},"15":{"statuses":["previous-work"]},"14":{"statuses":["healthy"]},"13":{"statuses":["healthy"]},"12":{"statuses":["healthy"]},"11":{"statuses":["healthy"]},"21":{"statuses":["healthy"]},"22":{"statuses":["healthy"]},"23":{"statuses":["healthy"]},"24":{"statuses":["healthy"]},"25":{"statuses":["previous-work"]},"26":{"statuses":["healthy"]},"27":{"statuses":["healthy"]},"28":{"statuses":["missing"]},"48":{"statuses":["missing"]},"47":{"statuses":["healthy"]},"46":{"statuses":["previous-work"]},"45":{"statuses":["healthy"]},"44":{"statuses":["healthy"]},"43":{"statuses":["healthy"]},"42":{"statuses":["healthy"]},"41":{"statuses":["healthy"]},"31":{"statuses":["healthy"]},"32":{"statuses":["healthy"]},"33":{"statuses":["healthy"]},"34":{"statuses":["healthy"]},"35":{"statuses":["healthy"]},"36":{"statuses":["previous-work"]},"37":{"statuses":["healthy"]},"38":{"statuses":["healthy"]}}', '2025-02-20 10:30:00', true),
+
+-- Odontograma post-blanqueamiento (marzo 2025)
+(3, 1, 'adult', '{"18":{"statuses":["healthy"]},"17":{"statuses":["healthy"]},"16":{"statuses":["previous-work"]},"15":{"statuses":["previous-work"]},"14":{"statuses":["healthy"]},"13":{"statuses":["healthy"]},"12":{"statuses":["healthy"]},"11":{"statuses":["healthy"]},"21":{"statuses":["healthy"]},"22":{"statuses":["healthy"]},"23":{"statuses":["healthy"]},"24":{"statuses":["healthy"]},"25":{"statuses":["previous-work"]},"26":{"statuses":["healthy"]},"27":{"statuses":["healthy"]},"28":{"statuses":["missing"]},"48":{"statuses":["missing"]},"47":{"statuses":["healthy"]},"46":{"statuses":["previous-work"]},"45":{"statuses":["healthy"]},"44":{"statuses":["healthy"]},"43":{"statuses":["healthy"]},"42":{"statuses":["healthy"]},"41":{"statuses":["healthy"]},"31":{"statuses":["healthy"]},"32":{"statuses":["healthy"]},"33":{"statuses":["healthy"]},"34":{"statuses":["healthy"]},"35":{"statuses":["healthy"]},"36":{"statuses":["previous-work"]},"37":{"statuses":["healthy"]},"38":{"statuses":["healthy"]}}', '2025-03-15 15:30:00', true),
+
+-- Odontograma reciente (diciembre 2025) - Aparece nueva caries y tratamiento de sensibilidad en progreso
+(4, 1, 'adult', '{"18":{"statuses":["healthy"]},"17":{"statuses":["healthy"]},"16":{"statuses":["previous-work"]},"15":{"statuses":["previous-work"]},"14":{"statuses":["cavity-repair"]},"13":{"statuses":["healthy"]},"12":{"statuses":["healthy"]},"11":{"statuses":["healthy"]},"21":{"statuses":["healthy"]},"22":{"statuses":["healthy"]},"23":{"statuses":["healthy"]},"24":{"statuses":["healthy"]},"25":{"statuses":["previous-work"]},"26":{"statuses":["healthy"]},"27":{"statuses":["healthy"]},"28":{"statuses":["missing"]},"48":{"statuses":["missing"]},"47":{"statuses":["healthy"]},"46":{"statuses":["previous-work"]},"45":{"statuses":["healthy"]},"44":{"statuses":["healthy"]},"43":{"statuses":["healthy"]},"42":{"statuses":["healthy"]},"41":{"statuses":["healthy"]},"31":{"statuses":["healthy"]},"32":{"statuses":["healthy"]},"33":{"statuses":["healthy"]},"34":{"statuses":["healthy"]},"35":{"statuses":["healthy"]},"36":{"statuses":["previous-work"]},"37":{"statuses":["healthy"]},"38":{"statuses":["healthy"]}}', '2025-12-10 10:45:00', true);
+
+-- Odontogramas de otros pacientes
+
+-- Juan (patient_id = 2) - Paciente con empaste y corona en progreso
+INSERT INTO odontograms (id, patient_id, dentition_type, teeth_data, created_at, active) VALUES
+(5, 2, 'adult', '{"18":{"statuses":["healthy"]},"17":{"statuses":["healthy"]},"16":{"statuses":["crown-pending"]},"15":{"statuses":["healthy"]},"14":{"statuses":["healthy"]},"13":{"statuses":["healthy"]},"12":{"statuses":["healthy"]},"11":{"statuses":["healthy"]},"21":{"statuses":["healthy"]},"22":{"statuses":["healthy"]},"23":{"statuses":["healthy"]},"24":{"statuses":["healthy"]},"25":{"statuses":["healthy"]},"26":{"statuses":["previous-work"]},"27":{"statuses":["healthy"]},"28":{"statuses":["healthy"]},"48":{"statuses":["healthy"]},"47":{"statuses":["healthy"]},"46":{"statuses":["healthy"]},"45":{"statuses":["cavity-repair"]},"44":{"statuses":["healthy"]},"43":{"statuses":["healthy"]},"42":{"statuses":["healthy"]},"41":{"statuses":["healthy"]},"31":{"statuses":["healthy"]},"32":{"statuses":["healthy"]},"33":{"statuses":["healthy"]},"34":{"statuses":["healthy"]},"35":{"statuses":["healthy"]},"36":{"statuses":["healthy"]},"37":{"statuses":["healthy"]},"38":{"statuses":["healthy"]}}', '2025-02-01 10:45:00', true),
+
+-- Odontograma más reciente de Juan (diciembre 2025) - Corona ahora hecha
+(6, 2, 'adult', '{"18":{"statuses":["healthy"]},"17":{"statuses":["healthy"]},"16":{"statuses":["crown-done"]},"15":{"statuses":["healthy"]},"14":{"statuses":["healthy"]},"13":{"statuses":["healthy"]},"12":{"statuses":["healthy"]},"11":{"statuses":["healthy"]},"21":{"statuses":["healthy"]},"22":{"statuses":["healthy"]},"23":{"statuses":["healthy"]},"24":{"statuses":["healthy"]},"25":{"statuses":["healthy"]},"26":{"statuses":["previous-work"]},"27":{"statuses":["healthy"]},"28":{"statuses":["healthy"]},"48":{"statuses":["healthy"]},"47":{"statuses":["healthy"]},"46":{"statuses":["healthy"]},"45":{"statuses":["previous-work"]},"44":{"statuses":["healthy"]},"43":{"statuses":["healthy"]},"42":{"statuses":["healthy"]},"41":{"statuses":["healthy"]},"31":{"statuses":["healthy"]},"32":{"statuses":["healthy"]},"33":{"statuses":["healthy"]},"34":{"statuses":["healthy"]},"35":{"statuses":["healthy"]},"36":{"statuses":["healthy"]},"37":{"statuses":["healthy"]},"38":{"statuses":["healthy"]}}', '2025-12-20 11:00:00', true);
+
+-- Carlos (patient_id = 3) - Paciente con ortodoncia, cordal extraída
+INSERT INTO odontograms (id, patient_id, dentition_type, teeth_data, created_at, active) VALUES
+(7, 3, 'adult', '{"18":{"statuses":["extraction-pending"]},"17":{"statuses":["healthy"]},"16":{"statuses":["healthy"]},"15":{"statuses":["healthy"]},"14":{"statuses":["healthy"]},"13":{"statuses":["healthy"]},"12":{"statuses":["healthy"]},"11":{"statuses":["healthy"]},"21":{"statuses":["healthy"]},"22":{"statuses":["healthy"]},"23":{"statuses":["healthy"]},"24":{"statuses":["healthy"]},"25":{"statuses":["healthy"]},"26":{"statuses":["healthy"]},"27":{"statuses":["healthy"]},"28":{"statuses":["healthy"]},"48":{"statuses":["healthy"]},"47":{"statuses":["healthy"]},"46":{"statuses":["cavity-repair"]},"45":{"statuses":["healthy"]},"44":{"statuses":["healthy"]},"43":{"statuses":["healthy"]},"42":{"statuses":["healthy"]},"41":{"statuses":["healthy"]},"31":{"statuses":["healthy"]},"32":{"statuses":["healthy"]},"33":{"statuses":["healthy"]},"34":{"statuses":["healthy"]},"35":{"statuses":["healthy"]},"36":{"statuses":["healthy"]},"37":{"statuses":["healthy"]},"38":{"statuses":["healthy"]}}', '2025-01-10 14:45:00', true),
+
+-- Odontograma post-extracción (febrero 2025)
+(8, 3, 'adult', '{"18":{"statuses":["missing"]},"17":{"statuses":["healthy"]},"16":{"statuses":["healthy"]},"15":{"statuses":["healthy"]},"14":{"statuses":["healthy"]},"13":{"statuses":["healthy"]},"12":{"statuses":["healthy"]},"11":{"statuses":["healthy"]},"21":{"statuses":["healthy"]},"22":{"statuses":["healthy"]},"23":{"statuses":["healthy"]},"24":{"statuses":["healthy"]},"25":{"statuses":["healthy"]},"26":{"statuses":["healthy"]},"27":{"statuses":["healthy"]},"28":{"statuses":["healthy"]},"48":{"statuses":["healthy"]},"47":{"statuses":["healthy"]},"46":{"statuses":["previous-work"]},"45":{"statuses":["healthy"]},"44":{"statuses":["healthy"]},"43":{"statuses":["healthy"]},"42":{"statuses":["healthy"]},"41":{"statuses":["healthy"]},"31":{"statuses":["healthy"]},"32":{"statuses":["healthy"]},"33":{"statuses":["healthy"]},"34":{"statuses":["healthy"]},"35":{"statuses":["healthy"]},"36":{"statuses":["healthy"]},"37":{"statuses":["healthy"]},"38":{"statuses":["healthy"]}}', '2025-02-15 15:30:00', true);
+
+-- Laura (patient_id = 4) - Paciente con endodoncia e implante en progreso
+INSERT INTO odontograms (id, patient_id, dentition_type, teeth_data, created_at, active) VALUES
+(9, 4, 'adult', '{"18":{"statuses":["healthy"]},"17":{"statuses":["healthy"]},"16":{"statuses":["healthy"]},"15":{"statuses":["healthy"]},"14":{"statuses":["healthy"]},"13":{"statuses":["healthy"]},"12":{"statuses":["healthy"]},"11":{"statuses":["healthy"]},"21":{"statuses":["healthy"]},"22":{"statuses":["healthy"]},"23":{"statuses":["healthy"]},"24":{"statuses":["healthy"]},"25":{"statuses":["healthy"]},"26":{"statuses":["healthy"]},"27":{"statuses":["healthy"]},"28":{"statuses":["healthy"]},"48":{"statuses":["healthy"]},"47":{"statuses":["healthy"]},"46":{"statuses":["missing"]},"45":{"statuses":["missing"]},"44":{"statuses":["cavity-repair","crown-pending"]},"43":{"statuses":["healthy"]},"42":{"statuses":["healthy"]},"41":{"statuses":["healthy"]},"31":{"statuses":["healthy"]},"32":{"statuses":["healthy"]},"33":{"statuses":["healthy"]},"34":{"statuses":["healthy"]},"35":{"statuses":["previous-work"]},"36":{"statuses":["healthy"]},"37":{"statuses":["healthy"]},"38":{"statuses":["healthy"]}}', '2025-03-05 11:15:00', true),
+
+-- Odontograma post-implante (abril 2025)
+(10, 4, 'adult', '{"18":{"statuses":["healthy"]},"17":{"statuses":["healthy"]},"16":{"statuses":["healthy"]},"15":{"statuses":["healthy"]},"14":{"statuses":["healthy"]},"13":{"statuses":["healthy"]},"12":{"statuses":["healthy"]},"11":{"statuses":["healthy"]},"21":{"statuses":["healthy"]},"22":{"statuses":["healthy"]},"23":{"statuses":["healthy"]},"24":{"statuses":["healthy"]},"25":{"statuses":["healthy"]},"26":{"statuses":["healthy"]},"27":{"statuses":["healthy"]},"28":{"statuses":["healthy"]},"48":{"statuses":["healthy"]},"47":{"statuses":["healthy"]},"46":{"statuses":["crown-pending"]},"45":{"statuses":["missing"]},"44":{"statuses":["previous-work","crown-done"]},"43":{"statuses":["healthy"]},"42":{"statuses":["healthy"]},"41":{"statuses":["healthy"]},"31":{"statuses":["healthy"]},"32":{"statuses":["healthy"]},"33":{"statuses":["healthy"]},"34":{"statuses":["healthy"]},"35":{"statuses":["previous-work"]},"36":{"statuses":["healthy"]},"37":{"statuses":["healthy"]},"38":{"statuses":["healthy"]}}', '2025-04-10 10:00:00', true);
+
+-- Pedro (patient_id = 5) - Paciente con tratamiento periodontal y rehabilitación
+INSERT INTO odontograms (id, patient_id, dentition_type, teeth_data, created_at, active) VALUES
+(11, 5, 'adult', '{"18":{"statuses":["missing"]},"17":{"statuses":["previous-work"]},"16":{"statuses":["previous-work"]},"15":{"statuses":["cavity-repair"]},"14":{"statuses":["healthy"]},"13":{"statuses":["healthy"]},"12":{"statuses":["healthy"]},"11":{"statuses":["healthy"]},"21":{"statuses":["healthy"]},"22":{"statuses":["healthy"]},"23":{"statuses":["healthy"]},"24":{"statuses":["healthy"]},"25":{"statuses":["cavity-repair"]},"26":{"statuses":["previous-work"]},"27":{"statuses":["missing"]},"28":{"statuses":["missing"]},"48":{"statuses":["missing"]},"47":{"statuses":["missing"]},"46":{"statuses":["missing"]},"45":{"statuses":["healthy"]},"44":{"statuses":["healthy"]},"43":{"statuses":["healthy"]},"42":{"statuses":["healthy"]},"41":{"statuses":["healthy"]},"31":{"statuses":["healthy"]},"32":{"statuses":["healthy"]},"33":{"statuses":["healthy"]},"34":{"statuses":["healthy"]},"35":{"statuses":["healthy"]},"36":{"statuses":["missing"]},"37":{"statuses":["missing"]},"38":{"statuses":["missing"]}}', '2025-02-20 09:30:00', true),
+
+-- Odontograma post-tratamiento periodontal (diciembre 2025)
+(12, 5, 'adult', '{"18":{"statuses":["missing"]},"17":{"statuses":["previous-work"]},"16":{"statuses":["previous-work"]},"15":{"statuses":["previous-work"]},"14":{"statuses":["healthy"]},"13":{"statuses":["healthy"]},"12":{"statuses":["healthy"]},"11":{"statuses":["healthy"]},"21":{"statuses":["healthy"]},"22":{"statuses":["healthy"]},"23":{"statuses":["healthy"]},"24":{"statuses":["healthy"]},"25":{"statuses":["previous-work"]},"26":{"statuses":["previous-work"]},"27":{"statuses":["missing"]},"28":{"statuses":["missing"]},"48":{"statuses":["missing"]},"47":{"statuses":["missing"]},"46":{"statuses":["missing"]},"45":{"statuses":["healthy"]},"44":{"statuses":["healthy"]},"43":{"statuses":["healthy"]},"42":{"statuses":["healthy"]},"41":{"statuses":["healthy"]},"31":{"statuses":["healthy"]},"32":{"statuses":["healthy"]},"33":{"statuses":["healthy"]},"34":{"statuses":["healthy"]},"35":{"statuses":["healthy"]},"36":{"statuses":["missing"]},"37":{"statuses":["missing"]},"38":{"statuses":["missing"]}}', '2025-12-15 17:00:00', true);
+
+-- ===============================================
 -- NOTAS IMPORTANTES PARA TESTING
 -- ===============================================
 -- 
@@ -263,6 +315,18 @@ INSERT INTO medical_history (id, patient_id, dentist_id, entry_date, description
 -- - Varias fechas para probar búsquedas por fecha/rango
 -- - Descripciones detalladas para probar búsqueda por texto
 --
+-- ODONTOGRAMAS:
+-- - 12 odontogramas totales
+-- - María (patient_id = 1): 4 odontogramas históricos (enero, febrero, marzo, diciembre 2025)
+-- - Juan (patient_id = 2): 2 odontogramas (febrero y diciembre 2025)
+-- - Carlos (patient_id = 3): 2 odontogramas (enero y febrero 2025 - pre y post extracción)
+-- - Laura (patient_id = 4): 2 odontogramas (marzo y abril 2025 - endodoncia e implante)
+-- - Pedro (patient_id = 5): 2 odontogramas (febrero y diciembre 2025 - tratamiento periodontal)
+-- - Todos los odontogramas son de tipo "adult" (dentición permanente)
+-- - Estados variados: healthy, missing, cavity-repair, previous-work, crown-pending, crown-done, extraction-pending
+-- - Algunos dientes tienen múltiples estados combinados (ej: cavity-repair + crown-pending)
+-- - Historial coherente con los tratamientos realizados
+--
 -- RELACIONES COHERENTES:
 -- - Todas las relaciones entre tablas son válidas
 -- - Foreign keys respetadas
@@ -281,6 +345,12 @@ INSERT INTO medical_history (id, patient_id, dentist_id, entry_date, description
 -- - GET /api/core/patient/{id}/appointments - Lista citas
 -- - GET /api/core/patient/{id}/appointments/upcoming - Próximas citas
 -- - GET /api/core/patient/{id}/appointments/past - Citas pasadas
+-- - POST /api/core/dentist/{dentistId}/patients/{patientId}/odontogram - Crear odontograma
+-- - GET /api/core/dentist/{dentistId}/patients/{patientId}/odontogram - Listar odontogramas
+-- - GET /api/core/dentist/{dentistId}/odontogram/{odontogramId} - Ver odontograma específico
+-- - PUT /api/core/dentist/{dentistId}/odontogram/{odontogramId} - Actualizar odontograma
+-- - DELETE /api/core/dentist/{dentistId}/odontogram/{odontogramId} - Eliminar odontograma
+-- - GET /api/core/dentist/patients/{patientId}/odontogram/count - Contar odontogramas
 -- - Y todos los demás endpoints...
 --
 -- ===============================================

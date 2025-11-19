@@ -9,6 +9,7 @@ import com.dentalCare.be_core.dtos.request.prescription.PrescriptionRequestDto;
 import com.dentalCare.be_core.dtos.request.treatment.TreatmentRequestDto;
 import com.dentalCare.be_core.dtos.request.appointment.AppointmentRequestDto;
 import com.dentalCare.be_core.dtos.request.appointment.AppointmentUpdateRequestDto;
+import com.dentalCare.be_core.dtos.request.odontogram.OdontogramRequestDto;
 import com.dentalCare.be_core.dtos.response.dentist.DentistResponseDto;
 import com.dentalCare.be_core.dtos.response.dentist.DentistPatientsResponseDto;
 import com.dentalCare.be_core.dtos.response.medicalhistory.MedicalHistoryResponseDto;
@@ -18,6 +19,7 @@ import com.dentalCare.be_core.dtos.response.treatment.TreatmentDetailResponseDto
 import com.dentalCare.be_core.dtos.response.treatment.TreatmentResponseDto;
 import com.dentalCare.be_core.dtos.response.appointment.AppointmentResponseDto;
 import com.dentalCare.be_core.dtos.response.appointment.AppointmentCalendarDto;
+import com.dentalCare.be_core.dtos.response.odontogram.OdontogramResponseDto;
 import com.dentalCare.be_core.services.DentistService;
 import com.dentalCare.be_core.services.MedicalHistoryService;
 import com.dentalCare.be_core.services.PrescriptionPdfService;
@@ -25,6 +27,7 @@ import com.dentalCare.be_core.services.PrescriptionService;
 import com.dentalCare.be_core.services.UserServiceClient;
 import com.dentalCare.be_core.services.TreatmentService;
 import com.dentalCare.be_core.services.AppointmentService;
+import com.dentalCare.be_core.services.OdontogramService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -68,6 +71,9 @@ public class DentistController {
 
     @Autowired
     private UserServiceClient userServiceClient;
+
+    @Autowired
+    private OdontogramService odontogramService;
 
     // ------- Bloque Dentista -------
     /**
@@ -972,6 +978,122 @@ public class DentistController {
         } else {
             count = appointmentService.getAppointmentsByDentistId(id).size();
         }
+        return ResponseEntity.ok(count);
+    }
+
+    // ------- Bloque Odontogramas -------
+    /**
+     * Crear Nuevo Odontograma
+     * El dentista crea un nuevo odontograma para registrar el estado actual de los dientes del paciente.
+     * Incluye el tipo de dentición (adulto/niño) y el estado de cada diente.
+     * Los odontogramas permiten hacer seguimiento histórico de la salud dental del paciente.
+     */
+    @Operation(summary = "Crear odontograma para un paciente")
+    @PostMapping("/{id}/patients/{patientId}/odontogram")
+    public ResponseEntity<OdontogramResponseDto> createOdontogram(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long patientId,
+            @Valid @RequestBody OdontogramRequestDto requestDto) {
+        try {
+            // Asegurar que el patientId del path coincida con el del body
+            requestDto.setPatientId(patientId);
+            OdontogramResponseDto response = odontogramService.createOdontogram(id, requestDto);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error interno al crear el odontograma", e);
+        }
+    }
+
+    /**
+     * Ver Todos los Odontogramas de un Paciente
+     * Retorna el historial completo de odontogramas de un paciente específico.
+     * Los odontogramas se ordenan por fecha de creación descendente (más recientes primero).
+     * Permite ver la evolución del estado dental del paciente a lo largo del tiempo.
+     */
+    @Operation(summary = "Listar odontogramas de un paciente")
+    @GetMapping("/{id}/patients/{patientId}/odontogram")
+    public ResponseEntity<List<OdontogramResponseDto>> getOdontogramsByPatient(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long patientId) {
+        List<OdontogramResponseDto> odontograms = odontogramService.getOdontogramsByPatient(id, patientId);
+        return ResponseEntity.ok(odontograms);
+    }
+
+    /**
+     * Ver Detalle de un Odontograma Específico
+     * Obtiene la información completa de un odontograma particular.
+     * Incluye el tipo de dentición, estado de todos los dientes y fecha de creación.
+     * Útil para consultar o editar un odontograma existente.
+     */
+    @Operation(summary = "Obtener odontograma por ID")
+    @GetMapping("/{id}/odontogram/{odontogramId}")
+    public ResponseEntity<OdontogramResponseDto> getOdontogramById(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Odontogram ID", required = true)
+            @PathVariable Long odontogramId) {
+        OdontogramResponseDto odontogram = odontogramService.getOdontogramById(odontogramId, id);
+        return ResponseEntity.ok(odontogram);
+    }
+
+    /**
+     * Actualizar Odontograma Existente
+     * Modifica los datos de un odontograma previamente creado.
+     * Permite actualizar el estado de los dientes y el tipo de dentición.
+     * La fecha de creación original se mantiene sin cambios.
+     */
+    @Operation(summary = "Actualizar odontograma")
+    @PutMapping("/{id}/odontogram/{odontogramId}")
+    public ResponseEntity<OdontogramResponseDto> updateOdontogram(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Odontogram ID", required = true)
+            @PathVariable Long odontogramId,
+            @Valid @RequestBody OdontogramRequestDto requestDto) {
+        try {
+            OdontogramResponseDto response = odontogramService.updateOdontogram(odontogramId, id, requestDto);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error interno al actualizar el odontograma", e);
+        }
+    }
+
+    /**
+     * Eliminar Odontograma
+     * Realiza una eliminación lógica de un odontograma (campo active = false).
+     * El odontograma no se borra físicamente, solo se marca como inactivo.
+     * Útil para limpiar registros antiguos o erróneos sin perder el historial.
+     */
+    @Operation(summary = "Eliminar odontograma")
+    @DeleteMapping("/{id}/odontogram/{odontogramId}")
+    public ResponseEntity<Void> deleteOdontogram(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Odontogram ID", required = true)
+            @PathVariable Long odontogramId) {
+        odontogramService.deleteOdontogram(odontogramId, id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Contar Odontogramas de un Paciente
+     * Retorna el número total de odontogramas activos registrados para un paciente.
+     * Útil para estadísticas y para saber cuántos registros históricos existen.
+     */
+    @Operation(summary = "Contar odontogramas de un paciente")
+    @GetMapping("/patients/{patientId}/odontogram/count")
+    public ResponseEntity<Long> countOdontogramsByPatient(
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long patientId) {
+        long count = odontogramService.countOdontogramsByPatient(patientId);
         return ResponseEntity.ok(count);
     }
 
