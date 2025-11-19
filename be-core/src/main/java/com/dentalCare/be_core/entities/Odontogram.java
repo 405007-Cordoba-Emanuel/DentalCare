@@ -9,8 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,10 +16,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "odontograms")
 public class Odontogram extends BaseEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)
@@ -36,19 +30,5 @@ public class Odontogram extends BaseEntity {
     @Column(name = "teeth_data", nullable = false, columnDefinition = "TEXT")
     @NotBlank(message = "Los datos de los dientes son requeridos")
     private String teethData; // JSON con todos los estados de los dientes
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "active", nullable = false)
-    private Boolean active;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        if (this.active == null) {
-            this.active = true;
-        }
-    }
 }
 

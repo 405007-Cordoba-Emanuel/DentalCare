@@ -11,15 +11,12 @@ import java.util.Optional;
 public interface OdontogramRepository extends JpaRepository<Odontogram, Long> {
     
     // Buscar todos los odontogramas activos de un paciente
-    List<Odontogram> findByPatientIdAndActiveTrue(Long patientId);
+    List<Odontogram> findByPatientIdAndIsActiveTrueOrderByCreatedDatetimeDesc(Long patientId);
     
     // Buscar odontograma específico activo de un paciente
-    Optional<Odontogram> findByIdAndPatientIdAndActiveTrue(Long id, Long patientId);
-    
-    // Buscar todos los odontogramas activos (ordenados por fecha)
-    List<Odontogram> findByActiveTrueOrderByCreatedAtDesc();
+    Optional<Odontogram> findByIdAndPatientIdAndIsActiveTrue(Long id, Long patientId);
     
     // Contar odontogramas activos de un paciente
-    Long countByPatientIdAndActiveTrue(Long patientId);
+    long countByPatientIdAndIsActiveTrue(Long patientId);
 }
 

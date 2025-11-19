@@ -60,7 +60,7 @@ public class OdontogramServiceImpl implements OdontogramService {
         odontogram.setPatient(patient);
         odontogram.setDentitionType(requestDto.getDentitionType());
         odontogram.setTeethData(requestDto.getTeethData());
-        odontogram.setActive(true);
+        odontogram.setIsActive(true);
 
         Odontogram savedOdontogram = odontogramRepository.save(odontogram);
         log.info("Odontograma creado con ID: {} para paciente ID: {}", savedOdontogram.getId(), patient.getId());
@@ -84,7 +84,7 @@ public class OdontogramServiceImpl implements OdontogramService {
             throw new IllegalArgumentException("El paciente no pertenece a este dentista");
         }
 
-        List<Odontogram> odontograms = odontogramRepository.findByPatientIdAndActiveTrue(patientId);
+        List<Odontogram> odontograms = odontogramRepository.findByPatientIdAndIsActiveTrueOrderByCreatedDatetimeDesc(patientId);
         return odontograms.stream()
                 .map(this::mapToResponseDto)
                 .collect(Collectors.toList());
@@ -102,7 +102,7 @@ public class OdontogramServiceImpl implements OdontogramService {
                 .orElseThrow(() -> new IllegalArgumentException("No se encontró el odontograma con ID: " + odontogramId));
 
         // Validar que está activo
-        if (odontogram.getActive() == null || !odontogram.getActive()) {
+        if (odontogram.getIsActive() == null || !odontogram.getIsActive()) {
             throw new IllegalArgumentException("El odontograma no está activo");
         }
 
@@ -125,7 +125,7 @@ public class OdontogramServiceImpl implements OdontogramService {
                 .orElseThrow(() -> new IllegalArgumentException("No se encontró el odontograma con ID: " + odontogramId));
 
         // Validar que está activo
-        if (odontogram.getActive() == null || !odontogram.getActive()) {
+        if (odontogram.getIsActive() == null || !odontogram.getIsActive()) {
             throw new IllegalArgumentException("El odontograma no está activo");
         }
 
@@ -155,7 +155,7 @@ public class OdontogramServiceImpl implements OdontogramService {
                 .orElseThrow(() -> new IllegalArgumentException("No se encontró el odontograma con ID: " + odontogramId));
 
         // Validar que está activo
-        if (odontogram.getActive() == null || !odontogram.getActive()) {
+        if (odontogram.getIsActive() == null || !odontogram.getIsActive()) {
             throw new IllegalArgumentException("El odontograma ya está inactivo");
         }
 
@@ -165,15 +165,15 @@ public class OdontogramServiceImpl implements OdontogramService {
         }
 
         // Eliminación lógica
-        odontogram.setActive(false);
+        odontogram.setIsActive(false);
         odontogramRepository.save(odontogram);
         log.info("Odontograma eliminado (lógicamente) con ID: {}", odontogramId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Long countOdontogramsByPatient(Long patientId) {
-        return odontogramRepository.countByPatientIdAndActiveTrue(patientId);
+    public long countOdontogramsByPatient(Long patientId) {
+        return odontogramRepository.countByPatientIdAndIsActiveTrue(patientId);
     }
 
     /**
@@ -185,8 +185,8 @@ public class OdontogramServiceImpl implements OdontogramService {
         dto.setPatientId(odontogram.getPatient().getId());
         dto.setDentitionType(odontogram.getDentitionType());
         dto.setTeethData(odontogram.getTeethData());
-        dto.setCreatedAt(odontogram.getCreatedAt());
-        dto.setActive(odontogram.getActive());
+        dto.setCreatedDatetime(odontogram.getCreatedDatetime());
+        dto.setIsActive(odontogram.getIsActive());
         return dto;
     }
 }

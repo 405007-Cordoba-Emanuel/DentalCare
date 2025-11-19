@@ -52,6 +52,6 @@ public interface OdontogramService {
      * @param patientId ID del paciente
      * @return Cantidad de odontogramas activos
      */
-    Long countOdontogramsByPatient(Long patientId);
+    long countOdontogramsByPatient(Long patientId);
 }
 

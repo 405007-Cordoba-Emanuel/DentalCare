@@ -17,7 +17,7 @@ public class OdontogramResponseDto {
     private Long patientId;
     private String dentitionType; // adult o child
     private String teethData; // JSON string
-    private LocalDateTime createdAt;
-    private Boolean active;
+    private LocalDateTime createdDatetime;
+    private Boolean isActive;
 }
 
