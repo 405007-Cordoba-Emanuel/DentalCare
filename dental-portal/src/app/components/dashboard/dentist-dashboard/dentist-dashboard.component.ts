@@ -1,14 +1,14 @@
-import { Component, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, inject, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { MatToolbarModule } from '@angular/material/toolbar';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DentistService } from '../../../features/dentists/services/dentist.service';
 import { PatientSummary } from '../../../features/dentists/interfaces/patient.interface';
 import { LocalStorageService } from '../../../core/services/auth/local-storage.service';
@@ -18,88 +18,153 @@ import { LocalStorageService } from '../../../core/services/auth/local-storage.s
   standalone: true,
   imports: [
     CommonModule,
-    MatToolbarModule,
+    FormsModule,
     MatButtonModule,
     MatCardModule,
     MatIconModule,
-    MatTableModule,
-    MatBadgeModule,
-    MatChipsModule,
-    MatDividerModule
+    MatTooltipModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './dentist-dashboard.component.html',
   styleUrl: './dentist-dashboard.component.css'
 })
-export class DentistDashboardComponent {
-  router = inject(Router);
-  dentistService = inject(DentistService);
-  route = inject(ActivatedRoute);
-  localStorage = inject(LocalStorageService);
+export class DentistDashboardComponent implements OnInit {
+  private router = inject(Router);
+  private dentistService = inject(DentistService);
+  private localStorage = inject(LocalStorageService);
+  
   dentistId = this.localStorage.getDentistId();
-
-
   patients: PatientSummary[] = [];
+  filteredPatients: PatientSummary[] = [];
+  searchTerm: string = '';
+  isLoading: boolean = false;
+
+  // Estadísticas (KPIs)
+  stats = {
+    appointmentsToday: 3,
+    unreadMessages: 2
+  };
+
+  ngOnInit() {
+    if (this.dentistId) {
+      this.loadPatients(this.dentistId);
+    } else {
+      // Fallback: Intentar obtener el dentistId usando el userId
+      const userDataString = this.localStorage.getUserData();
+      if (userDataString) {
+        try {
+          const userData = JSON.parse(userDataString);
+          const userId = userData.id;
+          
+          if (userId) {
+            this.dentistService.getDentistIdByUserId(userId).subscribe({
+              next: (dentistId) => {
+                this.dentistId = dentistId;
+                
+                // Actualizar localStorage con el dentistId
+                userData.dentistId = dentistId;
+                this.localStorage.setUserData(userData);
+                
+                // Cargar pacientes
+                this.loadPatients(dentistId);
+              },
+              error: (error) => {
+                console.error('Error fetching dentistId:', error);
+              }
+            });
+          } else {
+            console.error('No userId found in localStorage');
+          }
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+        }
+      }
+    }
+  }
   
   loadPatients(dentistId: number) {
+    this.isLoading = true;
+    
     this.dentistService.getActivePatientsByDentistId(dentistId).subscribe({
       next: (response) => {
         this.patients = response.patients;
+        this.filteredPatients = [...this.patients];
+        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading patients:', error);
+        this.isLoading = false;
       }
     });
   }
 
-  // Datos mock para el dashboard
-  upcomingAppointments = [
-    {
-      id: 1,
-      patientName: 'María González',
-      time: '09:00 AM',
-      type: 'Limpieza',
-      status: 'Confirmada'
-    },
-    {
-      id: 2,
-      patientName: 'Carlos Rodríguez',
-      time: '10:30 AM',
-      type: 'Consulta',
-      status: 'Pendiente'
-    },
-    {
-      id: 3,
-      patientName: 'Ana Martínez',
-      time: '02:00 PM',
-      type: 'Tratamiento',
-      status: 'Confirmada'
+  filterPatients() {
+    if (!this.searchTerm.trim()) {
+      this.filteredPatients = [...this.patients];
+      return;
     }
-  ];
 
-  recentPatients = [
-    { name: 'María González', lastVisit: '2024-01-15', nextAppointment: '2024-02-01' },
-    { name: 'Carlos Rodríguez', lastVisit: '2024-01-10', nextAppointment: '2024-01-25' },
-    { name: 'Ana Martínez', lastVisit: '2024-01-12', nextAppointment: '2024-01-30' }
-  ];
-
-  stats = {
-    totalPatients: 156,
-    appointmentsToday: 8,
-    pendingReports: 3,
-    monthlyRevenue: 12500
-  };
-
-  viewPatientDetails(patientId: number) {
-    // Lógica para ver detalles del paciente
-    console.log('Ver paciente:', patientId);
+    const searchLower = this.searchTerm.toLowerCase().trim();
+    this.filteredPatients = this.patients.filter(patient => {
+      const fullName = `${patient.firstName} ${patient.lastName}`.toLowerCase();
+      const dni = patient.dni.toString();
+      
+      return fullName.includes(searchLower) || dni.includes(searchLower);
+    });
   }
 
-  logout() {
-    this.router.navigate(['/']);
+  clearSearch() {
+    this.searchTerm = '';
+    this.filterPatients();
   }
 
-  navigateToCreateAppointment() {
-    this.router.navigate(['/dentist/appointments/create']);
-    console.log('Navigating to create appointment for dentist:', this.dentistId);
+  getInitials(firstName: string, lastName: string): string {
+    const firstInitial = firstName?.charAt(0)?.toUpperCase() || '';
+    const lastInitial = lastName?.charAt(0)?.toUpperCase() || '';
+    return `${firstInitial}${lastInitial}`;
+  }
+
+  // Navegación a secciones principales
+  navigateToAppointments() {
+    this.router.navigate(['/dentist/appointments']);
+  }
+
+  navigateToMessages() {
+    this.router.navigate(['/messages']);
+  }
+
+  // Acciones de pacientes
+  scheduleAppointment(patientId: number) {
+    this.router.navigate(['/dentist/appointments/create'], { 
+      queryParams: { patientId } 
+    });
+    console.log('Agendar cita para paciente:', patientId);
+  }
+
+  viewTreatments(patientId: number) {
+    this.router.navigate([`/dentist/patients/${patientId}/treatments`]);
+    console.log('Ver tratamientos del paciente:', patientId);
+  }
+
+  viewPrescriptions(patientId: number) {
+    // TODO: Implementar ruta de recetas por paciente
+    console.log('Ver recetas del paciente:', patientId);
+  }
+
+  viewProgress(patientId: number) {
+    // TODO: Implementar ruta de progreso por paciente
+    console.log('Ver progreso del paciente:', patientId);
+  }
+
+  viewOdontogram(patientId: number) {
+    // TODO: Implementar ruta de odontograma por paciente
+    console.log('Ver odontograma del paciente:', patientId);
+  }
+
+  viewClinicalHistory(patientId: number) {
+    // TODO: Implementar ruta de historial clínico por paciente
+    console.log('Ver historial clínico del paciente:', patientId);
   }
 }

@@ -32,6 +32,11 @@ export class DentistService {
     return this.http.get<DentistPatientsResponse>(`${this.apiUrl}/${dentistId}/patients/active`);
   }
 
+  // Obtener ID de dentista por userId
+  getDentistIdByUserId(userId: string): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/user-id/${userId}`);
+  }
+
   createAppointment(dentistId: number, appointment: AppointmentRequest): Observable<AppointmentResponse> {
     return this.http.post<AppointmentResponse>(`${this.apiUrl}/${dentistId}/appointments`, appointment);
   }

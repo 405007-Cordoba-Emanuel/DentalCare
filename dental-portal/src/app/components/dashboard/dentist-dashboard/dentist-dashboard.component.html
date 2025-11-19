@@ -1,178 +1,284 @@
 <!-- Contenido Principal del Dashboard -->
-<div class="dashboard-content">
+<div class="bg-slate-50 min-h-[calc(100vh-120px)]">
     <!-- Header del Dashboard -->
-    <div class="content-header mb-6">
-      <div class="flex justify-between items-center">
-        <div>
-          <h2 class="content-title text-2xl font-bold text-blue-800">Vista General</h2>
-          <p class="text-gray-600 mt-1">Panel del Dentista - Resumen de actividades</p>
-        </div>
-        <div class="flex gap-3">
-          <button 
-            mat-raised-button 
-            color="primary"
-            class="bg-blue-600 hover:bg-blue-700 text-white"
-            (click)="navigateToCreateAppointment()"
-          >
-            <mat-icon>add</mat-icon>
-            Nueva Cita
-          </button>
-          <button 
-            mat-icon-button
-            class="text-blue-600 hover:bg-blue-50"
-            matTooltip="Notificaciones"
-          >
-            <mat-icon>notifications</mat-icon>
-          </button>
-        </div>
+    <div class="mb-6">
+      <div>
+        <h2 class="text-2xl md:text-3xl font-bold text-blue-800 m-0 break-words">Panel de Control</h2>
       </div>
     </div>
 
-
-    <!-- Estadísticas Principales -->
-    <div class="stats-grid">
-      <mat-card class="stat-card">
-        <mat-card-content>
-          <div class="stat-content">
-            <div class="stat-icon-container appointments">
-              <mat-icon class="stat-icon">schedule</mat-icon>
-            </div>
-            <div class="stat-info">
-              <h3 class="stat-number">{{ stats.appointmentsToday }}</h3>
-              <p class="stat-label">Citas Hoy</p>
-              <p class="stat-subtitle">5 completadas</p>
+    <!-- Cards KPI Superiores -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <!-- Card Agenda del Día -->
+      <mat-card 
+        class="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer group"
+        (click)="navigateToAppointments()"
+      >
+        <div class="p-5 pb-3 border-b border-slate-100 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <mat-icon class="text-blue-600">event_note</mat-icon>
+            <span class="text-lg font-semibold text-slate-800">Citas para Hoy</span>
+          </div>
+          <mat-icon class="text-slate-300 group-hover:text-blue-600 group-hover:translate-x-1 transition-all duration-300">chevron_right</mat-icon>
+        </div>
+        
+        <mat-card-content class="p-5">
+          <div class="text-center">
+            <div class="flex flex-col items-center bg-gradient-to-br from-blue-600 to-blue-700 text-white p-6 rounded-2xl mb-3">
+              <span class="text-5xl font-bold leading-none">{{ stats.appointmentsToday }}</span>
+              <span class="text-sm font-medium uppercase mt-2 opacity-90">{{ stats.appointmentsToday === 1 ? 'Confirmado' : 'Pendientes' }}</span>
             </div>
           </div>
         </mat-card-content>
       </mat-card>
 
-      <mat-card class="stat-card">
-        <mat-card-content>
-          <div class="stat-content">
-            <div class="stat-icon-container patients">
-              <mat-icon class="stat-icon">people</mat-icon>
-            </div>
-            <div class="stat-info">
-              <h3 class="stat-number">{{ patients.length }}</h3>
-              <p class="stat-label">Total Pacientes</p>
-              <p class="stat-subtitle">Pacientes activos</p>
-            </div>
+      <!-- Card Mensajes -->
+      <mat-card 
+        class="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer group"
+        (click)="navigateToMessages()"
+      >
+        <div class="p-5 pb-3 border-b border-slate-100 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <mat-icon class="text-blue-600">message</mat-icon>
+            <span class="text-lg font-semibold text-slate-800">Mensajes</span>
           </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="stat-card">
-        <mat-card-content>
-          <div class="stat-content">
-            <div class="stat-icon-container messages">
-              <mat-icon class="stat-icon">message</mat-icon>
-            </div>
-            <div class="stat-info">
-              <h3 class="stat-number">{{ stats.pendingReports }}</h3>
-              <p class="stat-label">Mensajes</p>
-              <p class="stat-subtitle">Mensajes pendientes</p>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="stat-card">
-        <mat-card-content>
-          <div class="stat-content">
-            <div class="stat-icon-container completed">
-              <mat-icon class="stat-icon">check_circle</mat-icon>
-            </div>
-            <div class="stat-info">
-              <h3 class="stat-number">5</h3>
-              <p class="stat-label">Completadas</p>
-              <p class="stat-subtitle">Citas de hoy</p>
+          <mat-icon class="text-slate-300 group-hover:text-blue-600 group-hover:translate-x-1 transition-all duration-300">chevron_right</mat-icon>
+        </div>
+        
+        <mat-card-content class="p-5">
+          <div class="text-center">
+            <div class="flex flex-col items-center bg-gradient-to-br from-blue-600 to-blue-700 text-white p-6 rounded-2xl mb-3">
+              <span class="text-5xl font-bold leading-none">{{ stats.unreadMessages }}</span>
+              <span class="text-sm font-medium uppercase mt-2 opacity-90">Sin Leer</span>
             </div>
           </div>
         </mat-card-content>
       </mat-card>
     </div>
 
-    <!-- Contenido de Listas -->
-    <div class="lists-container">
-      <!-- Citas Próximas -->
-      <mat-card class="list-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon class="card-title-icon">schedule</mat-icon>
-            Próximas Citas
-          </mat-card-title>
-        </mat-card-header>
-        
-        <mat-card-content>
-          <div class="appointments-list">
-            <div 
-              *ngFor="let appointment of upcomingAppointments" 
-              class="appointment-item"
-            >
-              <div class="appointment-time">
-                <mat-icon class="time-icon">access_time</mat-icon>
-                <span class="time-text">{{ appointment.time }}</span>
+    <!-- Sección de Pacientes -->
+    <div class="mt-6">
+      <div class="mb-5">
+        <h3 class="text-xl md:text-2xl font-semibold text-slate-800 m-0">Mis Pacientes</h3>
+      </div>
+
+      <!-- Buscador -->
+      <div class="mb-5">
+        <mat-form-field class="w-full" appearance="outline">
+          <mat-icon matPrefix class="text-slate-500 mr-2">search</mat-icon>
+          <input 
+            matInput 
+            placeholder="Buscar por nombre, apellido o DNI..."
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="filterPatients()"
+            class="text-base"
+          >
+          <button 
+            mat-icon-button 
+            matSuffix 
+            *ngIf="searchTerm"
+            (click)="clearSearch()"
+            class="text-slate-500"
+          >
+            <mat-icon>clear</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+
+      <!-- Vista Desktop: Lista de Pacientes (oculta en mobile) -->
+      <mat-card class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden max-h-[600px] overflow-y-auto scroll-smooth scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100 hover:scrollbar-thumb-slate-400">
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-16 px-5 gap-5">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p class="text-slate-600 text-base m-0">Cargando pacientes...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!isLoading && filteredPatients.length === 0" class="flex flex-col items-center justify-center py-16 px-5 text-center">
+          <mat-icon class="text-slate-300 text-6xl w-16 h-16 mb-4">person_search</mat-icon>
+          <p class="text-lg font-semibold text-slate-600 m-0 mb-2">No se encontraron pacientes</p>
+          <p class="text-sm text-slate-400 m-0">{{ searchTerm ? 'Intenta con otro término de búsqueda' : 'Agrega tu primer paciente' }}</p>
+        </div>
+
+        <!-- Lista de Pacientes con Scroll Infinito -->
+        <div *ngIf="!isLoading && filteredPatients.length > 0" class="flex flex-col">
+          <div 
+            *ngFor="let patient of filteredPatients; let i = index" 
+            class="flex items-center justify-between py-5 px-6 border-b border-slate-200 last:border-b-0 hover:bg-slate-50 transition-all duration-300 gap-4"
+            [class.animate-fadeInRight]="i < 5"
+            [style.animation-delay.s]="i * 0.05"
+          >
+            <!-- Info del Paciente -->
+            <div class="flex items-center gap-4 flex-1 min-w-0">
+              <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+                <span class="text-white text-base font-semibold">{{ getInitials(patient.firstName, patient.lastName) }}</span>
               </div>
-              
-              <div class="appointment-details">
-                <h4 class="patient-name">{{ appointment.patientName }}</h4>
-                <p class="appointment-type">{{ appointment.type }}</p>
-              </div>
-              
-              <div class="appointment-status">
-                <mat-chip 
-                  [color]="appointment.status === 'Confirmada' ? 'primary' : 'warn'"
-                  selected
-                  class="status-chip"
-                >
-                  {{ appointment.status }}
-                </mat-chip>
+              <div class="flex-1 min-w-0">
+                <h4 class="text-base font-semibold text-slate-800 m-0 mb-1 break-words">{{ patient.firstName }} {{ patient.lastName }}</h4>
+                <p class="text-sm text-slate-600 m-0 break-words">DNI: {{ patient.dni }}</p>
               </div>
             </div>
+
+            <!-- Acciones del Paciente -->
+            <div class="flex gap-1">
+              <button 
+                mat-icon-button 
+                class="text-slate-500 hover:text-blue-600 hover:bg-blue-50 hover:scale-110 transition-all duration-300"
+                matTooltip="Agendar Cita"
+                (click)="scheduleAppointment(patient.id)"
+              >
+                <mat-icon class="text-xl">event</mat-icon>
+              </button>
+
+              <button 
+                mat-icon-button 
+                class="text-slate-500 hover:text-blue-600 hover:bg-blue-50 hover:scale-110 transition-all duration-300"
+                matTooltip="Ver Tratamientos"
+                (click)="viewTreatments(patient.id)"
+              >
+                <mat-icon class="text-xl">medical_services</mat-icon>
+              </button>
+
+              <button 
+                mat-icon-button 
+                class="text-slate-500 hover:text-blue-600 hover:bg-blue-50 hover:scale-110 transition-all duration-300"
+                matTooltip="Ver Recetas"
+                (click)="viewPrescriptions(patient.id)"
+              >
+                <mat-icon class="text-xl">receipt</mat-icon>
+              </button>
+
+              <button 
+                mat-icon-button 
+                class="text-slate-500 hover:text-blue-600 hover:bg-blue-50 hover:scale-110 transition-all duration-300"
+                matTooltip="Ver Progreso"
+                (click)="viewProgress(patient.id)"
+              >
+                <mat-icon class="text-xl">trending_up</mat-icon>
+              </button>
+
+              <button 
+                mat-icon-button 
+                class="text-slate-500 hover:text-blue-600 hover:bg-blue-50 hover:scale-110 transition-all duration-300"
+                matTooltip="Ver Odontograma"
+                (click)="viewOdontogram(patient.id)"
+              >
+                <mat-icon class="text-xl">grid_on</mat-icon>
+              </button>
+
+              <button 
+                mat-icon-button 
+                class="text-slate-500 hover:text-blue-600 hover:bg-blue-50 hover:scale-110 transition-all duration-300"
+                matTooltip="Historial Clínico"
+                (click)="viewClinicalHistory(patient.id)"
+              >
+                <mat-icon class="text-xl">history</mat-icon>
+              </button>
+            </div>
           </div>
-        </mat-card-content>
+        </div>
       </mat-card>
 
-      <!-- Pacientes Recientes -->
-      <mat-card class="list-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon class="card-title-icon">people</mat-icon>
-            Pacientes Recientes
-          </mat-card-title>
-          <mat-card-subtitle>Actividad reciente de pacientes</mat-card-subtitle>
-        </mat-card-header>
-        
-        <mat-card-content>
-          <div class="patients-list">
-            <div 
-              *ngFor="let patient of recentPatients; let i = index" 
-              class="patient-item"
-              (click)="viewPatientDetails(i + 1)"
-            >
-              <div class="patient-avatar">
-                <mat-icon class="avatar-icon">person</mat-icon>
+      <!-- Vista Mobile: Cards de Pacientes (oculta en desktop) -->
+      <div class="block md:hidden">
+        <!-- Loading State Mobile -->
+        <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-16 px-5 gap-5">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p class="text-slate-600 text-base m-0">Cargando pacientes...</p>
+        </div>
+
+        <!-- Empty State Mobile -->
+        <div *ngIf="!isLoading && filteredPatients.length === 0" class="flex flex-col items-center justify-center py-16 px-5 text-center bg-white rounded-2xl border border-slate-200 shadow-md">
+          <mat-icon class="text-slate-300 text-6xl w-16 h-16 mb-4">person_search</mat-icon>
+          <p class="text-lg font-semibold text-slate-600 m-0 mb-2">No se encontraron pacientes</p>
+          <p class="text-sm text-slate-400 m-0">{{ searchTerm ? 'Intenta con otro término de búsqueda' : 'Agrega tu primer paciente' }}</p>
+        </div>
+
+        <!-- Grid de Cards de Pacientes -->
+        <div *ngIf="!isLoading && filteredPatients.length > 0" class="grid grid-cols-1 gap-4 max-h-[600px] overflow-y-auto scroll-smooth scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100">
+          <mat-card 
+            *ngFor="let patient of filteredPatients; let i = index" 
+            class="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition-all duration-300"
+            [class.animate-fadeInUp]="i < 5"
+            [style.animation-delay.s]="i * 0.05"
+          >
+            <mat-card-content class="p-5">
+              <!-- Header del Card: Avatar + Info -->
+              <div class="flex items-center gap-4 mb-5">
+                <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+                  <span class="text-white text-xl font-bold">{{ getInitials(patient.firstName, patient.lastName) }}</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h4 class="text-lg font-bold text-slate-800 m-0 mb-1 break-words">{{ patient.firstName }} {{ patient.lastName }}</h4>
+                  <p class="text-sm text-slate-600 m-0 break-words flex items-center gap-1">
+                    <mat-icon class="text-base">badge</mat-icon>
+                    <span>DNI: {{ patient.dni }}</span>
+                  </p>
+                </div>
               </div>
-              
-              <div class="patient-info">
-                <h4 class="patient-name">{{ patient.name }}</h4>
-                <p class="patient-dates">
-                  Última visita: {{ patient.lastVisit | date:'shortDate' }}
-                </p>
-              </div>
-              
-              <div class="patient-status">
-                <mat-chip 
-                  color="primary"
-                  selected
-                  class="status-chip"
+
+              <!-- Divider -->
+              <div class="border-t border-slate-200 mb-4"></div>
+
+              <!-- Grid de Acciones -->
+              <div class="grid grid-cols-3 gap-2">
+                <button 
+                  mat-stroked-button 
+                  class="flex flex-col items-center justify-center py-3 px-2 text-slate-700 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all duration-300 rounded-xl border-slate-300"
+                  (click)="scheduleAppointment(patient.id)"
                 >
-                  {{ i === 0 ? 'Activo' : 'Seguimiento' }}
-                </mat-chip>
+                  <mat-icon class="mb-1">event</mat-icon>
+                  <span class="text-xs font-medium">Cita</span>
+                </button>
+
+                <button 
+                  mat-stroked-button 
+                  class="flex flex-col items-center justify-center py-3 px-2 text-slate-700 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all duration-300 rounded-xl border-slate-300"
+                  (click)="viewTreatments(patient.id)"
+                >
+                  <mat-icon class="mb-1">medical_services</mat-icon>
+                  <span class="text-xs font-medium">Tratamientos</span>
+                </button>
+
+                <button 
+                  mat-stroked-button 
+                  class="flex flex-col items-center justify-center py-3 px-2 text-slate-700 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all duration-300 rounded-xl border-slate-300"
+                  (click)="viewPrescriptions(patient.id)"
+                >
+                  <mat-icon class="mb-1">receipt</mat-icon>
+                  <span class="text-xs font-medium">Recetas</span>
+                </button>
+
+                <button 
+                  mat-stroked-button 
+                  class="flex flex-col items-center justify-center py-3 px-2 text-slate-700 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all duration-300 rounded-xl border-slate-300"
+                  (click)="viewProgress(patient.id)"
+                >
+                  <mat-icon class="mb-1">trending_up</mat-icon>
+                  <span class="text-xs font-medium">Progreso</span>
+                </button>
+
+                <button 
+                  mat-stroked-button 
+                  class="flex flex-col items-center justify-center py-3 px-2 text-slate-700 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all duration-300 rounded-xl border-slate-300"
+                  (click)="viewOdontogram(patient.id)"
+                >
+                  <mat-icon class="mb-1">grid_on</mat-icon>
+                  <span class="text-xs font-medium">Odontograma</span>
+                </button>
+
+                <button 
+                  mat-stroked-button 
+                  class="flex flex-col items-center justify-center py-3 px-2 text-slate-700 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all duration-300 rounded-xl border-slate-300"
+                  (click)="viewClinicalHistory(patient.id)"
+                >
+                  <mat-icon class="mb-1">history</mat-icon>
+                  <span class="text-xs font-medium">Historial</span>
+                </button>
               </div>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
     </div>
 </div>

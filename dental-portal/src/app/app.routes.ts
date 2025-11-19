@@ -127,6 +127,7 @@ export const routes: Routes = [
           { path: '', component: DentistDashboardComponent },
           { path: 'profile', component: DentistProfileComponent },
           { path: 'patients', component: DentistPatientsComponent },
+          { path: 'patients/new', component: DentistPatientsComponent }, // TODO: Crear componente específico para nuevo paciente
           { path: 'treatments', component: DentistTreatmentsComponent },
           { path: 'appointments', component: AppointmentsComponent },
           { path: 'appointments/create', component: CreateAppointmentComponent },
