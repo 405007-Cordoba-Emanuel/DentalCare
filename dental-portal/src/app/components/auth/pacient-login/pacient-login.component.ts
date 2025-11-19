@@ -63,6 +63,8 @@ export class LoginComponent implements AfterViewInit {
             this.router.navigate(['/dentist']);
           } else if (response.role === 'PATIENT') {
             this.router.navigate(['/patient']);
+          } else if (response.role === 'ADMIN') {
+            this.router.navigate(['/admin']);
           } else {
             // Por defecto, redirigir al dashboard genérico
             this.router.navigate(['/dashboard']);

@@ -12,11 +12,14 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AdminService } from './services/admin.service';
 import { UserDetailResponse } from './interfaces/user-detail.interface';
 import { CreateDentistRequest } from './interfaces/create-dentist.interface';
 import { PagedResponse } from './interfaces/paginated-response.interface';
 import { GenericFormComponent, FormField } from '../../shared/generic-form/generic-form.component';
+import { ConfirmUserActionDialogComponent, ConfirmUserActionData } from './components/confirm-user-action-dialog.component';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -36,6 +39,8 @@ import { GenericFormComponent, FormField } from '../../shared/generic-form/gener
     MatSnackBarModule,
     MatProgressSpinnerModule,
     MatTabsModule,
+    MatDialogModule,
+    MatTooltipModule,
     GenericFormComponent
   ],
   templateUrl: './admin-dashboard.component.html'
@@ -46,11 +51,12 @@ export class AdminDashboardComponent implements OnInit {
   private adminService = inject(AdminService);
   private snackBar = inject(MatSnackBar);
   private fb = inject(FormBuilder);
+  private dialog = inject(MatDialog);
 
   users: UserDetailResponse[] = [];
   filteredUsers: UserDetailResponse[] = [];
   dataSource = new MatTableDataSource<UserDetailResponse>([]);
-  displayedColumns: string[] = ['name', 'email', 'role', 'isActive'];
+  displayedColumns: string[] = ['name', 'email', 'role', 'isActive', 'actions'];
   isLoading = false;
   searchTerm = '';
   selectedTabIndex = 0;
@@ -268,6 +274,76 @@ export class AdminDashboardComponent implements OnInit {
           duration: 5000
         });
         this.isCreatingDentist = false;
+      }
+    });
+  }
+
+  openConfirmDialog(user: UserDetailResponse, action: 'activate' | 'deactivate'): void {
+    const dialogData: ConfirmUserActionData = {
+      userName: this.getFullName(user),
+      userEmail: user.email,
+      isActive: user.isActive,
+      action: action
+    };
+
+    const dialogRef = this.dialog.open(ConfirmUserActionDialogComponent, {
+      width: '500px',
+      maxWidth: '90vw',
+      data: dialogData,
+      disableClose: true
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        if (action === 'activate') {
+          this.activateUser(user);
+        } else {
+          this.deactivateUser(user);
+        }
+      }
+    });
+  }
+
+  activateUser(user: UserDetailResponse): void {
+    this.isLoading = true;
+    this.adminService.activateUser(user.id).subscribe({
+      next: () => {
+        this.snackBar.open(
+          `Usuario ${this.getFullName(user)} activado exitosamente`,
+          'Cerrar',
+          { duration: 3000 }
+        );
+        this.loadUsers();
+      },
+      error: (error) => {
+        console.error('Error al activar usuario:', error);
+        const errorMessage = error.error?.message || 'Error al activar usuario';
+        this.snackBar.open(errorMessage, 'Cerrar', {
+          duration: 5000
+        });
+        this.isLoading = false;
+      }
+    });
+  }
+
+  deactivateUser(user: UserDetailResponse): void {
+    this.isLoading = true;
+    this.adminService.deactivateUser(user.id).subscribe({
+      next: () => {
+        this.snackBar.open(
+          `Usuario ${this.getFullName(user)} desactivado exitosamente`,
+          'Cerrar',
+          { duration: 3000 }
+        );
+        this.loadUsers();
+      },
+      error: (error) => {
+        console.error('Error al desactivar usuario:', error);
+        const errorMessage = error.error?.message || 'Error al desactivar usuario';
+        this.snackBar.open(errorMessage, 'Cerrar', {
+          duration: 5000
+        });
+        this.isLoading = false;
       }
     });
   }

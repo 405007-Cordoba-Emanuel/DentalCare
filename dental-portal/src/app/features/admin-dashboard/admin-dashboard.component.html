@@ -1,188 +1,339 @@
-<div class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 p-6">
-  <div class="max-w-7xl mx-auto">
-    <!-- Header Section con gradiente -->
-    <div class="mb-8">
-      <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-              Panel de Administración
-            </h1>
-            <p class="text-gray-600 text-lg">Gestiona usuarios y crea nuevas altas de dentistas</p>
-          </div>
-          <div class="hidden md:flex items-center gap-3">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
-              <mat-icon class="text-white text-3xl">admin_panel_settings</mat-icon>
-            </div>
+<div class="max-w-7xl mx-auto">
+  <!-- Header Section con gradiente -->
+  <div class="mb-8">
+    <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h1
+            class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2"
+          >
+            Panel de Administración
+          </h1>
+          <p class="text-gray-600 text-lg">
+            Gestiona usuarios y crea nuevas altas de dentistas
+          </p>
+        </div>
+        <div class="hidden md:flex items-center gap-3">
+          <div
+            class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg"
+          >
+            <mat-icon class="text-white text-3xl"
+              >admin_panel_settings</mat-icon
+            >
           </div>
         </div>
-        
       </div>
     </div>
-
-    <mat-tab-group [(selectedIndex)]="selectedTabIndex" class="mt-6">
-      <!-- Tab: Lista de Usuarios -->
-      <mat-tab label="Usuarios del Sistema">
-        <div class="p-6">
-          <!-- Búsqueda mejorada -->
-          <div class="mb-6">
-            <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
-              <mat-form-field appearance="fill" class="w-full max-w-lg">
-                <mat-label>Buscar usuarios</mat-label>
-                <mat-icon matPrefix class="text-gray-400 mr-2">search</mat-icon>
-                <input 
-                  matInput 
-                  [(ngModel)]="searchTerm" 
-                  (input)="onSearchChange()" 
-                  placeholder="Buscar por nombre, email o rol..." 
-                  class="text-base"
-                />
-              </mat-form-field>
-            </div>
-          </div>
-
-
-          <!-- Tabla de Usuarios mejorada -->
-          <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 relative">
-            <!-- Loading overlay -->
-            <div *ngIf="isLoading" class="absolute inset-0 bg-white bg-opacity-60 flex items-center justify-center z-10 backdrop-blur-sm">
-              <div class="bg-white rounded-lg shadow-lg p-4 flex items-center gap-3">
-                <mat-spinner diameter="30"></mat-spinner>
-                <span class="text-gray-700 font-medium">Cargando...</span>
-              </div>
-            </div>
-            
-            <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
-              <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                <mat-icon class="text-blue-600">list</mat-icon>
-                Lista de Usuarios
-                <span class="ml-2 text-sm font-normal text-gray-500">({{ totalElements }} {{ totalElements === 1 ? 'usuario' : 'usuarios' }} en total)</span>
-              </h3>
-            </div>
-            
-            <div class="overflow-x-auto transition-opacity duration-300" [class.opacity-50]="isLoading">
-              <table mat-table [dataSource]="dataSource" class="w-full admin-table">
-                <!-- Name Column -->
-                <ng-container matColumnDef="name">
-                  <th mat-header-cell *matHeaderCellDef class="admin-table-header">Usuario</th>
-                  <td mat-cell *matCellDef="let user" class="admin-table-cell">
-                    <div class="font-semibold text-gray-900 text-base min-w-[200px] break-words">{{ getFullName(user) }}</div>
-                  </td>
-                </ng-container>
-
-                <!-- Email Column -->
-                <ng-container matColumnDef="email">
-                  <th mat-header-cell *matHeaderCellDef class="admin-table-header">Email</th>
-                  <td mat-cell *matCellDef="let user" class="admin-table-cell">
-                    <div class="text-sm text-gray-700 min-w-[250px] break-all">{{ user.email }}</div>
-                  </td>
-                </ng-container>
-
-                <!-- Role Column -->
-                <ng-container matColumnDef="role">
-                  <th mat-header-cell *matHeaderCellDef class="admin-table-header">Rol</th>
-                  <td mat-cell *matCellDef="let user" class="admin-table-cell">
-                    <span 
-                      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm whitespace-nowrap"
-                      [ngClass]="{
-                        'bg-red-100 text-red-700 border border-red-200': user.role === 'ADMIN',
-                        'bg-blue-100 text-blue-700 border border-blue-200': user.role === 'DENTIST',
-                        'bg-green-100 text-green-700 border border-green-200': user.role === 'PATIENT'
-                      }"
-                    >
-                      <mat-icon class="text-xs">{{ user.role === 'ADMIN' ? 'admin_panel_settings' : user.role === 'DENTIST' ? 'medical_services' : 'person' }}</mat-icon>
-                      {{ getRoleLabel(user.role) }}
-                    </span>
-                  </td>
-                </ng-container>
-
-                <!-- Is Active Column -->
-                <ng-container matColumnDef="isActive">
-                  <th mat-header-cell *matHeaderCellDef class="admin-table-header">Estado</th>
-                  <td mat-cell *matCellDef="let user" class="admin-table-cell">
-                    <span 
-                      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm whitespace-nowrap"
-                      [ngClass]="{
-                        'bg-green-100 text-green-700 border border-green-200': user.isActive,
-                        'bg-red-100 text-red-700 border border-red-200': !user.isActive
-                      }"
-                    >
-                      <mat-icon class="text-xs">{{ user.isActive ? 'check_circle' : 'cancel' }}</mat-icon>
-                      {{ user.isActive ? 'Activo' : 'Inactivo' }}
-                    </span>
-                  </td>
-                </ng-container>
-
-                <tr mat-header-row *matHeaderRowDef="displayedColumns" class="admin-table-header-row"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="admin-table-row"></tr>
-              </table>
-            </div>
-
-            <!-- Paginación -->
-            <div *ngIf="totalElements > 0" class="bg-gray-50 px-6 py-4 border-t border-gray-200">
-              <mat-paginator
-                [length]="totalElements"
-                [pageSize]="pageSize"
-                [pageIndex]="currentPage"
-                [pageSizeOptions]="[5, 10, 20, 50]"
-                (page)="onPageChange($event)"
-                [disabled]="isLoading"
-                showFirstLastButtons
-                class="bg-transparent">
-              </mat-paginator>
-            </div>
-
-            <!-- Empty State mejorado -->
-            <div *ngIf="filteredUsers.length === 0 && !isLoading" class="flex flex-col items-center justify-center py-24 px-4 text-center bg-gradient-to-br from-gray-50 to-blue-50">
-              <div class="w-24 h-24 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center mb-6 shadow-lg">
-                <mat-icon class="text-5xl text-blue-500">people_outline</mat-icon>
-              </div>
-              <h3 class="text-2xl font-bold text-gray-900 mb-2">No se encontraron usuarios</h3>
-              <p class="text-gray-600 max-w-md">
-                {{ searchTerm ? 'Intenta con otro término de búsqueda' : 'No hay usuarios registrados en el sistema' }}
-              </p>
-            </div>
-          </div>
-        </div>
-      </mat-tab>
-
-      <!-- Tab: Crear Dentista mejorado -->
-      <mat-tab label="Crear Alta de Dentista">
-        <div class="p-6">
-          <mat-card class="max-w-3xl mx-auto shadow-xl border border-gray-200 rounded-2xl overflow-hidden">
-            <div class="bg-gradient-to-r from-blue-500 to-indigo-500 p-6 text-white">
-              <mat-card-header class="p-0">
-                <mat-card-title class="flex items-center gap-3 text-2xl font-bold mb-2">
-                  <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                    <mat-icon class="text-white">person_add</mat-icon>
-                  </div>
-                  Nueva Alta de Dentista
-                </mat-card-title>
-                <mat-card-subtitle class="text-blue-100 mt-2 text-base">
-                  Completa los datos del nuevo dentista. Se creará automáticamente con contraseña: 123456
-                </mat-card-subtitle>
-              </mat-card-header>
-            </div>
-
-            <mat-card-content class="p-8 bg-white">
-              <!-- Indicador de carga -->
-              <div *ngIf="isCreatingDentist" class="mb-6 flex items-center gap-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <mat-spinner diameter="24"></mat-spinner>
-                <span class="text-blue-700 font-medium">Creando dentista...</span>
-              </div>
-
-              <app-generic-form
-                [fields]="createDentistFields()"
-                formTitle=""
-                submitText="Crear Dentista"
-                [disabledFields]="isCreatingDentist ? ['email', 'firstName', 'lastName', 'licenseNumber', 'specialty'] : []"
-                (formSubmit)="onGenericFormSubmit($event)"
-                class="w-full"
-              ></app-generic-form>
-            </mat-card-content>
-          </mat-card>
-        </div>
-      </mat-tab>
-    </mat-tab-group>
   </div>
+
+  <mat-tab-group [(selectedIndex)]="selectedTabIndex" class="mt-6">
+    <!-- Tab: Lista de Usuarios -->
+    <mat-tab label="Usuarios del Sistema">
+      <div class="p-6">
+        <!-- Búsqueda mejorada -->
+        <div class="mb-6">
+          <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+            <mat-form-field appearance="fill" class="w-full max-w-lg">
+              <mat-label>Buscar usuarios</mat-label>
+              <mat-icon matPrefix class="text-gray-400 mr-2">search</mat-icon>
+              <input
+                matInput
+                [(ngModel)]="searchTerm"
+                (input)="onSearchChange()"
+                placeholder="Buscar por nombre, email o rol..."
+                class="text-base"
+              />
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Tabla de Usuarios mejorada -->
+        <div
+          class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 relative"
+        >
+          <!-- Loading overlay -->
+          <div
+            *ngIf="isLoading"
+            class="absolute inset-0 bg-white bg-opacity-60 flex items-center justify-center z-10 backdrop-blur-sm"
+          >
+            <div
+              class="bg-white rounded-lg shadow-lg p-4 flex items-center gap-3"
+            >
+              <mat-spinner diameter="30"></mat-spinner>
+              <span class="text-gray-700 font-medium">Cargando...</span>
+            </div>
+          </div>
+
+          <div
+            class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200"
+          >
+            <h3
+              class="text-lg font-semibold text-gray-800 flex items-center gap-2"
+            >
+              <mat-icon class="text-blue-600">list</mat-icon>
+              Lista de Usuarios
+              <span class="ml-2 text-sm font-normal text-gray-500"
+                >({{ totalElements }}
+                {{ totalElements === 1 ? "usuario" : "usuarios" }} en
+                total)</span
+              >
+            </h3>
+          </div>
+
+          <div
+            class="overflow-x-auto transition-opacity duration-300"
+            [class.opacity-50]="isLoading"
+          >
+            <table
+              mat-table
+              [dataSource]="dataSource"
+              class="w-full admin-table"
+            >
+              <!-- Name Column -->
+              <ng-container matColumnDef="name">
+                <th
+                  mat-header-cell
+                  *matHeaderCellDef
+                  class="admin-table-header"
+                >
+                  Usuario
+                </th>
+                <td mat-cell *matCellDef="let user" class="admin-table-cell">
+                  <div
+                    class="font-semibold text-gray-900 text-base min-w-[200px] break-words"
+                  >
+                    {{ getFullName(user) }}
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Email Column -->
+              <ng-container matColumnDef="email">
+                <th
+                  mat-header-cell
+                  *matHeaderCellDef
+                  class="admin-table-header"
+                >
+                  Email
+                </th>
+                <td mat-cell *matCellDef="let user" class="admin-table-cell">
+                  <div class="text-sm text-gray-700 min-w-[250px] break-all">
+                    {{ user.email }}
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Role Column -->
+              <ng-container matColumnDef="role">
+                <th
+                  mat-header-cell
+                  *matHeaderCellDef
+                  class="admin-table-header"
+                >
+                  Rol
+                </th>
+                <td mat-cell *matCellDef="let user" class="admin-table-cell">
+                  <span
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm whitespace-nowrap"
+                    [ngClass]="{
+                      'bg-red-100 text-red-700 border border-red-200':
+                        user.role === 'ADMIN',
+                      'bg-blue-100 text-blue-700 border border-blue-200':
+                        user.role === 'DENTIST',
+                      'bg-green-100 text-green-700 border border-green-200':
+                        user.role === 'PATIENT'
+                    }"
+                  >
+                    <mat-icon class="text-xs">{{
+                      user.role === "ADMIN"
+                        ? "admin_panel_settings"
+                        : user.role === "DENTIST"
+                        ? "medical_services"
+                        : "person"
+                    }}</mat-icon>
+                    {{ getRoleLabel(user.role) }}
+                  </span>
+                </td>
+              </ng-container>
+
+              <!-- Is Active Column -->
+              <ng-container matColumnDef="isActive">
+                <th
+                  mat-header-cell
+                  *matHeaderCellDef
+                  class="admin-table-header"
+                >
+                  Estado
+                </th>
+                <td mat-cell *matCellDef="let user" class="admin-table-cell">
+                  <span
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm whitespace-nowrap"
+                    [ngClass]="{
+                      'bg-green-100 text-green-700 border border-green-200':
+                        user.isActive,
+                      'bg-red-100 text-red-700 border border-red-200':
+                        !user.isActive
+                    }"
+                  >
+                    <mat-icon class="text-xs">{{
+                      user.isActive ? "check_circle" : "cancel"
+                    }}</mat-icon>
+                    {{ user.isActive ? "Activo" : "Inactivo" }}
+                  </span>
+                </td>
+              </ng-container>
+
+              <!-- Actions Column -->
+              <ng-container matColumnDef="actions">
+                <th
+                  mat-header-cell
+                  *matHeaderCellDef
+                  class="admin-table-header text-center"
+                >
+                  Acciones
+                </th>
+                <td mat-cell *matCellDef="let user" class="admin-table-cell">
+                  <div class="flex items-center justify-center gap-2">
+                    <button
+                      *ngIf="!user.isActive"
+                      mat-icon-button
+                      color="primary"
+                      (click)="openConfirmDialog(user, 'activate')"
+                      [disabled]="isLoading"
+                      matTooltip="Activar usuario"
+                      class="!bg-green-50 hover:!bg-green-100"
+                    >
+                      <mat-icon class="text-green-600">check_circle</mat-icon>
+                    </button>
+                    <button
+                      *ngIf="user.isActive"
+                      mat-icon-button
+                      color="warn"
+                      (click)="openConfirmDialog(user, 'deactivate')"
+                      [disabled]="isLoading"
+                      matTooltip="Desactivar usuario"
+                      class="!bg-red-50 hover:!bg-red-100"
+                    >
+                      <mat-icon class="text-red-600">block</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </ng-container>
+
+              <tr
+                mat-header-row
+                *matHeaderRowDef="displayedColumns"
+                class="admin-table-header-row"
+              ></tr>
+              <tr
+                mat-row
+                *matRowDef="let row; columns: displayedColumns"
+                class="admin-table-row"
+              ></tr>
+            </table>
+          </div>
+
+          <!-- Paginación -->
+          <div
+            *ngIf="totalElements > 0"
+            class="bg-gray-50 px-6 py-4 border-t border-gray-200"
+          >
+            <mat-paginator
+              [length]="totalElements"
+              [pageSize]="pageSize"
+              [pageIndex]="currentPage"
+              [pageSizeOptions]="[5, 10, 20, 50]"
+              (page)="onPageChange($event)"
+              [disabled]="isLoading"
+              showFirstLastButtons
+              class="bg-transparent"
+            >
+            </mat-paginator>
+          </div>
+
+          <!-- Empty State mejorado -->
+          <div
+            *ngIf="filteredUsers.length === 0 && !isLoading"
+            class="flex flex-col items-center justify-center py-24 px-4 text-center bg-gradient-to-br from-gray-50 to-blue-50"
+          >
+            <div
+              class="w-24 h-24 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center mb-6 shadow-lg"
+            >
+              <mat-icon class="text-5xl text-blue-500">people_outline</mat-icon>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-2">
+              No se encontraron usuarios
+            </h3>
+            <p class="text-gray-600 max-w-md">
+              {{
+                searchTerm
+                  ? "Intenta con otro término de búsqueda"
+                  : "No hay usuarios registrados en el sistema"
+              }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Tab: Crear Dentista mejorado -->
+    <mat-tab label="Crear Alta de Dentista">
+      <div class="p-6">
+        <mat-card
+          class="max-w-3xl mx-auto shadow-xl border border-gray-200 rounded-2xl overflow-hidden"
+        >
+          <div
+            class="bg-gradient-to-r from-blue-500 to-indigo-500 p-6 text-white"
+          >
+            <mat-card-header class="p-0">
+              <mat-card-title
+                class="flex items-center gap-3 text-2xl font-bold mb-2"
+              >
+                <div
+                  class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center"
+                >
+                  <mat-icon class="text-white">person_add</mat-icon>
+                </div>
+                Nueva Alta de Dentista
+              </mat-card-title>
+              <mat-card-subtitle class="text-blue-100 mt-2 text-base">
+                Completa los datos del nuevo dentista. Se creará automáticamente
+                con contraseña: 123456
+              </mat-card-subtitle>
+            </mat-card-header>
+          </div>
+
+          <mat-card-content class="p-8 bg-white">
+            <!-- Indicador de carga -->
+            <div
+              *ngIf="isCreatingDentist"
+              class="mb-6 flex items-center gap-3 p-4 bg-blue-50 rounded-lg border border-blue-200"
+            >
+              <mat-spinner diameter="24"></mat-spinner>
+              <span class="text-blue-700 font-medium">Creando dentista...</span>
+            </div>
+
+            <app-generic-form
+              [fields]="createDentistFields()"
+              formTitle=""
+              submitText="Crear Dentista"
+              [disabledFields]="
+                isCreatingDentist
+                  ? [
+                      'email',
+                      'firstName',
+                      'lastName',
+                      'licenseNumber',
+                      'specialty'
+                    ]
+                  : []
+              "
+              (formSubmit)="onGenericFormSubmit($event)"
+              class="w-full"
+            ></app-generic-form>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
 </div>

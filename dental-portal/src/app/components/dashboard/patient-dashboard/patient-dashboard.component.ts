@@ -99,6 +99,8 @@ export class PatientDashboardComponent implements OnInit {
     }
   ];
 
+  appointmentsDropdownOpen = false;
+
   ngOnInit() {
     this.loadData();
   }
@@ -431,5 +433,22 @@ export class PatientDashboardComponent implements OnInit {
       default:
         return 'default';
     }
+  }
+
+  getLastTreatmentInProgress(): TreatmentDisplay | null {
+    const inProgressTreatments = this.treatmentHistory.filter(
+      treatment => treatment.status === 'En Curso' || treatment.status === 'Programado'
+    );
+    if (inProgressTreatments.length === 0) {
+      return null;
+    }
+    // Ordenar por fecha descendente y tomar el más reciente
+    return inProgressTreatments.sort((a, b) => 
+      new Date(b.date).getTime() - new Date(a.date).getTime()
+    )[0];
+  }
+
+  toggleAppointmentsDropdown(): void {
+    this.appointmentsDropdownOpen = !this.appointmentsDropdownOpen;
   }
 }

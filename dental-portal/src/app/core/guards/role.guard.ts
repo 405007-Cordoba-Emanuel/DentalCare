@@ -48,6 +48,8 @@ export const roleGuard: CanActivateFn = (route) => {
       // Redirigir al dashboard apropiado según el rol
       if (userRole === 'DENTIST') {
         router.navigate(['/dentist']);
+      } else if (userRole === 'ADMIN') {
+        router.navigate(['/admin']);
       } else {
         router.navigate(['/patient']);
       }
@@ -56,39 +58,18 @@ export const roleGuard: CanActivateFn = (route) => {
     return true;
   }
 
-  // ADMIN puede acceder a todas las rutas
-  if (userRole === 'ADMIN') {
-    return true;
-  }
-
-  // DENTIST no puede acceder a rutas que contengan 'admin'
-  if (userRole === 'DENTIST') {
-    if (currentPath === 'admin') {
-      snackBar.open('No tienes permisos para acceder a esta página', 'Cerrar', {
-        duration: 3000,
-      });
-      router.navigate(['/dentist']);
-      return false;
-    }
-    return true;
-  }
-
-  // PATIENT no puede acceder a rutas que contengan 'admin' ni 'charts'
-  if (userRole === 'PATIENT') {
-    if (currentPath === 'admin' || currentPath === 'charts') {
-      snackBar.open('No tienes permisos para acceder a esta página', 'Cerrar', {
-        duration: 3000,
-      });
-      router.navigate(['/patient']);
-      return false;
-    }
-    return true;
-  }
-
-  // Para cualquier otro rol, denegar acceso
+  // Para cualquier otro rol sin roles especificados, denegar acceso
   snackBar.open('No tienes permisos para acceder a esta página', 'Cerrar', {
     duration: 3000,
   });
-  router.navigate(['/patient']);
+  
+  // Redirigir al dashboard apropiado según el rol
+  if (userRole === 'DENTIST') {
+    router.navigate(['/dentist']);
+  } else if (userRole === 'ADMIN') {
+    router.navigate(['/admin']);
+  } else {
+    router.navigate(['/patient']);
+  }
   return false;
 }; 

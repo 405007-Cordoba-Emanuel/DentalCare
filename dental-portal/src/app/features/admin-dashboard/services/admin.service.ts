@@ -27,5 +27,13 @@ export class AdminService {
   createDentist(request: CreateDentistRequest): Observable<CreateDentistResponse> {
     return this.http.post<CreateDentistResponse>(`${this.usersApiUrl}/admin/create-dentist`, request);
   }
+
+  deactivateUser(userId: number): Observable<void> {
+    return this.http.put<void>(`${this.usersApiUrl}/${userId}/deactivate`, {});
+  }
+
+  activateUser(userId: number): Observable<void> {
+    return this.http.put<void>(`${this.usersApiUrl}/${userId}/activate`, {});
+  }
 }
 
