@@ -31,6 +31,7 @@ import { AppointmentsComponent } from './features/appointments/appointments.comp
 import { CreateAppointmentComponent } from './features/appointments/create-appointment/create-appointment.component';
 import { PatientProfileComponent } from './features/patient-profile/patient-profile.component';
 import { PrescriptionListComponent } from './features/prescriptions/prescription-list.component';
+import { AdminDashboardComponent } from './features/admin-dashboard/admin-dashboard.component';
 
 
 export const routes: Routes = [
@@ -136,6 +137,17 @@ export const routes: Routes = [
           { path: ':id/patients', component: DentistPatientsComponent },
           { path: ':id/treatments', component: DentistTreatmentsComponent },
           { path: ':id/patients/:patientId/treatments', component: DentistTreatmentsComponent },
+        ]
+      },
+      
+      // Rutas del administrador
+      {
+        path: 'admin',
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['ADMIN'] },
+        children: [
+          { path: '', component: AdminDashboardComponent },
+          { path: 'dashboard', component: AdminDashboardComponent },
         ]
       },
     ]

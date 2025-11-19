@@ -1,6 +1,8 @@
 package dental.core.users.modules.auth.controllers;
 
 import dental.core.users.entities.Role;
+import dental.core.users.modules.auth.dto.CreateDentistAdminRequest;
+import dental.core.users.modules.auth.dto.CreateDentistAdminResponse;
 import dental.core.users.modules.auth.dto.UserDetailResponse;
 import dental.core.users.modules.auth.dto.UserProfileRequest;
 import dental.core.users.modules.auth.services.UserAdvancedService;
@@ -12,17 +14,20 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 /**
  * Controller para la gestión avanzada de usuarios.
@@ -116,15 +121,26 @@ public class UserAdvancedController {
     }
 
     @GetMapping
-    @Operation(summary = "Obtener todos los usuarios", description = "Obtiene la lista de todos los usuarios (solo ADMIN)")
+    @Operation(summary = "Obtener todos los usuarios paginado", description = "Obtiene la lista de todos los usuarios con paginación (solo ADMIN)")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Lista de usuarios obtenida exitosamente"),
         @ApiResponse(responseCode = "401", description = "Usuario no autenticado"),
         @ApiResponse(responseCode = "403", description = "No tiene permisos de administrador")
     })
-    public ResponseEntity<List<UserDetailResponse>> getAllUsers(@Parameter(hidden = true) Authentication authentication) {
-        log.info("Administrador {} obteniendo todos los usuarios", authentication.getName());
-        List<UserDetailResponse> users = userAdvancedService.getAllUsers(authentication.getName());
+    public ResponseEntity<Page<UserDetailResponse>> getAllUsers(
+            @Parameter(description = "Número de página (0-indexed)") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Tamaño de página") @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "Campo de ordenamiento") @RequestParam(defaultValue = "id") String sortBy,
+            @Parameter(description = "Dirección de ordenamiento (ASC o DESC)") @RequestParam(defaultValue = "ASC") String sortDir,
+            @Parameter(hidden = true) Authentication authentication) {
+        log.info("Administrador {} obteniendo usuarios paginados - página: {}, tamaño: {}", 
+                authentication.getName(), page, size);
+        
+        Sort sort = sortDir.equalsIgnoreCase("DESC") ? 
+                Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        Page<UserDetailResponse> users = userAdvancedService.getAllUsersPaginated(authentication.getName(), pageable);
         return ResponseEntity.ok(users);
     }
 
@@ -142,5 +158,22 @@ public class UserAdvancedController {
         log.info("Administrador {} obteniendo usuario con ID: {}", authentication.getName(), userId);
         UserDetailResponse user = userAdvancedService.getUserById(userId, authentication.getName());
         return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/admin/create-dentist")
+    @Operation(summary = "Crear dentista por administrador", 
+               description = "Crea un dentista directamente. Si el email existe y es paciente, cambia el rol a dentista. Si no existe, crea nuevo usuario con rol dentista y password 123456 (solo ADMIN)")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Dentista creado exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Datos inválidos o usuario ya es dentista"),
+        @ApiResponse(responseCode = "401", description = "Usuario no autenticado"),
+        @ApiResponse(responseCode = "403", description = "No tiene permisos de administrador")
+    })
+    public ResponseEntity<CreateDentistAdminResponse> createDentistByAdmin(
+            @Valid @RequestBody CreateDentistAdminRequest request,
+            @Parameter(hidden = true) Authentication authentication) {
+        log.info("Administrador {} creando dentista para email: {}", authentication.getName(), request.getEmail());
+        CreateDentistAdminResponse response = userAdvancedService.createDentistByAdmin(request, authentication.getName());
+        return ResponseEntity.ok(response);
     }
 }

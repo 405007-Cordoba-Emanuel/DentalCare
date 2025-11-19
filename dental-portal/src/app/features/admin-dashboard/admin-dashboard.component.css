@@ -1,0 +1,72 @@
+/* Estilos mínimos necesarios para Material Design */
+/* El resto se maneja con Tailwind CSS */
+
+/* Asegurar que las filas de la tabla tengan hover effect */
+::ng-deep .mat-mdc-table tbody tr:hover {
+  background-color: rgb(239 246 255) !important;
+}
+
+/* Ajustes para Material Design con Tailwind */
+::ng-deep .mat-mdc-tab-group {
+  background: transparent;
+}
+
+::ng-deep .mat-mdc-tab-body-wrapper {
+  padding: 0;
+}
+
+/* Mejorar el estilo de los tabs */
+::ng-deep .mat-mdc-tab-header {
+  background: white;
+  border-radius: 12px 12px 0 0;
+  padding: 0 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Mejorar los campos de formulario outline */
+::ng-deep .mat-mdc-form-field-appearance-outline .mat-mdc-text-field-wrapper {
+  background-color: white;
+}
+
+::ng-deep .mat-mdc-form-field-appearance-outline .mdc-notched-outline__leading,
+::ng-deep .mat-mdc-form-field-appearance-outline .mdc-notched-outline__notch,
+::ng-deep .mat-mdc-form-field-appearance-outline .mdc-notched-outline__trailing {
+  border-color: #e5e7eb;
+}
+
+::ng-deep .mat-mdc-form-field-appearance-outline.mat-focused .mdc-notched-outline__leading,
+::ng-deep .mat-mdc-form-field-appearance-outline.mat-focused .mdc-notched-outline__notch,
+::ng-deep .mat-mdc-form-field-appearance-outline.mat-focused .mdc-notched-outline__trailing {
+  border-color: #2563eb;
+  border-width: 2px;
+}
+
+/* Estilos para el paginador */
+::ng-deep .mat-mdc-paginator {
+  background: transparent !important;
+}
+
+::ng-deep .mat-mdc-paginator .mat-mdc-paginator-container {
+  padding: 0;
+}
+
+::ng-deep .mat-mdc-paginator .mat-mdc-icon-button {
+  color: #4b5563;
+}
+
+::ng-deep .mat-mdc-paginator .mat-mdc-icon-button:hover {
+  background-color: #e5e7eb;
+  color: #2563eb;
+}
+
+::ng-deep .mat-mdc-paginator .mat-mdc-icon-button[disabled] {
+  color: #d1d5db;
+}
+
+::ng-deep .mat-mdc-paginator .mat-mdc-select-value {
+  color: #374151;
+}
+
+::ng-deep .mat-mdc-paginator .mat-mdc-paginator-range-label {
+  color: #6b7280;
+}

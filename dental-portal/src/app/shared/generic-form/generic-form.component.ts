@@ -4,8 +4,7 @@ import {
   input,
   output,
   OnInit,
-  OnChanges,
-  SimpleChanges,
+  effect,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { FormGroup } from '@angular/forms';
@@ -25,8 +24,9 @@ export interface FormField {
   selector: 'app-generic-form',
   imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './generic-form.component.html',
+  standalone: true,
 })
-export class GenericFormComponent implements OnInit, OnChanges {
+export class GenericFormComponent implements OnInit {
   fields = input<FormField[]>([]);
   formTitle = input<string>('Form');
   submitText = input<string>('Submit');
@@ -42,32 +42,54 @@ export class GenericFormComponent implements OnInit, OnChanges {
   formGroup!: FormGroup;
   private fb = inject(FormBuilder);
 
-  ngOnInit() {
-    this.buildForm();
+  private isInitialized = false;
+
+  constructor() {
+    // Reaccionar a cambios en los fields para reconstruir el formulario
+    // Solo después de la inicialización inicial
+    effect(() => {
+      const currentFields = this.fields();
+      if (this.isInitialized && currentFields.length > 0) {
+        this.buildForm();
+      }
+    });
+
+    // Reaccionar a cambios en initialData (solo después de la inicialización)
+    effect(() => {
+      const currentData = this.initialData();
+      if (this.isInitialized && this.formGroup && Object.keys(currentData).length > 0) {
+        this.applyInitialData();
+      }
+    });
+
+    // Reaccionar a cambios en readonly
+    effect(() => {
+      if (this.isInitialized && this.formGroup) {
+        this.updateReadonlyState();
+      }
+    });
+
+    // Reaccionar a cambios en disabledFields
+    effect(() => {
+      if (this.isInitialized && this.formGroup) {
+        this.updateDisabledFields();
+      }
+    });
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['fields'] && !changes['fields'].firstChange) {
-      this.buildForm();
-    }
-
-    if (changes['initialData'] && !changes['initialData'].firstChange) {
-      this.applyInitialData();
-    }
-
-    if (changes['readonly']) {
-      this.updateReadonlyState();
-    }
-
-    if (changes['disabledFields']) {
-      this.updateDisabledFields();
-    }
+  ngOnInit() {
+    this.buildForm();
+    this.isInitialized = true;
   }
 
   private buildForm() {
     const group: any = {};
     this.fields().forEach((field) => {
-      group[field.name] = ['', field.validators || []];
+      // Asegurar que los validators sean un array válido
+      const validators = field.validators && Array.isArray(field.validators) 
+        ? field.validators 
+        : [];
+      group[field.name] = ['', validators];
     });
     this.formGroup = this.fb.group(group);
 
@@ -123,9 +145,16 @@ export class GenericFormComponent implements OnInit, OnChanges {
   }
 
   getDisplayValue(fieldName: string): string {
-    const value = this.formGroup?.get(fieldName)?.value;
+    if (!this.formGroup) return 'No especificado';
+    
+    const control = this.formGroup.get(fieldName);
+    if (!control) return 'No especificado';
+    
+    const value = control.value;
 
-    if (!value) return 'No especificado';
+    if (value === null || value === undefined || value === '') {
+      return 'No especificado';
+    }
 
     const field = this.fields().find((f) => f.name === fieldName);
 
@@ -141,20 +170,71 @@ export class GenericFormComponent implements OnInit, OnChanges {
 
     // Para fechas con hora (datetime-local), formatear
     if (field?.type === 'datetime-local' && value) {
-      const date = new Date(value);
-      return date.toLocaleDateString('es-ES', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
+      try {
+        const date = new Date(value);
+        if (!isNaN(date.getTime())) {
+          return date.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          });
+        }
+      } catch (e) {
+        return String(value);
+      }
     }
 
     // Para selects, mostrar el label
     if (field?.type === 'select' && field.options) {
       const option = field.options.find((opt) => opt.value === value);
-      return option ? option.label : value;
+      return option ? option.label : String(value);
     }
 
-    return value;
+    // Para números, formatear si es necesario
+    if (field?.type === 'number' && value !== null && value !== undefined) {
+      return String(value);
+    }
+
+    return String(value);
+  }
+
+  // Método auxiliar para obtener el estado de validación de un campo
+  isFieldInvalid(fieldName: string): boolean {
+    if (!this.formGroup) return false;
+    const control = this.formGroup.get(fieldName);
+    return control ? (control.invalid && control.touched) : false;
+  }
+
+  // Método auxiliar para obtener el mensaje de error
+  getFieldError(fieldName: string): string {
+    if (!this.formGroup) return '';
+    const control = this.formGroup.get(fieldName);
+    if (!control || !control.errors || !control.touched) return '';
+
+    if (control.errors['required']) {
+      return 'Este campo es requerido';
+    }
+    if (control.errors['email']) {
+      return 'Debe ser un email válido';
+    }
+    if (control.errors['min']) {
+      return `El valor mínimo es ${control.errors['min'].min}`;
+    }
+    if (control.errors['max']) {
+      return `El valor máximo es ${control.errors['max'].max}`;
+    }
+    if (control.errors['minlength']) {
+      return `Mínimo ${control.errors['minlength'].requiredLength} caracteres`;
+    }
+    if (control.errors['maxlength']) {
+      return `Máximo ${control.errors['maxlength'].requiredLength} caracteres`;
+    }
+    if (control.errors['pattern']) {
+      return 'El formato no es válido';
+    }
+
+    return 'Campo inválido';
   }
 }
