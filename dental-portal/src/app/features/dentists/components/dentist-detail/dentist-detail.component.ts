@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DentistService } from '../../services/dentist.service';
+import { DentistService } from '../../../../core/services/dentist.service';
 import { DentistResponse } from '../../interfaces/dentist.interface';
 import { IconComponent } from '../../../../shared/icon/icon.component';
 

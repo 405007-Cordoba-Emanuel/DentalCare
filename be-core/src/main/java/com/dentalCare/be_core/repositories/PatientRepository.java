@@ -1,6 +1,8 @@
 package com.dentalCare.be_core.repositories;
 
 import com.dentalCare.be_core.entities.Patient;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -26,4 +28,7 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     
     @Query("SELECT p FROM Patient p WHERE p.active = true AND p.dentist IS NULL")
     java.util.List<Patient> findAvailablePatients();
+    
+    @Query("SELECT p FROM Patient p WHERE p.active = true AND p.dentist IS NULL")
+    Page<Patient> findAvailablePatients(Pageable pageable);
 }

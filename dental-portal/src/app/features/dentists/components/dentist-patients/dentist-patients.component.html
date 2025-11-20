@@ -1,105 +1,244 @@
-<div class="container mx-auto p-6">
+<div class="max-w-7xl mx-auto p-6">
   <!-- Header -->
   <div class="mb-6">
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-800">Mis Pacientes</h1>
-        <p class="text-gray-600 mt-2" *ngIf="dentistInfo">
-          Dr. {{ dentistInfo.name }} - {{ dentistInfo.specialty }}
-        </p>
-      </div>
-      <div class="flex items-center space-x-4">
-        <span class="text-sm text-gray-500">
-          Matrícula: {{ dentistInfo?.licenseNumber }}
-        </span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Filtros y búsqueda -->
-  <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <!-- Búsqueda -->
-      <div class="relative flex-1 max-w-md">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <app-icon name="search" class="h-5 w-5 text-gray-400"></app-icon>
+    <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
+            Pacientes Disponibles para Asignar
+          </h1>
+          <p class="text-gray-600 text-lg">
+            Seleccione pacientes de la lista para asignarlos a su cartera
+          </p>
         </div>
-        <input
-          type="text"
-          [(ngModel)]="searchTerm"
-          placeholder="Buscar pacientes..."
-          class="dental-input pl-10"
-        />
-      </div>
-
-      <!-- Filtro de estado -->
-      <div class="flex items-center space-x-2">
-        <button
-          (click)="toggleActiveFilter()"
-          [class]="showActiveOnly ? 'dental-btn-primary' : 'dental-btn-secondary'"
-          class="flex items-center space-x-2">
-          <app-icon *ngIf="showActiveOnly" name="userCheck" class="h-4 w-4"></app-icon>
-          <app-icon *ngIf="!showActiveOnly" name="userX" class="h-4 w-4"></app-icon>
-          <span>{{ showActiveOnly ? 'Solo Activos' : 'Todos' }}</span>
-        </button>
+        <div class="hidden md:flex items-center gap-3">
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
+            <app-icon name="userPlus" class="h-8 w-8 text-white"></app-icon>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Lista de pacientes -->
-  <div class="bg-white rounded-lg shadow-md">
-    <div class="px-6 py-4 border-b border-gray-200">
-      <h2 class="text-lg font-semibold text-gray-800">
-        Pacientes ({{ filteredPatients.length }})
-      </h2>
+  <!-- Tabla de pacientes disponibles -->
+  <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 relative">
+    <!-- Loading overlay -->
+    <div
+      *ngIf="loading"
+      class="absolute inset-0 bg-white bg-opacity-60 flex items-center justify-center z-10 backdrop-blur-sm"
+    >
+      <div class="bg-white rounded-lg shadow-lg p-4 flex items-center gap-3">
+        <mat-spinner diameter="30"></mat-spinner>
+        <span class="text-gray-700 font-medium">Cargando pacientes...</span>
+      </div>
     </div>
 
-    <div *ngIf="loading" class="dental-loading">
-      <div class="dental-spinner"></div>
-      <span class="ml-2">Cargando pacientes...</span>
+    <!-- Header de la tabla -->
+    <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+        <app-icon name="users" class="h-5 w-5 text-blue-600"></app-icon>
+        Pacientes Disponibles
+        <span class="ml-2 text-sm font-normal text-gray-500">
+          ({{ totalElements }} {{ totalElements === 1 ? 'paciente' : 'pacientes' }})
+        </span>
+      </h3>
     </div>
 
-    <div *ngIf="!loading && filteredPatients.length === 0" class="text-center py-12">
-      <app-icon name="users" class="mx-auto h-12 w-12 text-gray-400"></app-icon>
-      <h3 class="mt-2 text-sm font-medium text-gray-900">No hay pacientes</h3>
-      <p class="mt-1 text-sm text-gray-500">
-        {{ searchTerm ? 'No se encontraron pacientes con ese criterio de búsqueda.' : 'No tienes pacientes asignados.' }}
+    <!-- Tabla -->
+    <div class="overflow-x-auto transition-opacity duration-300" [class.opacity-50]="loading">
+      <table mat-table [dataSource]="dataSource" class="w-full">
+        <!-- Columna: Nombre -->
+        <ng-container matColumnDef="firstName">
+          <th 
+            mat-header-cell 
+            *matHeaderCellDef 
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+            (click)="changeSortField('firstName')">
+            <div class="flex items-center space-x-1">
+              <span>Nombre</span>
+              <app-icon 
+                *ngIf="sortBy === 'firstName' && sortDirection === 'asc'"
+                name="chevronUp" 
+                class="h-4 w-4 text-blue-600"></app-icon>
+              <app-icon 
+                *ngIf="sortBy === 'firstName' && sortDirection === 'desc'"
+                name="chevronDown" 
+                class="h-4 w-4 text-blue-600"></app-icon>
+              <app-icon 
+                *ngIf="sortBy !== 'firstName'"
+                name="moreVertical" 
+                class="h-4 w-4 text-gray-400"></app-icon>
+            </div>
+          </th>
+          <td mat-cell *matCellDef="let patient" class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm font-medium text-gray-900">{{ patient.firstName }}</div>
+          </td>
+        </ng-container>
+
+        <!-- Columna: Apellido -->
+        <ng-container matColumnDef="lastName">
+          <th 
+            mat-header-cell 
+            *matHeaderCellDef 
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+            (click)="changeSortField('lastName')">
+            <div class="flex items-center space-x-1">
+              <span>Apellido</span>
+              <app-icon 
+                *ngIf="sortBy === 'lastName' && sortDirection === 'asc'"
+                name="chevronUp" 
+                class="h-4 w-4 text-blue-600"></app-icon>
+              <app-icon 
+                *ngIf="sortBy === 'lastName' && sortDirection === 'desc'"
+                name="chevronDown" 
+                class="h-4 w-4 text-blue-600"></app-icon>
+              <app-icon 
+                *ngIf="sortBy !== 'lastName'"
+                name="moreVertical" 
+                class="h-4 w-4 text-gray-400"></app-icon>
+            </div>
+          </th>
+          <td mat-cell *matCellDef="let patient" class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm font-medium text-gray-900">{{ patient.lastName }}</div>
+          </td>
+        </ng-container>
+
+        <!-- Columna: DNI -->
+        <ng-container matColumnDef="dni">
+          <th 
+            mat-header-cell 
+            *matHeaderCellDef 
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+            (click)="changeSortField('dni')">
+            <div class="flex items-center space-x-1">
+              <span>DNI</span>
+              <app-icon 
+                *ngIf="sortBy === 'dni' && sortDirection === 'asc'"
+                name="chevronUp" 
+                class="h-4 w-4 text-blue-600"></app-icon>
+              <app-icon 
+                *ngIf="sortBy === 'dni' && sortDirection === 'desc'"
+                name="chevronDown" 
+                class="h-4 w-4 text-blue-600"></app-icon>
+              <app-icon 
+                *ngIf="sortBy !== 'dni'"
+                name="moreVertical" 
+                class="h-4 w-4 text-gray-400"></app-icon>
+            </div>
+          </th>
+          <td mat-cell *matCellDef="let patient" class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-500">{{ patient.dni }}</div>
+          </td>
+        </ng-container>
+
+        <!-- Columna: Email -->
+        <ng-container matColumnDef="email">
+          <th 
+            mat-header-cell 
+            *matHeaderCellDef 
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+            (click)="changeSortField('email')">
+            <div class="flex items-center space-x-1">
+              <span>Email</span>
+              <app-icon 
+                *ngIf="sortBy === 'email' && sortDirection === 'asc'"
+                name="chevronUp" 
+                class="h-4 w-4 text-blue-600"></app-icon>
+              <app-icon 
+                *ngIf="sortBy === 'email' && sortDirection === 'desc'"
+                name="chevronDown" 
+                class="h-4 w-4 text-blue-600"></app-icon>
+              <app-icon 
+                *ngIf="sortBy !== 'email'"
+                name="moreVertical" 
+                class="h-4 w-4 text-gray-400"></app-icon>
+            </div>
+          </th>
+          <td mat-cell *matCellDef="let patient" class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-500">{{ patient.email }}</div>
+          </td>
+        </ng-container>
+
+        <!-- Columna: Teléfono -->
+        <ng-container matColumnDef="phone">
+          <th mat-header-cell *matHeaderCellDef class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Teléfono
+          </th>
+          <td mat-cell *matCellDef="let patient" class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-500">{{ patient.phone || '-' }}</div>
+          </td>
+        </ng-container>
+
+        <!-- Columna: Estado -->
+        <ng-container matColumnDef="active">
+          <th mat-header-cell *matHeaderCellDef class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Estado
+          </th>
+          <td mat-cell *matCellDef="let patient" class="px-6 py-4 whitespace-nowrap">
+            <span 
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors"
+              [ngClass]="{
+                'bg-green-50 text-green-600': patient.active,
+                'bg-red-50 text-red-600': !patient.active
+              }">
+              {{ patient.active ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Columna: Acciones -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Acciones
+          </th>
+          <td mat-cell *matCellDef="let patient" class="px-6 py-4 whitespace-nowrap text-right">
+            <button 
+              (click)="assignPatient(patient)"
+              [disabled]="loading"
+              class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+              Asignar
+            </button>
+          </td>
+        </ng-container>
+
+        <!-- Filas de la tabla -->
+        <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-gray-50"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns" class="hover:bg-gray-50 transition-colors"></tr>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div
+      *ngIf="availablePatients.length === 0 && !loading"
+      class="flex flex-col items-center justify-center py-24 px-4 text-center bg-gradient-to-br from-gray-50 to-blue-50"
+    >
+      <div class="w-24 h-24 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center mb-6 shadow-lg">
+        <app-icon name="users" class="h-12 w-12 text-blue-500"></app-icon>
+      </div>
+      <h3 class="text-2xl font-bold text-gray-900 mb-2">
+        No hay pacientes disponibles
+      </h3>
+      <p class="text-gray-600 max-w-md">
+        Todos los pacientes ya han sido asignados a un dentista.
       </p>
     </div>
 
-    <div *ngIf="!loading && filteredPatients.length > 0" class="divide-y divide-gray-200">
-      <div *ngFor="let patient of filteredPatients" 
-           class="p-6 hover:bg-gray-50 transition-colors cursor-pointer"
-           (click)="viewPatientTreatments(patient.id)">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-4">
-            <div class="flex-shrink-0">
-              <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                <app-icon name="users" class="h-6 w-6 text-blue-600"></app-icon>
-              </div>
-            </div>
-            <div>
-              <h3 class="text-lg font-medium text-gray-900">
-                {{ patient.firstName }} {{ patient.lastName }}
-              </h3>
-              <div class="flex items-center space-x-4 text-sm text-gray-500">
-                <span>DNI: {{ patient.dni }}</span>
-                <span *ngIf="patient.email">{{ patient.email }}</span>
-                <span *ngIf="patient.phone">{{ patient.phone }}</span>
-              </div>
-            </div>
-          </div>
-          <div class="flex items-center space-x-3">
-            <span class="dental-badge" 
-                  [class]="patient.active ? 'dental-badge-accent' : 'dental-badge-warn'">
-              {{ patient.active ? 'Activo' : 'Inactivo' }}
-            </span>
-            <button class="dental-btn-primary">
-              Ver Tratamientos
-            </button>
-          </div>
-        </div>
-      </div>
+    <!-- Paginación -->
+    <div
+      *ngIf="totalElements > 0"
+      class="bg-gray-50 px-6 py-4 border-t border-gray-200"
+    >
+      <mat-paginator
+        [length]="totalElements"
+        [pageSize]="pageSize"
+        [pageIndex]="currentPage"
+        [pageSizeOptions]="[5, 10, 20, 50]"
+        (page)="onPageChange($event)"
+        [disabled]="loading"
+        showFirstLastButtons
+        class="bg-transparent"
+      >
+      </mat-paginator>
     </div>
   </div>
 </div>

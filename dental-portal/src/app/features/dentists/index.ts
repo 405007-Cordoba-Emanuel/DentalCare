@@ -2,9 +2,10 @@
 export * from './interfaces/dentist.interface';
 export * from './interfaces/patient.interface';
 export * from './interfaces/treatment.interface';
+export * from './interfaces/paged-response.interface';
 
 // Services
-export * from './services/dentist.service';
+export * from '../../core/services/dentist.service';
 export * from './services/treatment.service';
 
 // Components

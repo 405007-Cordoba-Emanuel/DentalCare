@@ -245,12 +245,32 @@ public class DentistController {
         }
     }
 
-    @Operation(summary = "Obtener usuarios pacientes disponibles")
+    @Operation(summary = "Obtener usuarios pacientes disponibles (sin paginación)")
     @GetMapping("/available-patients")
     public ResponseEntity<List<PatientResponseDto>> getAvailablePatientUsers() {
         try {
             List<PatientResponseDto> availableUsers = dentistService.getAvailablePatientUsers();
             return ResponseEntity.ok(availableUsers);
+        } catch (Exception e) {
+            throw new RuntimeException("Internal error getting available patient users", e);
+        }
+    }
+
+    @Operation(summary = "Obtener usuarios pacientes disponibles con paginación")
+    @GetMapping("/available-patients/paged")
+    public ResponseEntity<com.dentalCare.be_core.dtos.response.PagedResponse<PatientResponseDto>> getAvailablePatientUsersPaged(
+            @Parameter(description = "Page number (0-indexed)", required = false)
+            @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Page size", required = false)
+            @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "Sort by field (dni, firstName, lastName, email)", required = false)
+            @RequestParam(defaultValue = "lastName") String sortBy,
+            @Parameter(description = "Sort direction (asc, desc)", required = false)
+            @RequestParam(defaultValue = "asc") String sortDirection) {
+        try {
+            com.dentalCare.be_core.dtos.response.PagedResponse<PatientResponseDto> response = 
+                dentistService.getAvailablePatientUsersPaged(page, size, sortBy, sortDirection);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             throw new RuntimeException("Internal error getting available patient users", e);
         }

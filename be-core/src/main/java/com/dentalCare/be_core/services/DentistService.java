@@ -44,6 +44,8 @@ public interface DentistService {
     PatientResponseDto createPatientForDentist(Long dentistId, PatientRequestDto patientRequestDto);
 
     List<PatientResponseDto> getAvailablePatientUsers();
+    
+    com.dentalCare.be_core.dtos.response.PagedResponse<PatientResponseDto> getAvailablePatientUsersPaged(int page, int size, String sortBy, String sortDirection);
 
     Long getDentistIdByUserId(Long userId);
 

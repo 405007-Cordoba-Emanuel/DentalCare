@@ -37,5 +37,9 @@ export class PatientService {
   getPatientIdByUserId(userId: number): Observable<number> {
     return this.http.get<number>(`${this.apiUrl}/user-id/${userId}`);
   }
+
+  assignDentistToPatient(patientId: number, dentistId: number): Observable<Patient> {
+    return this.http.put<Patient>(`${this.apiUrl}/${patientId}/assign-dentist/${dentistId}`, {});
+  }
 }
 
