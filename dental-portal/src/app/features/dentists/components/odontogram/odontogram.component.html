@@ -213,17 +213,7 @@
     </mat-card>
 
     <!-- Botones de Acción -->
-    <div class="flex flex-col sm:flex-row justify-center gap-4 mb-6">
-      <button 
-        mat-raised-button 
-        color="primary"
-        (click)="saveOdontogram()"
-        class="!py-3 !px-8 !text-base !font-semibold !rounded-xl !shadow-lg hover:!shadow-xl !transition-all !duration-300"
-      >
-        <mat-icon class="mr-2">save</mat-icon>
-        Guardar Odontograma
-      </button>
-      
+    <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-6">
       <button 
         mat-raised-button 
         color="warn"
@@ -232,6 +222,16 @@
       >
         <mat-icon class="mr-2">refresh</mat-icon>
         Limpiar Todo
+      </button>
+      
+      <button 
+        mat-raised-button 
+        color="primary"
+        (click)="saveOdontogram()"
+        class="!py-3 !px-8 !text-base !font-semibold !rounded-xl !shadow-lg hover:!shadow-xl !transition-all !duration-300"
+      >
+        <mat-icon class="mr-2">save</mat-icon>
+        Guardar Odontograma
       </button>
     </div>
 
@@ -255,22 +255,41 @@
           <p class="text-slate-600 m-0">No hay odontogramas guardados para este paciente</p>
         </div>
         
-        <!-- Lista de odontogramas guardados -->
+        <!-- Lista de odontogramas guardados (ordenados por fecha DESC - más reciente primero) -->
         <div *ngIf="savedOdontograms.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          <button 
-            *ngFor="let saved of savedOdontograms"
-            mat-stroked-button
-            (click)="loadSavedOdontogram(saved)"
-            class="!p-4 !text-left !border-slate-300 hover:!border-blue-300 hover:!bg-blue-50 !transition-all !duration-300 !rounded-xl"
+          <div 
+            *ngFor="let saved of savedOdontograms; let i = index"
+            class="relative group"
           >
-            <div class="flex items-center gap-3">
-              <mat-icon class="text-blue-600">calendar_today</mat-icon>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-slate-800 m-0 truncate">{{ saved.date | date:'dd/MM/yyyy' }}</p>
-                <p class="text-xs text-slate-500 m-0">{{ saved.dentitionType === 'adult' ? 'Adulto' : 'Niño' }}</p>
+            <button 
+              mat-stroked-button
+              (click)="loadSavedOdontogram(saved)"
+              class="!w-full !p-4 !border-slate-300 hover:!border-blue-300 hover:!bg-blue-50 !transition-all !duration-300 !rounded-xl"
+            >
+              <div class="flex items-center justify-center gap-2 flex-wrap">
+                <span class="text-sm font-semibold text-slate-800">
+                  {{ getLocalDateTime(saved.createdDatetime) }}
+                </span>
+                <!-- Badge pequeño "nuevo" al lado de la fecha -->
+                <span 
+                  *ngIf="i === 0" 
+                  class="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded flex-shrink-0"
+                >
+                  nuevo
+                </span>
               </div>
-            </div>
-          </button>
+            </button>
+            
+            <!-- Botón de eliminar (aparece en hover, centrado verticalmente) -->
+            <button
+              mat-icon-button
+              (click)="confirmDeleteOdontogram(saved)"
+              class="!absolute top-1/2 -translate-y-1/2 right-2 !w-9 !h-9 !flex !items-center !justify-center opacity-0 group-hover:opacity-100 !transition-opacity !duration-200 !bg-red-50 hover:!bg-red-100 !text-red-600 !rounded-full"
+              matTooltip="Eliminar odontograma"
+            >
+              <mat-icon class="!text-base">close</mat-icon>
+            </button>
+          </div>
         </div>
       </div>
     </mat-expansion-panel>

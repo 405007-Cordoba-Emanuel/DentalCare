@@ -9,7 +9,12 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
+import { OdontogramService, OdontogramResponseDto } from '../../services/odontogram.service';
+import { LocalStorageService } from '../../../../core/services/auth/local-storage.service';
+import { ConfirmDeleteOdontogramDialogComponent, ConfirmDeleteOdontogramData } from './confirm-delete-odontogram-dialog.component';
 
 type ToothStatus =
   | 'healthy'
@@ -35,7 +40,7 @@ interface ToothStatusConfig {
 
 interface SavedOdontogram {
   id: number;
-  date: Date;
+  createdDatetime: string;
   dentitionType: DentitionType;
   teeth: Record<number, ToothData>;
 }
@@ -53,21 +58,26 @@ interface SavedOdontogram {
     MatCheckboxModule,
     MatExpansionModule,
     MatSnackBarModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatTooltipModule,
+    MatDialogModule
   ],
   templateUrl: './odontogram.component.html',
   styleUrl: './odontogram.component.css'
 })
 export class OdontogramComponent implements OnInit {
-  patientId: string | null = null;
+  patientId: number | null = null;
+  dentistId: number | null = null;
   
-  // Datos del paciente (mock por ahora)
+  // Datos del paciente
   patientInfo = {
-    firstName: 'Juan',
-    lastName: 'Pérez',
-    dni: '12345678',
-    age: 35
+    firstName: 'Cargando',
+    lastName: '...',
+    dni: '...',
+    age: 0
   };
+
+  isLoading = false;
 
   // Configuración de estados de dientes
   readonly TOOTH_STATUS_CONFIG: Record<ToothStatus, ToothStatusConfig> = {
@@ -127,13 +137,87 @@ export class OdontogramComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog,
+    private odontogramService: OdontogramService,
+    private localStorageService: LocalStorageService
   ) {}
 
   ngOnInit(): void {
-    this.patientId = this.route.snapshot.paramMap.get('patientId');
+    // Obtener IDs de los parámetros y localStorage
+    const patientIdParam = this.route.snapshot.paramMap.get('patientId');
+    this.patientId = patientIdParam ? parseInt(patientIdParam) : null;
+    
+    // Obtener dentistId desde localStorage
+    this.dentistId = this.localStorageService.getDentistId();
+
+    if (!this.patientId) {
+      this.snackBar.open('ID de paciente no encontrado', 'Cerrar', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top'
+      });
+      this.router.navigate(['/dentist']);
+      return;
+    }
+
+    if (!this.dentistId) {
+      this.snackBar.open('ID de dentista no encontrado', 'Cerrar', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top'
+      });
+      this.router.navigate(['/dentist']);
+      return;
+    }
+
     this.initializeTeeth();
-    // TODO: Cargar datos del paciente y odontogramas guardados desde el backend
+    this.loadPatientInfo();
+    this.loadSavedOdontograms();
+  }
+
+  loadPatientInfo(): void {
+    // TODO: Cargar info del paciente desde el backend
+    // Por ahora usar datos mock basados en patientId
+    this.patientInfo = {
+      firstName: 'María',
+      lastName: 'González',
+      dni: '12345678',
+      age: 30
+    };
+  }
+
+  loadSavedOdontograms(): void {
+    if (!this.dentistId || !this.patientId) return;
+
+    this.isLoading = true;
+    this.odontogramService.getOdontogramsByPatient(this.dentistId, this.patientId).subscribe({
+      next: (odontograms: OdontogramResponseDto[]) => {
+        // El backend ya devuelve ordenado por fecha DESC (más reciente primero)
+        this.savedOdontograms = odontograms.map(dto => this.mapDtoToSavedOdontogram(dto));
+        console.log('Odontogramas cargados (más reciente primero):', this.savedOdontograms);
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar odontogramas:', error);
+        this.isLoading = false;
+        this.snackBar.open('Error al cargar odontogramas anteriores', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top'
+        });
+      }
+    });
+  }
+
+  private mapDtoToSavedOdontogram(dto: OdontogramResponseDto): SavedOdontogram {
+    const teethData = JSON.parse(dto.teethData);
+    return {
+      id: dto.id,
+      createdDatetime: dto.createdDatetime,
+      dentitionType: dto.dentitionType,
+      teeth: teethData
+    };
   }
 
   initializeTeeth(): void {
@@ -228,11 +312,49 @@ export class OdontogramComponent implements OnInit {
   }
 
   saveOdontogram(): void {
-    // TODO: Implementar guardado en backend
-    this.snackBar.open('Odontograma guardado correctamente', 'Cerrar', {
-      duration: 3000,
-      horizontalPosition: 'end',
-      verticalPosition: 'top'
+    if (!this.dentistId || !this.patientId) {
+      this.snackBar.open('Error: IDs no encontrados', 'Cerrar', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top'
+      });
+      return;
+    }
+
+    this.isLoading = true;
+
+    const requestDto = {
+      patientId: this.patientId,
+      dentitionType: this.dentitionType,
+      teethData: JSON.stringify(this.teeth)
+    };
+
+    this.odontogramService.createOdontogram(this.dentistId, this.patientId, requestDto).subscribe({
+      next: (response: OdontogramResponseDto) => {
+        this.isLoading = false;
+        this.snackBar.open('Odontograma guardado correctamente', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['success-snackbar']
+        });
+        
+        // Recargar la lista de odontogramas guardados
+        this.loadSavedOdontograms();
+        
+        // Expandir el panel de historial para mostrar el nuevo odontograma
+        this.historyPanelExpanded = true;
+      },
+      error: (error) => {
+        this.isLoading = false;
+        console.error('Error al guardar odontograma:', error);
+        this.snackBar.open('Error al guardar el odontograma', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        });
+      }
     });
   }
 
@@ -240,10 +362,98 @@ export class OdontogramComponent implements OnInit {
     this.dentitionType = saved.dentitionType;
     this.teeth = JSON.parse(JSON.stringify(saved.teeth)); // Deep copy
     this.selectedTooth = null;
-    this.snackBar.open('Odontograma cargado correctamente', 'Cerrar', {
-      duration: 3000,
-      horizontalPosition: 'end',
-      verticalPosition: 'top'
+    
+    this.snackBar.open(
+      `Odontograma del ${this.getLocalDateTime(saved.createdDatetime)} cargado`, 
+      'Cerrar', 
+      {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top'
+      }
+    );
+  }
+
+  /**
+   * Convierte una fecha del backend a formato local (solo fecha)
+   */
+  getLocalDateTime(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  }
+
+  /**
+   * Confirma y elimina un odontograma
+   */
+  confirmDeleteOdontogram(saved: SavedOdontogram): void {
+    const fecha = this.getLocalDateTime(saved.createdDatetime);
+    const isRecent = this.savedOdontograms.length > 0 && this.savedOdontograms[0].id === saved.id;
+    const patientFullName = `${this.patientInfo.firstName} ${this.patientInfo.lastName}`;
+
+    const dialogData: ConfirmDeleteOdontogramData = {
+      patientName: patientFullName,
+      odontogramDate: fecha,
+      isRecent: isRecent
+    };
+
+    const dialogRef = this.dialog.open(ConfirmDeleteOdontogramDialogComponent, {
+      width: '500px',
+      data: dialogData,
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        this.deleteOdontogram(saved.id);
+      }
+    });
+  }
+
+  /**
+   * Elimina un odontograma del backend
+   */
+  deleteOdontogram(odontogramId: number): void {
+    if (!this.dentistId) {
+      this.snackBar.open('Error: ID de dentista no encontrado', 'Cerrar', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top'
+      });
+      return;
+    }
+
+    this.isLoading = true;
+
+    this.odontogramService.deleteOdontogram(this.dentistId, odontogramId).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.snackBar.open('Odontograma eliminado correctamente', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['success-snackbar']
+        });
+        
+        // Recargar la lista de odontogramas
+        this.loadSavedOdontograms();
+        
+        // Si el odontograma actual era el eliminado, limpiar todo
+        this.clearAll();
+      },
+      error: (error) => {
+        this.isLoading = false;
+        console.error('Error al eliminar odontograma:', error);
+        this.snackBar.open('Error al eliminar el odontograma', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        });
+      }
     });
   }
 }
