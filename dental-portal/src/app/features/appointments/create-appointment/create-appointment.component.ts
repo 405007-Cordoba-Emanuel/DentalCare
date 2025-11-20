@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { DentistService } from '../../dentists/services/dentist.service';
+import { DentistService } from '../../../core/services/dentist.service';
 import { PatientSummary } from '../../dentists/interfaces/patient.interface';
 import { AppointmentRequest } from '../../dentists/interfaces/appointment.interface';
 import { LocalStorageService } from '../../../core/services/auth/local-storage.service';

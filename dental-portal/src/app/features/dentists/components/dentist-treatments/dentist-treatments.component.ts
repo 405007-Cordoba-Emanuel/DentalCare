@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TreatmentService } from '../../services/treatment.service';
-import { DentistService } from '../../services/dentist.service';
+import { DentistService } from '../../../../core/services/dentist.service';
 import { TreatmentResponse, TreatmentDetailResponse } from '../../interfaces/treatment.interface';
 import { PatientSummary } from '../../interfaces/patient.interface';
 import { IconComponent } from '../../../../shared/icon/icon.component';

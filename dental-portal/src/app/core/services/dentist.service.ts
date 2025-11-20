@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { DentistResponse, DentistUpdateRequest } from '../interfaces/dentist.interface';
-import { DentistPatientsResponse, PatientInfo, PatientRequest } from '../interfaces/patient.interface';
-import { AppointmentRequest, AppointmentResponse } from '../interfaces/appointment.interface';
+import { DentistResponse, DentistUpdateRequest } from '../../features/dentists/interfaces/dentist.interface';
+import { DentistPatientsResponse, PatientInfo, PatientRequest, PatientResponse } from '../../features/dentists/interfaces/patient.interface';
+import { AppointmentRequest, AppointmentResponse } from '../../features/dentists/interfaces/appointment.interface';
+import { PagedResponse } from '../../features/dentists/interfaces/paged-response.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -43,5 +44,19 @@ export class DentistService {
 
   createPatient(dentistId: number, patient: PatientRequest): Observable<PatientInfo> {
     return this.http.post<PatientInfo>(`${this.apiUrl}/${dentistId}/patients`, patient);
+  }
+
+  getAvailablePatients(): Observable<PatientResponse[]> {
+    return this.http.get<PatientResponse[]>(`${this.apiUrl}/available-patients`);
+  }
+
+  getAvailablePatientsPaged(page: number, size: number, sortBy: string, sortDirection: string): Observable<PagedResponse<PatientResponse>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sortBy', sortBy)
+      .set('sortDirection', sortDirection);
+    
+    return this.http.get<PagedResponse<PatientResponse>>(`${this.apiUrl}/available-patients/paged`, { params });
   }
 }

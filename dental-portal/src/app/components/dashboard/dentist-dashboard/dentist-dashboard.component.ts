@@ -9,7 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { DentistService } from '../../../features/dentists/services/dentist.service';
+import { DentistService } from '../../../core/services/dentist.service';
 import { PatientSummary } from '../../../features/dentists/interfaces/patient.interface';
 import { LocalStorageService } from '../../../core/services/auth/local-storage.service';
 

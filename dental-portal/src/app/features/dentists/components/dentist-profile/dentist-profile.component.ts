@@ -5,7 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
-import { DentistService } from '../../services/dentist.service';
+import { DentistService } from '../../../../core/services/dentist.service';
 import { UserService } from '../../../../core/services/auth/user.service';
 import {
   FormField,

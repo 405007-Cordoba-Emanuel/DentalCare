@@ -27,3 +27,14 @@ export interface PatientRequest {
   userId: number;
   dni: number;
 }
+
+export interface PatientResponse {
+  id: number;
+  userId: number;
+  firstName: string;
+  lastName: string;
+  dni: string;
+  email: string;
+  phone: string;
+  active: boolean;
+}

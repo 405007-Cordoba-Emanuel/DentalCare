@@ -165,6 +165,91 @@ public class DentistServiceImpl implements DentistService {
 
     @Override
     @Transactional(readOnly = true)
+    public com.dentalCare.be_core.dtos.response.PagedResponse<PatientResponseDto> getAvailablePatientUsersPaged(
+            int page, int size, String sortBy, String sortDirection) {
+        
+        // Validar y ajustar parámetros de paginación
+        if (page < 0) page = 0;
+        if (size < 1 || size > 100) size = 10; // Máximo 100 elementos por página
+        
+        // Crear Sort basado en sortBy y sortDirection
+        org.springframework.data.domain.Sort.Direction direction = 
+            "desc".equalsIgnoreCase(sortDirection) ? 
+                org.springframework.data.domain.Sort.Direction.DESC : 
+                org.springframework.data.domain.Sort.Direction.ASC;
+        
+        // Validar campo de ordenamiento
+        String validSortBy = "lastName"; // Por defecto
+        if (sortBy != null && !sortBy.isEmpty()) {
+            // Permitir solo campos válidos de la entidad Patient
+            if (sortBy.equals("dni") || sortBy.equals("active") || sortBy.equals("id")) {
+                validSortBy = sortBy;
+            } else {
+                validSortBy = "id"; // Por defecto si no es válido
+            }
+        }
+        
+        org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort.by(direction, validSortBy);
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, sort);
+        
+        // Obtener página de pacientes disponibles
+        org.springframework.data.domain.Page<Patient> patientPage = patientRepository.findAvailablePatients(pageable);
+        
+        // Mapear a PatientResponseDto con información completa del usuario y paciente
+        List<PatientResponseDto> patientDtos = patientPage.getContent().stream()
+                .map(patient -> {
+                    UserDetailDto user = userServiceClient.getUserById(patient.getUserId());
+                    PatientResponseDto dto = new PatientResponseDto();
+                    dto.setId(patient.getId());
+                    dto.setUserId(patient.getUserId());
+                    dto.setFirstName(user.getFirstName());
+                    dto.setLastName(user.getLastName());
+                    dto.setEmail(user.getEmail());
+                    dto.setPhone(user.getPhone());
+                    dto.setAddress(user.getAddress());
+                    dto.setDni(patient.getDni());
+                    dto.setActive(patient.getActive());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+        
+        // Aplicar ordenamiento por firstName y lastName en memoria si es necesario
+        // (ya que estos campos vienen del microservicio de usuarios)
+        if (sortBy != null && (sortBy.equals("firstName") || sortBy.equals("lastName") || sortBy.equals("email"))) {
+            java.util.Comparator<PatientResponseDto> comparator = null;
+            
+            if (sortBy.equals("firstName")) {
+                comparator = java.util.Comparator.comparing(PatientResponseDto::getFirstName, String.CASE_INSENSITIVE_ORDER);
+            } else if (sortBy.equals("lastName")) {
+                comparator = java.util.Comparator.comparing(PatientResponseDto::getLastName, String.CASE_INSENSITIVE_ORDER);
+            } else if (sortBy.equals("email")) {
+                comparator = java.util.Comparator.comparing(PatientResponseDto::getEmail, String.CASE_INSENSITIVE_ORDER);
+            }
+            
+            if (comparator != null) {
+                if (direction == org.springframework.data.domain.Sort.Direction.DESC) {
+                    comparator = comparator.reversed();
+                }
+                patientDtos.sort(comparator);
+            }
+        }
+        
+        // Crear respuesta paginada
+        com.dentalCare.be_core.dtos.response.PagedResponse<PatientResponseDto> response = 
+            new com.dentalCare.be_core.dtos.response.PagedResponse<>();
+        response.setContent(patientDtos);
+        response.setPageNumber(patientPage.getNumber());
+        response.setPageSize(patientPage.getSize());
+        response.setTotalElements(patientPage.getTotalElements());
+        response.setTotalPages(patientPage.getTotalPages());
+        response.setFirst(patientPage.isFirst());
+        response.setLast(patientPage.isLast());
+        
+        return response;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Long getDentistIdByUserId(Long userId) {
         return dentistRepository.findByUserId(userId)
                 .map(Dentist::getId)
