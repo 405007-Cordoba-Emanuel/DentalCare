@@ -1,8 +1,8 @@
 <div class="prescription-container">
   <div class="header-section">
     <div class="title-section">
-      <h1 class="main-title">Mis Recetas</h1>
-      <p class="subtitle">Visualiza tus recetas médicas y medicamentos</p>
+      <h1 class="main-title">Recetas - {{ patientInfo.firstName }} {{ patientInfo.lastName }}</h1>
+      <p class="subtitle">Visualiza y gestiona las recetas médicas del paciente</p>
     </div>
 
     <!-- KPI Section -->
@@ -31,10 +31,16 @@
 
   <!-- Search and Filter Section -->
   <div class="search-filter-section">
-    <mat-form-field appearance="fill" class="search-field">
-      <mat-icon matPrefix>search</mat-icon>
-      <input matInput [(ngModel)]="searchTerm" (input)="onSearchChange()" placeholder="Buscar medicamento, observación o dentista" />
-    </mat-form-field>
+    <div class="search-container">
+      <mat-form-field appearance="fill" class="search-field">
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [(ngModel)]="searchTerm" (input)="onSearchChange()" placeholder="Buscar medicamento, observación o dentista" />
+      </mat-form-field>
+      <button mat-raised-button color="primary" (click)="openCreatePrescriptionDialog()" class="create-button">
+        <mat-icon>add</mat-icon>
+        Nueva Receta
+      </button>
+    </div>
   </div>
 
   <!-- Loading State -->
@@ -47,29 +53,45 @@
   <div *ngIf="!isLoading && filteredPrescriptions.length === 0" class="empty-state">
     <mat-icon>description</mat-icon>
     <h3>No hay recetas disponibles</h3>
-    <p>{{ searchTerm ? 'No se encontraron recetas con ese criterio de búsqueda' : 'Aún no tienes recetas registradas' }}</p>
+    <p>{{ searchTerm ? 'No se encontraron recetas con ese criterio de búsqueda' : 'Aún no hay recetas registradas para este paciente' }}</p>
   </div>
 
   <!-- Prescription List -->
   <div *ngIf="!isLoading && filteredPrescriptions.length > 0" class="prescription-list">
-    <mat-card *ngFor="let prescription of filteredPrescriptions" class="prescription-card">
+    <mat-card *ngFor="let prescription of filteredPrescriptions" class="prescription-card group">
       <div class="prescription-header">
         <div class="prescription-info">
           <div class="prescription-date-badge">
             <mat-icon>calendar_today</mat-icon>
             <span class="date-text">{{ formatDate(prescription.prescriptionDate) }}</span>
           </div>
-          <div class="prescription-meta">
-            <mat-icon>person</mat-icon>
-            <span>{{ prescription.dentistName }}</span>
-          </div>
-          <div class="prescription-id">
-            <span class="id-label">Receta #{{ prescription.id }}</span>
-          </div>
         </div>
         <div class="prescription-actions">
-          <button mat-icon-button (click)="openPrescriptionDetail(prescription)" class="view-button">
+          <button 
+            mat-icon-button 
+            (click)="openEditPrescriptionDialog(prescription)" 
+            class="view-button"
+            matTooltip="Ver/Editar receta"
+          >
             <mat-icon>visibility</mat-icon>
+          </button>
+          <button 
+            mat-icon-button 
+            (click)="downloadPrescriptionPdf(prescription)" 
+            class="download-button"
+            matTooltip="Descargar PDF"
+          >
+            <mat-icon>download</mat-icon>
+          </button>
+          <button 
+            mat-icon-button 
+            (click)="confirmDeletePrescription(prescription)" 
+            class="delete-button"
+            [disabled]="isDeleting(prescription.id) || isLoading"
+            matTooltip="Eliminar receta"
+          >
+            <mat-icon *ngIf="!isDeleting(prescription.id)">close</mat-icon>
+            <mat-spinner *ngIf="isDeleting(prescription.id)" diameter="20" class="inline-spinner"></mat-spinner>
           </button>
         </div>
       </div>

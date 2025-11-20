@@ -149,8 +149,11 @@ export class DentistDashboardComponent implements OnInit {
   }
 
   viewPrescriptions(patientId: number) {
-    // TODO: Implementar ruta de recetas por paciente
-    console.log('Ver recetas del paciente:', patientId);
+    console.log('Navegando a recetas del paciente:', patientId);
+    this.router.navigate(['/dentist/patients', patientId, 'prescriptions']).then(
+      success => console.log('Navegación exitosa:', success),
+      error => console.error('Error en navegación:', error)
+    );
   }
 
   viewProgress(patientId: number) {

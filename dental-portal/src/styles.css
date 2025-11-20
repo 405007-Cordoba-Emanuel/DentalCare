@@ -347,3 +347,17 @@ body {
 .error-snackbar .mat-button {
   color: white !important;
 }
+
+.warning-snackbar {
+  background-color: #ff9800 !important;
+  color: white !important;
+}
+
+.warning-snackbar .mat-simple-snack-bar-content {
+  color: white !important;
+  font-weight: 500;
+}
+
+.warning-snackbar .mat-button {
+  color: white !important;
+}

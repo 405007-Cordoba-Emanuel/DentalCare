@@ -1,0 +1,86 @@
+<div class="dialog-container">
+  <div class="dialog-header">
+    <h2 class="dialog-title">
+      {{ isEditMode ? 'Editar Receta' : 'Nueva Receta' }} - {{ data.patientName }}
+    </h2>
+    <button mat-icon-button (click)="onCancel()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="dialog-content">
+    <!-- General Information (Read-only) -->
+    <div class="info-section">
+      <div class="info-row">
+        <span class="info-label">Fecha:</span>
+        <span class="info-value">{{ formatDate(prescriptionDate) }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Dentista:</span>
+        <span class="info-value">{{ dentistInfo.name }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Matrícula:</span>
+        <span class="info-value">{{ dentistInfo.licenseNumber }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Especialidad:</span>
+        <span class="info-value">{{ dentistInfo.specialty }}</span>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Medications Section (Editable) -->
+    <div class="medications-section">
+      <h3 class="section-title">
+        <mat-icon>medication</mat-icon>
+        Medicamentos *
+      </h3>
+      <mat-form-field appearance="outline" class="full-width">
+        <textarea 
+          matInput 
+          [(ngModel)]="medications" 
+          placeholder="Ingrese los medicamentos (uno por línea o separados por comas)"
+          rows="6"
+          required
+        ></textarea>
+      </mat-form-field>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Observations Section (Editable) -->
+    <div class="observations-section">
+      <h3 class="section-title">
+        <mat-icon>notes</mat-icon>
+        Instrucciones Generales
+      </h3>
+      <mat-form-field appearance="outline" class="full-width">
+        <textarea 
+          matInput 
+          [(ngModel)]="observations" 
+          placeholder="Ingrese las instrucciones generales para el paciente"
+          rows="4"
+        ></textarea>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="dialog-actions">
+    <button mat-button (click)="onCancel()" [disabled]="isLoading">
+      Cancelar
+    </button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="onSave()" 
+      [disabled]="isLoading || !medications.trim()"
+    >
+      <mat-icon *ngIf="!isLoading">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+      <span *ngIf="isLoading">Guardando...</span>
+      <span *ngIf="!isLoading">{{ isEditMode ? 'Guardar Cambios' : 'Guardar Receta' }}</span>
+    </button>
+  </div>
+</div>
+
