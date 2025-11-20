@@ -3,9 +3,15 @@ package dental.core.users.modules.auth.services.impl;
 import dental.core.users.configs.security.JwtUtil;
 import dental.core.users.entities.Role;
 import dental.core.users.entities.UserEntity;
+import dental.core.users.mail.models.EmailRequest;
+import dental.core.users.mail.models.EmailType;
+import dental.core.users.mail.services.EmailService;
 import dental.core.users.modules.auth.dto.AuthResponse;
+import dental.core.users.modules.auth.dto.ForgotPasswordRequest;
 import dental.core.users.modules.auth.dto.LoginRequest;
+import dental.core.users.modules.auth.dto.MessageResponse;
 import dental.core.users.modules.auth.dto.RegisterRequest;
+import dental.core.users.modules.auth.dto.ResetPasswordRequest;
 import dental.core.users.modules.auth.exceptions.CustomAuthenticationException;
 import dental.core.users.modules.auth.exceptions.UserAlreadyExistsException;
 import dental.core.users.modules.auth.repositories.UserRepository;
@@ -17,14 +23,18 @@ import dental.core.users.dto.DentistResponse;
 import dental.core.users.dto.PatientResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Implementación del servicio de autenticación.
@@ -40,12 +50,16 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final CoreServiceClient coreServiceClient;
+    private final EmailService emailService;
+
+    @Value("${app.frontend.url:http://localhost:4200}")
+    private String frontendUrl;
 
     @Override
     public AuthResponse login(LoginRequest loginRequest) {
         try {
             // Autenticar usuario
-            Authentication authentication = authenticationManager.authenticate(
+            authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                     loginRequest.getEmail(),
                     loginRequest.getPassword()
@@ -148,6 +162,81 @@ public class AuthServiceImpl implements AuthService {
 
                  // Generar token JWT y construir respuesta
          return buildAuthResponse(savedUser, dentistId, patientId);
+    }
+
+    @Override
+    public MessageResponse forgotPassword(ForgotPasswordRequest request) {
+        log.info("Processing forgot password request for email: {}", request.getEmail());
+
+        // Buscar usuario por email
+        UserEntity user = userRepository.findByEmail(request.getEmail())
+            .orElseThrow(() -> new RuntimeException("User not found with email: " + request.getEmail()));
+
+        // Generar token único
+        String resetToken = UUID.randomUUID().toString();
+        
+        // Establecer fecha de expiración (1 hora desde ahora)
+        LocalDateTime expiryDate = LocalDateTime.now().plusHours(1);
+        
+        // Guardar token y fecha de expiración en el usuario
+        user.setResetToken(resetToken);
+        user.setResetTokenExpiry(expiryDate);
+        userRepository.save(user);
+
+        // Construir URL de reseteo
+        String resetUrl = frontendUrl + "/reset-password?token=" + resetToken;
+        
+        // Preparar variables para el template del email
+        Map<String, Object> emailVariables = new HashMap<>();
+        emailVariables.put("userName", user.getFirstName() + " " + user.getLastName());
+        emailVariables.put("resetUrl", resetUrl);
+
+        // Enviar email
+        EmailRequest emailRequest = new EmailRequest();
+        emailRequest.setTo(List.of(user.getEmail()));
+        emailRequest.setSubject("Recuperación de Contraseña - DentalCare");
+        emailRequest.setEmailType(EmailType.PASSWORD_RESET);
+        emailRequest.setVariables(emailVariables);
+
+        emailService.sendTemplatedEmail(emailRequest);
+
+        log.info("Password reset email sent successfully to: {}", user.getEmail());
+        
+        return new MessageResponse("Se ha enviado un correo electrónico con instrucciones para restablecer tu contraseña.");
+    }
+
+    @Override
+    public MessageResponse resetPassword(ResetPasswordRequest request) {
+        log.info("Processing password reset with token");
+
+        // Validar que las contraseñas coincidan
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new CustomAuthenticationException("Passwords do not match");
+        }
+
+        // Buscar usuario por token
+        UserEntity user = userRepository.findAll().stream()
+            .filter(u -> request.getToken().equals(u.getResetToken()))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Invalid reset token"));
+
+        // Verificar que el token no haya expirado
+        if (user.getResetTokenExpiry() == null || LocalDateTime.now().isAfter(user.getResetTokenExpiry())) {
+            throw new RuntimeException("Reset token has expired");
+        }
+
+        // Actualizar contraseña
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        
+        // Limpiar token y fecha de expiración
+        user.setResetToken(null);
+        user.setResetTokenExpiry(null);
+        
+        userRepository.save(user);
+
+        log.info("Password reset successfully for user: {}", user.getEmail());
+
+        return new MessageResponse("Tu contraseña ha sido restablecida exitosamente. Ahora puedes iniciar sesión con tu nueva contraseña.");
     }
 
     // ==================== PRIVATE HELPER METHODS ====================

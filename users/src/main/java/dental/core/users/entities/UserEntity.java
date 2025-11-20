@@ -76,9 +76,16 @@ public class UserEntity extends BaseEntity {
 	@Column(name = "profile_image")
 	private String profileImage;
 
+	@Builder.Default
 	@Column(name = "is_active")
 	private Boolean isActive = true;
 
 	@Column(name = "last_login")
 	private LocalDateTime lastLogin;
+
+	@Column(name = "reset_token")
+	private String resetToken;
+
+	@Column(name = "reset_token_expiry")
+	private LocalDateTime resetTokenExpiry;
 }

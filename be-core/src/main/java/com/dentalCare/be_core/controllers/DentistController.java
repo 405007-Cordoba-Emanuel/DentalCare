@@ -3,7 +3,6 @@ package com.dentalCare.be_core.controllers;
 import com.dentalCare.be_core.dtos.request.dentist.DentistRequestDto;
 import com.dentalCare.be_core.dtos.request.dentist.DentistUpdateRequestDto;
 import com.dentalCare.be_core.dtos.request.dentist.CreateDentistFromUserRequest;
-import com.dentalCare.be_core.dtos.request.patient.PatientRequestDto;
 import com.dentalCare.be_core.dtos.request.medicalhistory.MedicalHistoryRequestDto;
 import com.dentalCare.be_core.dtos.request.prescription.PrescriptionRequestDto;
 import com.dentalCare.be_core.dtos.request.treatment.TreatmentRequestDto;

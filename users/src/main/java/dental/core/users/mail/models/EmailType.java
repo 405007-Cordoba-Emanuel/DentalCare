@@ -5,7 +5,8 @@ import lombok.Getter;
 @Getter
 public enum EmailType {
     DEFAULT("default"),
-    NOTIFICATION("notification");
+    NOTIFICATION("notification"),
+    PASSWORD_RESET("password-reset");
 
     private final String templateName;
 

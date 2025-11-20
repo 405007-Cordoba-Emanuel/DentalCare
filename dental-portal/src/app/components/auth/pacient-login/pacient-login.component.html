@@ -57,6 +57,20 @@
         </button>
       </mat-form-field>
 
+      <!-- Forgot Password Link -->
+      <div class="forgot-password-container">
+        <button 
+          mat-button 
+          color="primary" 
+          type="button"
+          class="forgot-password-link"
+          (click)="openForgotPasswordDialog()"
+          [disabled]="isLoading"
+        >
+          ¿Olvidaste tu contraseña?
+        </button>
+      </div>
+
       <!-- Botón de Login -->
       <button 
         mat-raised-button 
