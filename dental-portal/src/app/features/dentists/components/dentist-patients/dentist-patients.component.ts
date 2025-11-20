@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -49,8 +48,6 @@ export class DentistPatientsComponent implements OnInit {
   constructor(
     private dentistService: DentistService,
     private patientService: PatientService,
-    private route: ActivatedRoute,
-    private router: Router,
     private localStorageService: LocalStorageService,
     private modalService: GenericModalService
   ) {}

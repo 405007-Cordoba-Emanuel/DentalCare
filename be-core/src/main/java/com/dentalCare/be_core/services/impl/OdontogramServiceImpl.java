@@ -1,12 +1,9 @@
 package com.dentalCare.be_core.services.impl;
 
-import com.dentalCare.be_core.config.mapper.ModelMapperUtils;
 import com.dentalCare.be_core.dtos.request.odontogram.OdontogramRequestDto;
 import com.dentalCare.be_core.dtos.response.odontogram.OdontogramResponseDto;
-import com.dentalCare.be_core.entities.Dentist;
 import com.dentalCare.be_core.entities.Odontogram;
 import com.dentalCare.be_core.entities.Patient;
-import com.dentalCare.be_core.repositories.DentistRepository;
 import com.dentalCare.be_core.repositories.OdontogramRepository;
 import com.dentalCare.be_core.repositories.PatientRepository;
 import com.dentalCare.be_core.services.OdontogramService;
@@ -27,20 +24,10 @@ public class OdontogramServiceImpl implements OdontogramService {
     private OdontogramRepository odontogramRepository;
 
     @Autowired
-    private DentistRepository dentistRepository;
-
-    @Autowired
     private PatientRepository patientRepository;
-
-    @Autowired
-    private ModelMapperUtils modelMapperUtils;
 
     @Override
     public OdontogramResponseDto createOdontogram(Long dentistId, OdontogramRequestDto requestDto) {
-        // Validar que el dentista existe
-        Dentist dentist = dentistRepository.findById(dentistId)
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el dentista con ID: " + dentistId));
-
         // Validar que el paciente existe
         Patient patient = patientRepository.findById(requestDto.getPatientId())
                 .orElseThrow(() -> new IllegalArgumentException("No se encontró el paciente con ID: " + requestDto.getPatientId()));
@@ -71,10 +58,6 @@ public class OdontogramServiceImpl implements OdontogramService {
     @Override
     @Transactional(readOnly = true)
     public List<OdontogramResponseDto> getOdontogramsByPatient(Long dentistId, Long patientId) {
-        // Validar que el dentista existe
-        Dentist dentist = dentistRepository.findById(dentistId)
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el dentista con ID: " + dentistId));
-
         // Validar que el paciente existe
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new IllegalArgumentException("No se encontró el paciente con ID: " + patientId));
@@ -93,10 +76,6 @@ public class OdontogramServiceImpl implements OdontogramService {
     @Override
     @Transactional(readOnly = true)
     public OdontogramResponseDto getOdontogramById(Long odontogramId, Long dentistId) {
-        // Validar que el dentista existe
-        Dentist dentist = dentistRepository.findById(dentistId)
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el dentista con ID: " + dentistId));
-
         // Buscar el odontograma
         Odontogram odontogram = odontogramRepository.findById(odontogramId)
                 .orElseThrow(() -> new IllegalArgumentException("No se encontró el odontograma con ID: " + odontogramId));
@@ -116,10 +95,6 @@ public class OdontogramServiceImpl implements OdontogramService {
 
     @Override
     public OdontogramResponseDto updateOdontogram(Long odontogramId, Long dentistId, OdontogramRequestDto requestDto) {
-        // Validar que el dentista existe
-        Dentist dentist = dentistRepository.findById(dentistId)
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el dentista con ID: " + dentistId));
-
         // Buscar el odontograma
         Odontogram odontogram = odontogramRepository.findById(odontogramId)
                 .orElseThrow(() -> new IllegalArgumentException("No se encontró el odontograma con ID: " + odontogramId));
@@ -146,10 +121,6 @@ public class OdontogramServiceImpl implements OdontogramService {
 
     @Override
     public void deleteOdontogram(Long odontogramId, Long dentistId) {
-        // Validar que el dentista existe
-        Dentist dentist = dentistRepository.findById(dentistId)
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el dentista con ID: " + dentistId));
-
         // Buscar el odontograma
         Odontogram odontogram = odontogramRepository.findById(odontogramId)
                 .orElseThrow(() -> new IllegalArgumentException("No se encontró el odontograma con ID: " + odontogramId));
