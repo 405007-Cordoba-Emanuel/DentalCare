@@ -33,6 +33,8 @@ services:
       MYSQL_DATABASE: dental_core
       MYSQL_USER: dental_core
       MYSQL_PASSWORD: dental_core
+      TZ: America/Argentina/Buenos_Aires
+    command: --default-time-zone='-03:00'
     ports:
       - "3307:3306"
     volumes:

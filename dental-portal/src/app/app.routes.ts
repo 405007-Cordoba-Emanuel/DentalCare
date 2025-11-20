@@ -17,6 +17,7 @@ import { loginGuard } from './core/guards/login.guard';
 import { DentistPatientsComponent } from './features/dentists/components/dentist-patients/dentist-patients.component';
 import { DentistTreatmentsComponent } from './features/dentists/components/dentist-treatments/dentist-treatments.component';
 import { OdontogramComponent } from './features/dentists/components/odontogram/odontogram.component';
+import { DentistPrescriptionListComponent } from './features/dentists/components/prescriptions/dentist-prescription-list.component';
 
 // Patient feature components
 import { PatientAppointmentsComponent } from './features/patient-appointments/patient-appointments.component';
@@ -138,6 +139,7 @@ export const routes: Routes = [
           { path: 'patients', component: DentistPatientsComponent },
           { path: 'patients/new', component: DentistPatientsComponent }, // TODO: Crear componente específico para nuevo paciente
           { path: 'patients/:patientId/odontogram', component: OdontogramComponent },
+          { path: 'patients/:patientId/prescriptions', component: DentistPrescriptionListComponent },
           { path: 'treatments', component: DentistTreatmentsComponent },
           { path: 'appointments', component: AppointmentsComponent },
           { path: 'appointments/create', component: CreateAppointmentComponent },

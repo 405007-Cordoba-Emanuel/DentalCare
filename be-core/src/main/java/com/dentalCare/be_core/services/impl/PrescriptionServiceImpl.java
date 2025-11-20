@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -63,6 +64,12 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         prescription.setDentist(dentist);
         prescription.setPatient(patient);
         prescription.setActive(true);
+        
+        // Solución temporal: agregar 1 día a la fecha para compensar problemas de zona horaria
+        if (prescription.getPrescriptionDate() != null) {
+            LocalDate adjustedDate = prescription.getPrescriptionDate().plusDays(1);
+            prescription.setPrescriptionDate(adjustedDate);
+        }
 
         Prescription savedPrescription = prescriptionRepository.save(prescription);
         return mapToResponseDto(savedPrescription);
@@ -107,7 +114,13 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         }
 
         prescription.setPatient(patient);
-        prescription.setPrescriptionDate(prescriptionRequestDto.getPrescriptionDate());
+        
+        // Solución temporal: agregar 1 día a la fecha para compensar problemas de zona horaria
+        LocalDate adjustedDate = prescriptionRequestDto.getPrescriptionDate();
+        if (adjustedDate != null) {
+            adjustedDate = adjustedDate.plusDays(1);
+        }
+        prescription.setPrescriptionDate(adjustedDate);
         prescription.setObservations(prescriptionRequestDto.getObservations());
         prescription.setMedications(prescriptionRequestDto.getMedications());
 
@@ -117,9 +130,25 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     public void deletePrescription(Long prescriptionId, Long dentistId) {
-        Prescription prescription = prescriptionRepository.findByIdAndDentistIdAndActiveTrue(prescriptionId, dentistId)
-                .orElseThrow(() -> new IllegalArgumentException("No prescription found with ID: " + prescriptionId + " for dentist: " + dentistId));
-        prescriptionRepository.delete(prescription);
+        // Buscar la receta sin filtrar por active, para poder verificar si ya está inactiva
+        Prescription prescription = prescriptionRepository.findById(prescriptionId)
+                .orElseThrow(() -> new IllegalArgumentException("No prescription found with ID: " + prescriptionId));
+        
+        // Verificar que la receta pertenece al dentista
+        if (!prescription.getDentist().getId().equals(dentistId)) {
+            throw new IllegalArgumentException("Prescription does not belong to dentist: " + dentistId);
+        }
+        
+        // Si ya está inactiva, no hacer nada (idempotente)
+        if (prescription.getActive() != null && !prescription.getActive()) {
+            log.info("Prescription {} is already inactive, skipping deletion", prescriptionId);
+            return;
+        }
+        
+        // Soft delete: marcar como inactivo en lugar de eliminar físicamente
+        prescription.setActive(false);
+        prescriptionRepository.save(prescription);
+        log.info("Prescription {} marked as inactive by dentist {}", prescriptionId, dentistId);
     }
 
     @Override

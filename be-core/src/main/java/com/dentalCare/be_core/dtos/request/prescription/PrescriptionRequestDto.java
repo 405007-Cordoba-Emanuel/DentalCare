@@ -20,7 +20,7 @@ public class PrescriptionRequestDto {
     private Long patientId;
 
     @NotNull(message = "Prescription date is required")
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "America/Argentina/Buenos_Aires")
     private LocalDate prescriptionDate;
 
     @Size(max = 2000, message = "Observations cannot exceed 2000 characters")
