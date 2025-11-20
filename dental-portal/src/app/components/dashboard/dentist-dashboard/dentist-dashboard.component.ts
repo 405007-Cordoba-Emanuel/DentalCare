@@ -159,8 +159,11 @@ export class DentistDashboardComponent implements OnInit {
   }
 
   viewOdontogram(patientId: number) {
-    // TODO: Implementar ruta de odontograma por paciente
-    console.log('Ver odontograma del paciente:', patientId);
+    console.log('Navegando a odontograma del paciente:', patientId);
+    this.router.navigate(['/dentist/patients', patientId, 'odontogram']).then(
+      success => console.log('Navegación exitosa:', success),
+      error => console.error('Error en navegación:', error)
+    );
   }
 
   viewClinicalHistory(patientId: number) {

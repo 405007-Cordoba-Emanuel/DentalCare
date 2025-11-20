@@ -53,6 +53,9 @@ public class Patient {
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Appointment> appointments;
 
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Odontogram> odontograms;
+
     @PrePersist
     protected void onCreate() {
         if (this.active == null) {

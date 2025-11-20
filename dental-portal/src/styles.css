@@ -318,3 +318,32 @@ body {
     margin-bottom: 8px;
   }
 }
+
+/* Estilos para Snackbar (Notificaciones) */
+.success-snackbar {
+  background-color: #10b981 !important;
+  color: white !important;
+}
+
+.success-snackbar .mat-simple-snack-bar-content {
+  color: white !important;
+  font-weight: 500;
+}
+
+.success-snackbar .mat-button {
+  color: white !important;
+}
+
+.error-snackbar {
+  background-color: #ef4444 !important;
+  color: white !important;
+}
+
+.error-snackbar .mat-simple-snack-bar-content {
+  color: white !important;
+  font-weight: 500;
+}
+
+.error-snackbar .mat-button {
+  color: white !important;
+}
