@@ -1,0 +1,94 @@
+<div class="dialog-container">
+  <div class="dialog-header">
+    <h2 class="dialog-title">
+      Agregar Sesión - {{ data.treatmentName }}
+    </h2>
+    <button mat-icon-button (click)="onCancel()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="dialog-content">
+    <div class="info-message">
+      <mat-icon>info</mat-icon>
+      <span>Al guardar esta sesión, el progreso del tratamiento se actualizará automáticamente.</span>
+    </div>
+
+    <!-- Descripción de la sesión -->
+    <div class="form-section">
+      <h3 class="section-title">
+        <mat-icon>description</mat-icon>
+        Descripción de la Sesión *
+      </h3>
+      <mat-form-field appearance="outline" class="full-width">
+        <textarea 
+          matInput 
+          [(ngModel)]="description" 
+          placeholder="Describe lo realizado en esta sesión del tratamiento"
+          rows="6"
+          required
+        ></textarea>
+      </mat-form-field>
+    </div>
+
+    <!-- Archivo adjunto -->
+    <div class="form-section">
+      <h3 class="section-title">
+        <mat-icon>attach_file</mat-icon>
+        Archivo Adjunto (Opcional)
+      </h3>
+      <div class="file-upload-section">
+        <input 
+          type="file" 
+          #fileInput 
+          (change)="onFileSelected($event)"
+          accept="image/*,application/pdf"
+          style="display: none"
+        />
+        <button 
+          mat-stroked-button 
+          type="button" 
+          (click)="fileInput.click()"
+          class="file-button"
+        >
+          <mat-icon>upload</mat-icon>
+          Seleccionar Archivo
+        </button>
+        <span class="file-info" *ngIf="selectedFile">
+          {{ selectedFile.name }}
+        </span>
+        <button 
+          mat-icon-button 
+          *ngIf="selectedFile"
+          (click)="removeFile()"
+          class="remove-file-button"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <p class="file-hint">Formatos permitidos: JPG, PNG, PDF (máx. 5MB)</p>
+      
+      <!-- Preview de imagen -->
+      <div class="image-preview" *ngIf="previewUrl">
+        <img [src]="previewUrl" alt="Preview" />
+      </div>
+    </div>
+  </div>
+
+  <div class="dialog-actions">
+    <button mat-button (click)="onCancel()" [disabled]="isLoading">
+      Cancelar
+    </button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="onSave()" 
+      [disabled]="isLoading || !description.trim()"
+    >
+      <mat-icon *ngIf="!isLoading">add</mat-icon>
+      <span *ngIf="isLoading">Guardando...</span>
+      <span *ngIf="!isLoading">Agregar Sesión</span>
+    </button>
+  </div>
+</div>
+

@@ -132,6 +132,23 @@ public class TreatmentServiceImpl implements TreatmentService {
         treatment.setTotalSessions(requestDto.getTotalSessions());
         treatment.setNotes(requestDto.getNotes());
 
+        // Si se proporciona un nuevo estado, actualizarlo
+        if (requestDto.getStatus() != null && !requestDto.getStatus().isEmpty()) {
+            TreatmentStatus treatmentStatus;
+            try {
+                treatmentStatus = TreatmentStatus.valueOf(requestDto.getStatus().toUpperCase().replace(" ", "_"));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid status. Valid values: EN_CURSO, COMPLETADO, ABANDONADO");
+            }
+            
+            treatment.setStatus(treatmentStatus);
+            
+            // Si se marca como COMPLETADO y no tiene fecha de finalización, establecerla
+            if (treatmentStatus == TreatmentStatus.COMPLETADO && treatment.getActualEndDate() == null) {
+                treatment.setActualEndDate(LocalDate.now());
+            }
+        }
+
         Treatment updatedTreatment = treatmentRepository.save(treatment);
         return mapToResponseDto(updatedTreatment);
     }

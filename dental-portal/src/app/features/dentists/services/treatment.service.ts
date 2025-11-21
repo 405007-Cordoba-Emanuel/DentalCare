@@ -19,4 +19,19 @@ export class TreatmentService {
   getTreatmentDetail(dentistId: number, treatmentId: number): Observable<TreatmentDetailResponse> {
     return this.http.get<TreatmentDetailResponse>(`${this.apiUrl}/${dentistId}/treatments/${treatmentId}`);
   }
+
+  // Crear un nuevo tratamiento
+  createTreatment(dentistId: number, treatment: any): Observable<TreatmentResponse> {
+    return this.http.post<TreatmentResponse>(`${this.apiUrl}/${dentistId}/patients/${treatment.patientId}/treatments`, treatment);
+  }
+
+  // Actualizar un tratamiento existente
+  updateTreatment(dentistId: number, treatmentId: number, treatment: any): Observable<TreatmentResponse> {
+    return this.http.put<TreatmentResponse>(`${this.apiUrl}/${dentistId}/treatments/${treatmentId}`, treatment);
+  }
+
+  // Eliminar un tratamiento
+  deleteTreatment(dentistId: number, treatmentId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${dentistId}/treatments/${treatmentId}`);
+  }
 }

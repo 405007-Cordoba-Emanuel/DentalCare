@@ -119,6 +119,16 @@
             <p>{{ entry.description }}</p>
           </div>
 
+          <!-- Mostrar tratamiento vinculado si existe -->
+          <div class="entry-footer" *ngIf="entry.treatmentId && entry.treatmentName">
+            <div class="linked-items">
+              <div class="link-badge treatment-link" (click)="openTreatmentDetail(entry.treatmentId!)">
+                <mat-icon>healing</mat-icon>
+                <span>{{ entry.treatmentName }}</span>
+              </div>
+            </div>
+          </div>
+
           <!-- Mostrar icono de imagen si existe -->
           <div class="entry-footer" *ngIf="entry.hasFile && entry.fileUrl && isImageFile(entry.fileType || '')">
             <div class="linked-items">

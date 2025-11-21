@@ -1,0 +1,134 @@
+<div class="treatment-container">
+  <div class="header-section">
+    <div class="title-section">
+      <h1 class="main-title">Tratamientos - {{ patientInfo.firstName }} {{ patientInfo.lastName }}</h1>
+      <p class="subtitle">Visualiza y gestiona los tratamientos del paciente</p>
+    </div>
+  </div>
+
+  <!-- Search and Filter Section -->
+  <div class="search-filter-section">
+    <div class="search-container">
+      <mat-form-field appearance="fill" class="search-field">
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [(ngModel)]="searchTerm" (input)="onSearchChange()" placeholder="Buscar por nombre, descripción o estado" />
+      </mat-form-field>
+      <button mat-raised-button color="primary" (click)="openCreateTreatmentDialog()" class="create-button">
+        <mat-icon>add</mat-icon>
+        Nuevo Tratamiento
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+    <p>Cargando tratamientos...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredTreatments.length === 0" class="empty-state">
+    <mat-icon>healing</mat-icon>
+    <h3>No hay tratamientos disponibles</h3>
+    <p>{{ searchTerm ? 'No se encontraron tratamientos con ese criterio de búsqueda' : 'Aún no hay tratamientos registrados para este paciente' }}</p>
+  </div>
+
+  <!-- Treatment List -->
+  <div *ngIf="!isLoading && filteredTreatments.length > 0" class="treatment-list">
+    <mat-card *ngFor="let treatment of filteredTreatments" class="treatment-card group">
+      <div class="treatment-header">
+        <div class="treatment-info">
+          <div class="treatment-title-section">
+            <h3 class="treatment-name">{{ treatment.name }}</h3>
+            <span class="status-badge" [ngClass]="getStatusColor(treatment.status)">
+              {{ getStatusLabel(treatment.status) }}
+            </span>
+          </div>
+          <div class="treatment-date-badge">
+            <mat-icon>calendar_today</mat-icon>
+            <span class="date-text">Inicio: {{ formatDate(treatment.startDate) }}</span>
+          </div>
+        </div>
+        <div class="treatment-actions">
+          <button 
+            mat-icon-button 
+            (click)="openTreatmentDetailDialog(treatment)" 
+            class="view-button"
+            matTooltip="Ver detalle"
+          >
+            <mat-icon>visibility</mat-icon>
+          </button>
+          <button 
+            mat-icon-button 
+            (click)="openAddSessionDialog(treatment)" 
+            class="add-button"
+            [disabled]="treatment.status === 'COMPLETADO'"
+            matTooltip="Agregar sesión"
+          >
+            <mat-icon>add_circle</mat-icon>
+          </button>
+          <button 
+            mat-icon-button 
+            (click)="openEditTreatmentDialog(treatment)" 
+            class="edit-button"
+            matTooltip="Editar tratamiento"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button 
+            mat-icon-button 
+            (click)="confirmDeleteTreatment(treatment)" 
+            class="delete-button"
+            [disabled]="isDeleting(treatment.id) || isLoading"
+            matTooltip="Eliminar tratamiento"
+          >
+            <mat-icon *ngIf="!isDeleting(treatment.id)">close</mat-icon>
+            <mat-spinner *ngIf="isDeleting(treatment.id)" diameter="20" class="inline-spinner"></mat-spinner>
+          </button>
+        </div>
+      </div>
+
+      <div class="treatment-content">
+        <p class="treatment-description" *ngIf="treatment.description">
+          {{ treatment.description }}
+        </p>
+
+        <!-- Progress Section -->
+        <div class="progress-section">
+          <div class="progress-header">
+            <span class="progress-label">Progreso del tratamiento</span>
+            <span class="progress-percentage">{{ getProgressPercentage(treatment) }}%</span>
+          </div>
+          <mat-progress-bar
+            mode="determinate"
+            [value]="getProgressPercentage(treatment)"
+            [color]="getProgressColor(getProgressPercentage(treatment))"
+            class="progress-bar"
+          ></mat-progress-bar>
+          <div class="sessions-info">
+            <span>{{ treatment.completedSessions }} de {{ treatment.totalSessions }} sesiones completadas</span>
+          </div>
+        </div>
+
+        <!-- Dates Section -->
+        <div class="dates-section">
+          <div class="date-item" *ngIf="treatment.estimatedEndDate">
+            <mat-icon class="date-icon">event</mat-icon>
+            <div class="date-info">
+              <span class="date-label">Fin estimado</span>
+              <span class="date-value">{{ formatDate(treatment.estimatedEndDate) }}</span>
+            </div>
+          </div>
+          <div class="date-item" *ngIf="treatment.actualEndDate">
+            <mat-icon class="date-icon">check_circle</mat-icon>
+            <div class="date-info">
+              <span class="date-label">Fecha de finalización</span>
+              <span class="date-value">{{ formatDate(treatment.actualEndDate) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+</div>
+

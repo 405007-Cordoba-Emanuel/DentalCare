@@ -38,4 +38,6 @@ public class TreatmentRequestDto {
 
     @Size(max = 5000, message = "Notes cannot exceed 5000 characters")
     private String notes;
+
+    private String status; // EN_CURSO, COMPLETADO, ABANDONADO
 }

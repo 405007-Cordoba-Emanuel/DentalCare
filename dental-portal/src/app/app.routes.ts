@@ -15,7 +15,7 @@ import { loginGuard } from './core/guards/login.guard';
 
 // Dentist feature components
 import { DentistPatientsComponent } from './features/dentists/components/dentist-patients/dentist-patients.component';
-import { DentistTreatmentsComponent } from './features/dentists/components/dentist-treatments/dentist-treatments.component';
+import { DentistTreatmentListComponent } from './features/dentists/components/treatments/dentist-treatment-list.component';
 import { OdontogramComponent } from './features/dentists/components/odontogram/odontogram.component';
 import { DentistPrescriptionListComponent } from './features/dentists/components/prescriptions/dentist-prescription-list.component';
 import { DentistClinicalHistoryListComponent } from './features/dentists/components/clinical-history/dentist-clinical-history-list.component';
@@ -142,15 +142,14 @@ export const routes: Routes = [
           { path: 'patients/:patientId/odontogram', component: OdontogramComponent },
           { path: 'patients/:patientId/prescriptions', component: DentistPrescriptionListComponent },
           { path: 'patients/:patientId/clinical-history', component: DentistClinicalHistoryListComponent },
-          { path: 'treatments', component: DentistTreatmentsComponent },
+          { path: 'patients/:patientId/treatments', component: DentistTreatmentListComponent },
           { path: 'appointments', component: AppointmentsComponent },
           { path: 'appointments/create', component: CreateAppointmentComponent },
           // Rutas de dentista por ID
           { path: ':id', component: DentistDetailComponent },
           { path: ':id/profile', component: DentistProfileComponent },
           { path: ':id/patients', component: DentistPatientsComponent },
-          { path: ':id/treatments', component: DentistTreatmentsComponent },
-          { path: ':id/patients/:patientId/treatments', component: DentistTreatmentsComponent },
+          { path: ':id/patients/:patientId/treatments', component: DentistTreatmentListComponent },
         ]
       },
       

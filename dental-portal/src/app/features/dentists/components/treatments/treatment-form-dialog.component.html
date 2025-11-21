@@ -1,0 +1,146 @@
+<div class="dialog-container">
+  <div class="dialog-header">
+    <h2 class="dialog-title">
+      {{ isEditMode ? 'Editar Tratamiento' : 'Nuevo Tratamiento' }} - {{ data.patientName }}
+    </h2>
+    <button mat-icon-button (click)="onCancel()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="dialog-content">
+    <!-- Nombre del tratamiento -->
+    <div class="form-section">
+      <h3 class="section-title">
+        <mat-icon>healing</mat-icon>
+        Nombre del Tratamiento *
+      </h3>
+      <mat-form-field appearance="outline" class="full-width">
+        <input 
+          matInput 
+          [(ngModel)]="name" 
+          placeholder="Ej: Ortodoncia, Endodoncia, Implante, etc."
+          required
+        />
+      </mat-form-field>
+    </div>
+
+    <!-- Descripción -->
+    <div class="form-section">
+      <h3 class="section-title">
+        <mat-icon>description</mat-icon>
+        Descripción
+      </h3>
+      <mat-form-field appearance="outline" class="full-width">
+        <textarea 
+          matInput 
+          [(ngModel)]="description" 
+          placeholder="Descripción detallada del tratamiento"
+          rows="4"
+        ></textarea>
+      </mat-form-field>
+    </div>
+
+    <!-- Fechas y Sesiones -->
+    <div class="form-row">
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>calendar_today</mat-icon>
+          Fecha de Inicio *
+        </h3>
+        <mat-form-field appearance="outline" class="full-width">
+          <input 
+            matInput 
+            type="date"
+            [(ngModel)]="startDate" 
+            required
+          />
+        </mat-form-field>
+      </div>
+
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>event</mat-icon>
+          Fin Estimado
+        </h3>
+        <mat-form-field appearance="outline" class="full-width">
+          <input 
+            matInput 
+            type="date"
+            [(ngModel)]="estimatedEndDate"
+          />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Total de Sesiones -->
+    <div class="form-section">
+      <h3 class="section-title">
+        <mat-icon>event_available</mat-icon>
+        Total de Sesiones *
+      </h3>
+      <mat-form-field appearance="outline" class="full-width">
+        <input 
+          matInput 
+          type="number"
+          [(ngModel)]="totalSessions" 
+          placeholder="Número total de sesiones planificadas"
+          min="1"
+          required
+        />
+      </mat-form-field>
+    </div>
+
+    <!-- Notas -->
+    <div class="form-section">
+      <h3 class="section-title">
+        <mat-icon>notes</mat-icon>
+        Notas Adicionales
+      </h3>
+      <mat-form-field appearance="outline" class="full-width">
+        <textarea 
+          matInput 
+          [(ngModel)]="notes" 
+          placeholder="Notas adicionales sobre el tratamiento"
+          rows="3"
+        ></textarea>
+      </mat-form-field>
+    </div>
+
+    <!-- Estado del Tratamiento (solo en modo edición) -->
+    <div class="form-section status-section" *ngIf="isEditMode">
+      <h3 class="section-title">
+        <mat-icon>flag</mat-icon>
+        Estado del Tratamiento
+      </h3>
+      <mat-form-field appearance="fill" class="full-width status-field">
+        <mat-select [(ngModel)]="status" placeholder="">
+          <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+            {{ option.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <p class="status-hint" *ngIf="status === 'COMPLETADO'">
+        <mat-icon>info</mat-icon>
+        Al guardar, se establecerá la fecha de finalización actual.
+      </p>
+    </div>
+  </div>
+
+  <div class="dialog-actions">
+    <button mat-button (click)="onCancel()" [disabled]="isLoading">
+      Cancelar
+    </button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="onSave()" 
+      [disabled]="isLoading || !name.trim() || !totalSessions || totalSessions <= 0"
+    >
+      <mat-icon *ngIf="!isLoading">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+      <span *ngIf="isLoading">Guardando...</span>
+      <span *ngIf="!isLoading">{{ isEditMode ? 'Guardar Cambios' : 'Crear Tratamiento' }}</span>
+    </button>
+  </div>
+</div>
+
