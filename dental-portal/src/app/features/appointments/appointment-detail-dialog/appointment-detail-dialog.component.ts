@@ -82,24 +82,10 @@ export class AppointmentDetailDialogComponent implements OnInit {
         type: 'time',
         validators: [Validators.required],
         fullWidth: false
-      },
-      {
-        name: 'reason',
-        label: 'Motivo de la Consulta',
-        type: 'text',
-        validators: [Validators.required, Validators.maxLength(200)],
-        fullWidth: true
-      },
-      {
-        name: 'notes',
-        label: 'Notas Adicionales',
-        type: 'textarea',
-        validators: [Validators.maxLength(2000)],
-        fullWidth: true
       }
     ];
 
-    // Agregar el campo de estado solo para dentistas
+    // Agregar el campo de estado solo para dentistas (al lado de la hora de fin)
     if (this.userRole === 'DENTIST') {
       this.formFields.push({
         name: 'status',
@@ -109,6 +95,24 @@ export class AppointmentDetailDialogComponent implements OnInit {
         fullWidth: false
       });
     }
+
+    // Agregar los campos de motivo y notas
+    this.formFields.push(
+      {
+        name: 'reason',
+        label: 'Motivo de la Consulta',
+        type: 'text',
+        validators: [Validators.required, Validators.maxLength(200)],
+        fullWidth: false
+      },
+      {
+        name: 'notes',
+        label: 'Notas Adicionales',
+        type: 'textarea',
+        validators: [Validators.maxLength(1000)],
+        fullWidth: false
+      }
+    );
   }
 
   private initFormData() {
