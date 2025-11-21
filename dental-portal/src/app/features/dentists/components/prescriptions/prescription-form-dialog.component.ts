@@ -124,8 +124,16 @@ export class PrescriptionFormDialogComponent implements OnInit {
 
   formatDate(dateStr: string): string {
     if (!dateStr) return 'No especificada';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('es-ES');
+    // Para evitar problemas de timezone, parseamos la fecha manualmente
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      const year = parseInt(parts[0]);
+      const month = parseInt(parts[1]) - 1; // Los meses en JS van de 0-11
+      const day = parseInt(parts[2]);
+      const date = new Date(year, month, day);
+      return date.toLocaleDateString('es-ES');
+    }
+    return dateStr;
   }
 
   private getLocalDateString(): string {
@@ -156,7 +164,7 @@ export class PrescriptionFormDialogComponent implements OnInit {
 
     const prescriptionData = {
       patientId: this.data.patientId,
-      prescriptionDate: this.getLocalDateString(), // Fecha local sin problemas de zona horaria
+      prescriptionDate: this.getLocalDateString(), // Fecha actual sin compensaciones
       medications: this.medications.trim(),
       observations: this.observations.trim()
     };

@@ -435,6 +435,7 @@ public class DentistController {
             String datePart = prescription.getPrescriptionDate() != null
                     ? prescription.getPrescriptionDate().toString()
                     : java.time.LocalDate.now().toString();
+            
             com.dentalCare.be_core.dtos.external.UserDetailDto patientUser =
                     userServiceClient.getUserById(prescription.getPatient().getUserId());
             String firstName = patientUser.getFirstName() != null ? patientUser.getFirstName() : "Paciente";
