@@ -80,17 +80,6 @@ export class RegisterComponent implements OnInit {
         validators: [Validators.required, Validators.email],
       },
       {
-        name: 'dni',
-        label: 'DNI',
-        type: 'number',
-        placeholder: 'Ingresa tu DNI',
-        validators: [
-          Validators.required,
-          Validators.min(1000000),
-          Validators.max(99999999),
-        ],
-      },
-      {
         name: 'password',
         label: 'Contraseña',
         type: 'password',
