@@ -89,6 +89,7 @@ export class PatientDashboardComponent implements OnInit {
 
   upcomingAppointments: AppointmentDisplay[] = [];
   treatmentHistory: TreatmentDisplay[] = [];
+  currentTreatment: TreatmentResponse | null = null;
 
   recentMessages = [
     {
@@ -99,6 +100,7 @@ export class PatientDashboardComponent implements OnInit {
     }
   ];
 
+  unreadMessagesCount = 0; // Por ahora mockeado, se puede conectar con un servicio de mensajes
   appointmentsDropdownOpen = false;
 
   ngOnInit() {
@@ -230,6 +232,8 @@ export class PatientDashboardComponent implements OnInit {
       next: (treatments) => {
         this.treatmentHistory = treatments.map(treatment => this.mapTreatmentToDisplay(treatment));
         this.updateTreatmentProgress(treatments);
+        // Obtener el tratamiento en curso más reciente
+        this.currentTreatment = this.getCurrentTreatment(treatments);
         treatmentsLoaded = true;
         checkComplete();
       },
@@ -373,7 +377,7 @@ export class PatientDashboardComponent implements OnInit {
     return statusMap[status] || status;
   }
 
-  private getTreatmentStatusLabel(status: string): string {
+  getTreatmentStatusLabel(status: string): string {
     const statusUpper = status?.toUpperCase() || '';
     if (statusUpper === 'COMPLETADO') return 'Completado';
     if (statusUpper === 'EN_CURSO' || statusUpper === 'EN CURSO') return 'En Curso';
@@ -435,6 +439,12 @@ export class PatientDashboardComponent implements OnInit {
     }
   }
 
+  getProgressColor(percentage: number): string {
+    if (percentage >= 80) return 'primary';
+    if (percentage >= 50) return 'accent';
+    return 'warn';
+  }
+
   getLastTreatmentInProgress(): TreatmentDisplay | null {
     const inProgressTreatments = this.treatmentHistory.filter(
       treatment => treatment.status === 'En Curso' || treatment.status === 'Programado'
@@ -450,5 +460,31 @@ export class PatientDashboardComponent implements OnInit {
 
   toggleAppointmentsDropdown(): void {
     this.appointmentsDropdownOpen = !this.appointmentsDropdownOpen;
+  }
+
+  getCurrentTreatment(treatments: TreatmentResponse[]): TreatmentResponse | null {
+    const inProgressTreatments = treatments.filter(
+      t => t.active && (t.status === 'EN_CURSO' || t.status === 'EN CURSO')
+    );
+    if (inProgressTreatments.length === 0) {
+      return null;
+    }
+    // Ordenar por fecha descendente y tomar el más reciente
+    return inProgressTreatments.sort((a, b) => 
+      new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+    )[0];
+  }
+
+  navigateToMessages() {
+    // TODO: Navegar a mensajes cuando esté implementado
+    console.log('Navegar a mensajes');
+  }
+
+  navigateToTreatments() {
+    this.router.navigate(['/patient/treatments']);
+  }
+
+  navigateToPrescriptions() {
+    this.router.navigate(['/patient/prescriptions']);
   }
 }
