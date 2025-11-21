@@ -12,11 +12,40 @@
   margin-bottom: 24px;
 }
 
+.patient-header-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.patient-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.avatar-text {
+  color: white;
+  font-size: 24px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.patient-details {
+  flex: 1;
+}
+
 .main-title {
   font-size: 1.875rem;
   font-weight: 700;
   color: #000000;
-  margin: 0 0 12px;
+  margin: 0 0 8px;
   letter-spacing: -0.5px;
 }
 
@@ -34,7 +63,7 @@
 .search-controls {
   display: flex;
   gap: 16px;
-  align-items: center;
+  align-items: baseline;
 }
 
 .search-field {
@@ -48,6 +77,15 @@
 
 .search-field .mat-mdc-form-field-focus-overlay {
   background-color: transparent;
+}
+
+.create-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 56px;
+  white-space: nowrap;
+  border-radius: 12px;
 }
 
 .advanced-search-button {
@@ -116,6 +154,7 @@
     width: 100%;
   }
 
+  .create-button,
   .advanced-search-button {
     width: 100%;
     justify-content: center;
@@ -323,12 +362,14 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 16px;
 }
 
 .dentist-info {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex: 1;
 }
 
 .dentist-icon {
@@ -345,6 +386,36 @@
   color: #1e293b;
 }
 
+.entry-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.edit-button {
+  color: #1976d2;
+}
+
+.edit-button:hover {
+  background-color: rgba(25, 118, 210, 0.1);
+}
+
+.delete-button {
+  color: #f44336;
+  position: relative;
+}
+
+.delete-button:hover {
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+.delete-button .spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .entry-description {
   margin: 0;
 }
@@ -356,7 +427,7 @@
   margin: 0;
 }
 
-/* Entry Footer - Refined linked items */
+/* Entry Footer */
 .entry-footer {
   padding-top: 16px;
   margin-top: 8px;
@@ -388,26 +459,6 @@
   flex-shrink: 0;
 }
 
-.treatment-link {
-  background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
-  color: #1e40af;
-  border-color: #bfdbfe;
-}
-
-.treatment-link mat-icon {
-  color: #3b82f6;
-}
-
-.prescription-link {
-  background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
-  color: #166534;
-  border-color: #bbf7d0;
-}
-
-.prescription-link mat-icon {
-  color: #10b981;
-}
-
 .file-link {
   background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
   color: #92400e;
@@ -428,28 +479,6 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Image Preview */
-.image-preview {
-  max-width: 100%;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #e2e8f0;
-}
-
-.preview-image {
-  max-width: 100%;
-  max-height: 400px;
-  width: auto;
-  height: auto;
-  display: block;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.preview-image:hover {
-  transform: scale(1.02);
-}
-
 /* Responsive */
 @media (max-width: 768px) {
   .clinical-history-container {
@@ -457,13 +486,36 @@
   }
 
   .main-title {
-    font-size: 1.875rem;
+    font-size: 1.5rem;
+  }
+
+  .patient-header-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .patient-avatar {
+    width: 48px;
+    height: 48px;
+  }
+
+  .avatar-text {
+    font-size: 18px;
   }
 
   .entry-card {
     flex-direction: column;
     gap: 16px;
     padding: 20px;
+  }
+
+  .entry-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .entry-actions {
+    align-self: flex-end;
   }
 
   .entry-date-badge {
@@ -487,3 +539,4 @@
     padding: 0 8px;
   }
 }
+

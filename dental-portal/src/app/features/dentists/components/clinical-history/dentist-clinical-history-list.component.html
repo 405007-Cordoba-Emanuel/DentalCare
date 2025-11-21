@@ -1,8 +1,18 @@
 <div class="clinical-history-container">
   <div class="header-section">
     <div class="title-section">
-      <h1 class="main-title">Mi Historia</h1>
-      <p class="subtitle">Registro completo de tu historia clínica</p>
+      <div class="patient-header-info">
+        <div class="patient-avatar" *ngIf="patientInfo.firstName || patientInfo.lastName">
+          <span class="avatar-text">{{ getInitials() }}</span>
+        </div>
+        <div class="patient-details">
+          <h1 class="main-title">Historia Clínica</h1>
+          <p class="subtitle" *ngIf="patientInfo.firstName || patientInfo.lastName">
+            {{ patientInfo.firstName }} {{ patientInfo.lastName }}
+            <span *ngIf="patientInfo.dni"> • DNI: {{ patientInfo.dni }}</span>
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -28,6 +38,14 @@
               class="advanced-search-button">
         <mat-icon>{{ showAdvancedSearch ? 'expand_less' : 'expand_more' }}</mat-icon>
         <span>Filtros</span>
+      </button>
+      
+      <button mat-raised-button 
+              color="primary" 
+              (click)="openCreateEntryDialog()"
+              class="create-button">
+        <mat-icon>add</mat-icon>
+        <span>Nueva Entrada</span>
       </button>
     </div>
 
@@ -82,7 +100,7 @@
   <div *ngIf="!isLoading && filteredEntries.length === 0" class="empty-state">
     <mat-icon>history</mat-icon>
     <h3>No hay entradas disponibles</h3>
-    <p>{{ searchTerm ? 'No se encontraron entradas con ese criterio de búsqueda' : 'Aún no tienes entradas en tu historia clínica' }}</p>
+    <p>{{ searchTerm ? 'No se encontraron entradas con ese criterio de búsqueda' : 'Aún no hay entradas en la historia clínica de este paciente' }}</p>
   </div>
 
   <!-- Journal View -->
@@ -112,6 +130,26 @@
             <div class="dentist-info">
               <mat-icon class="dentist-icon">person</mat-icon>
               <span class="dentist-name">{{ entry.dentistName }}</span>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="entry-actions">
+              <button mat-icon-button 
+                      matTooltip="Editar"
+                      (click)="openEditEntryDialog(entry)"
+                      class="edit-button">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button 
+                      matTooltip="Eliminar"
+                      (click)="confirmDeleteEntry(entry)"
+                      [disabled]="deletingEntryIds.has(entry.id)"
+                      class="delete-button">
+                <mat-spinner *ngIf="deletingEntryIds.has(entry.id)" 
+                             diameter="20" 
+                             class="spinner"></mat-spinner>
+                <mat-icon *ngIf="!deletingEntryIds.has(entry.id)">close</mat-icon>
+              </button>
             </div>
           </div>
 
@@ -143,3 +181,4 @@
     </div>
   </div>
 </div>
+

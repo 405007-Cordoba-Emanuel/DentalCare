@@ -16,6 +16,7 @@ import { ClinicalHistoryService, ClinicalHistoryEntry } from '../../core/service
 import { PatientService } from '../../core/services/patient.service';
 import { User } from '../../interfaces/user/user.interface';
 import { ClinicalHistoryDetailDialogComponent } from './clinical-history-detail-dialog.component';
+import { ImageViewerDialogComponent, ImageViewerData } from '../../shared/components/image-viewer-dialog.component';
 
 @Component({
   selector: 'app-clinical-history-list',
@@ -210,9 +211,7 @@ export class ClinicalHistoryListComponent implements OnInit {
   private filterLocally(search: string) {
     this.filteredEntries = this.entries.filter(entry =>
       entry.description?.toLowerCase().includes(search) ||
-      entry.dentistName?.toLowerCase().includes(search) ||
-      entry.treatmentName?.toLowerCase().includes(search) ||
-      entry.prescriptionSummary?.toLowerCase().includes(search)
+      entry.dentistName?.toLowerCase().includes(search)
     );
   }
 
@@ -271,7 +270,7 @@ export class ClinicalHistoryListComponent implements OnInit {
   }
 
   hasLinkedItems(entry: ClinicalHistoryEntry): boolean {
-    return !!(entry.treatmentId || entry.prescriptionId || entry.hasFile);
+    return !!entry.hasFile;
   }
 
   getYear(dateStr: string): string {
@@ -320,6 +319,22 @@ export class ClinicalHistoryListComponent implements OnInit {
     const previousYear = parseInt(previousParts[0]);
     
     return currentMonth !== previousMonth || currentYear !== previousYear;
+  }
+
+  isImageFile(fileType: string): boolean {
+    return fileType.startsWith('image/');
+  }
+
+  openImageDialog(imageUrl: string, imageName?: string) {
+    this.dialog.open(ImageViewerDialogComponent, {
+      width: '90vw',
+      maxWidth: '1200px',
+      maxHeight: '90vh',
+      data: {
+        imageUrl,
+        imageName
+      } as ImageViewerData
+    });
   }
 }
 

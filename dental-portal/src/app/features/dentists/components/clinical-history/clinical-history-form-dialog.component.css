@@ -1,0 +1,121 @@
+.prescription-form-dialog {
+  width: 100%;
+  max-width: 600px;
+}
+
+h2[mat-dialog-title] {
+  margin: 0;
+  padding: 24px 24px 16px;
+  font-size: 24px;
+  font-weight: 500;
+  color: #333;
+}
+
+.dialog-content {
+  padding: 0 24px;
+  min-height: 300px;
+}
+
+.patient-info {
+  margin-bottom: 16px;
+}
+
+.patient-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+.patient-header mat-icon {
+  color: #1976d2;
+}
+
+.patient-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+.divider {
+  margin: 16px 0;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.file-upload-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.file-upload-label {
+  display: inline-block;
+}
+
+.file-preview {
+  margin-top: 8px;
+}
+
+.preview-container {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.preview-image {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.remove-file-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #f44336;
+  color: white;
+  width: 32px;
+  height: 32px;
+}
+
+.remove-file-btn:hover {
+  background-color: #d32f2f;
+}
+
+.file-name {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.dialog-actions {
+  padding: 16px 24px;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.spinner-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
