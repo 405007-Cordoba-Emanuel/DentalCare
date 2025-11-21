@@ -170,7 +170,9 @@ export class DentistDashboardComponent implements OnInit {
   }
 
   viewClinicalHistory(patientId: number) {
-    // TODO: Implementar ruta de historial clínico por paciente
-    console.log('Ver historial clínico del paciente:', patientId);
+    this.router.navigate(['/dentist/patients', patientId, 'clinical-history']).then(
+      success => console.log('Navegación a historia clínica exitosa:', success),
+      error => console.error('Error en navegación a historia clínica:', error)
+    );
   }
 }

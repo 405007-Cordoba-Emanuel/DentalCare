@@ -1,0 +1,518 @@
+.clinical-history-container {
+  padding: 32px;
+  background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+  min-height: calc(100vh - 64px);
+}
+
+.header-section {
+  margin-bottom: 32px;
+}
+
+.title-section {
+  margin-bottom: 24px;
+}
+
+.patient-header-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.patient-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.avatar-text {
+  color: white;
+  font-size: 24px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.patient-details {
+  flex: 1;
+}
+
+.main-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #000000;
+  margin: 0 0 8px;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  color: #64748b;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Search Section */
+.search-section {
+  margin-bottom: 32px;
+}
+
+.search-controls {
+  display: flex;
+  gap: 16px;
+  align-items: baseline;
+}
+
+.search-field {
+  flex: 1;
+}
+
+.search-field .mdc-text-field--filled {
+  background: #ffffff;
+  border-radius: 12px;
+}
+
+.search-field .mat-mdc-form-field-focus-overlay {
+  background-color: transparent;
+}
+
+.create-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 56px;
+  white-space: nowrap;
+  border-radius: 12px;
+}
+
+.advanced-search-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  border-radius: 12px;
+  border-color: #cbd5e1;
+}
+
+.advanced-search-button:hover {
+  background: #f1f5f9;
+}
+
+/* Advanced Search Panel */
+.advanced-search-panel {
+  margin-top: 16px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.search-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.filter-field {
+  width: 100%;
+}
+
+.filter-field .mdc-text-field--filled {
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.date-range-filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+}
+
+.filter-actions button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 768px) {
+  .search-controls {
+    flex-direction: column;
+  }
+
+  .search-field {
+    width: 100%;
+  }
+
+  .create-button,
+  .advanced-search-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .date-range-filters {
+    grid-template-columns: 1fr;
+  }
+  
+  .filter-actions {
+    flex-direction: column;
+  }
+  
+  .filter-actions button {
+    width: 100%;
+  }
+}
+
+/* Loading State */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  color: #64748b;
+}
+
+.loading-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+  color: #3b82f6;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.empty-state mat-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  color: #cbd5e1;
+  margin-bottom: 16px;
+}
+
+.empty-state h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 8px;
+}
+
+.empty-state p {
+  color: #64748b;
+  margin: 0;
+  max-width: 400px;
+}
+
+/* Journal View - Diario/Timeline vertical */
+.journal-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px 0;
+}
+
+/* Year Header */
+.year-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 48px 0 24px;
+  padding: 0 20px;
+}
+
+.year-header:first-child {
+  margin-top: 0;
+}
+
+.year-line {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #cbd5e1 50%, transparent 100%);
+}
+
+.year-text {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 4px 16px;
+  background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+  border-radius: 20px;
+  border: 1px solid #cbd5e1;
+}
+
+/* Month Header */
+.month-header {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #475569;
+  padding: 0 20px;
+  margin: 32px 0 16px;
+  display: flex;
+  align-items: center;
+}
+
+.month-header:first-of-type {
+  margin-top: 0;
+}
+
+/* Journal Entry */
+.journal-entry {
+  margin-bottom: 24px;
+  padding: 0 20px;
+}
+
+.entry-card {
+  display: flex;
+  gap: 24px;
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.entry-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #3b82f6 0%, #8b5cf6 100%);
+  border-radius: 0 4px 4px 0;
+}
+
+.entry-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+}
+
+/* Date Badge - Refined */
+.entry-date-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 80px;
+  min-width: 80px;
+  padding: 12px;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  border-radius: 12px;
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.date-day {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.date-month {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.95;
+}
+
+/* Entry Content */
+.entry-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.dentist-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.dentist-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: #3b82f6;
+  flex-shrink: 0;
+}
+
+.dentist-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.entry-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.edit-button {
+  color: #1976d2;
+}
+
+.edit-button:hover {
+  background-color: rgba(25, 118, 210, 0.1);
+}
+
+.delete-button {
+  color: #f44336;
+  position: relative;
+}
+
+.delete-button:hover {
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+.delete-button .spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.entry-description {
+  margin: 0;
+}
+
+.entry-description p {
+  color: #475569;
+  font-size: 1rem;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Entry Footer - Image preview */
+.entry-footer {
+  padding-top: 16px;
+  margin-top: 8px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.image-preview {
+  max-width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.preview-image {
+  max-width: 100%;
+  max-height: 400px;
+  width: auto;
+  height: auto;
+  display: block;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.preview-image:hover {
+  transform: scale(1.02);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .clinical-history-container {
+    padding: 20px;
+  }
+
+  .main-title {
+    font-size: 1.5rem;
+  }
+
+  .patient-header-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .patient-avatar {
+    width: 48px;
+    height: 48px;
+  }
+
+  .avatar-text {
+    font-size: 18px;
+  }
+
+  .entry-card {
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+  }
+
+  .entry-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .entry-actions {
+    align-self: flex-end;
+  }
+
+  .entry-date-badge {
+    width: 100%;
+    flex-direction: row;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .date-day {
+    font-size: 1.5rem;
+  }
+
+  .date-month {
+    font-size: 0.875rem;
+  }
+
+  .year-header,
+  .month-header,
+  .journal-entry {
+    padding: 0 8px;
+  }
+}
+

@@ -210,9 +210,7 @@ export class ClinicalHistoryListComponent implements OnInit {
   private filterLocally(search: string) {
     this.filteredEntries = this.entries.filter(entry =>
       entry.description?.toLowerCase().includes(search) ||
-      entry.dentistName?.toLowerCase().includes(search) ||
-      entry.treatmentName?.toLowerCase().includes(search) ||
-      entry.prescriptionSummary?.toLowerCase().includes(search)
+      entry.dentistName?.toLowerCase().includes(search)
     );
   }
 
@@ -271,7 +269,7 @@ export class ClinicalHistoryListComponent implements OnInit {
   }
 
   hasLinkedItems(entry: ClinicalHistoryEntry): boolean {
-    return !!(entry.treatmentId || entry.prescriptionId || entry.hasFile);
+    return !!entry.hasFile;
   }
 
   getYear(dateStr: string): string {
