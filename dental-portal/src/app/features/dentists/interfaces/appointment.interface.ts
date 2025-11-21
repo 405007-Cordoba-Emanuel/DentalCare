@@ -13,15 +13,20 @@ export interface AppointmentResponse {
   patientDni: string;
   dentistId: number;
   dentistName: string;
-  dentistLicenseNumber: string;
-  dentistSpecialty: string;
-  startDateTime: string;
-  endDateTime: string;
+  dentistLicenseNumber?: string;
+  dentistSpecialty?: string;
+  // Formato general (startDateTime y endDateTime combinados)
+  startDateTime?: string;
+  endDateTime?: string;
+  // Formato de calendario (date, startTime, endTime separados)
+  date?: string;
+  startTime?: string;
+  endTime?: string;
   durationMinutes: number;
   status: string;
   reason: string;
   notes: string;
   active: boolean;
-  createdDatetime: string;
-  lastUpdatedDatetime: string;
+  createdDatetime?: string;
+  lastUpdatedDatetime?: string;
 }
