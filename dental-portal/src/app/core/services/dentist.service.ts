@@ -42,6 +42,16 @@ export class DentistService {
     return this.http.post<AppointmentResponse>(`${this.apiUrl}/${dentistId}/appointments`, appointment);
   }
 
+  // Obtener todas las appointments de un dentista
+  getAppointmentsByDentistId(dentistId: number): Observable<AppointmentResponse[]> {
+    return this.http.get<AppointmentResponse[]>(`${this.apiUrl}/${dentistId}/appointments`);
+  }
+
+  // Obtener appointments activas (excluyendo canceladas) de un dentista
+  getActiveAppointmentsByDentistId(dentistId: number): Observable<AppointmentResponse[]> {
+    return this.http.get<AppointmentResponse[]>(`${this.apiUrl}/${dentistId}/appointments/active`);
+  }
+
   createPatient(dentistId: number, patient: PatientRequest): Observable<PatientInfo> {
     return this.http.post<PatientInfo>(`${this.apiUrl}/${dentistId}/patients`, patient);
   }

@@ -9,9 +9,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DentistService } from '../../../core/services/dentist.service';
 import { PatientSummary } from '../../../features/dentists/interfaces/patient.interface';
 import { LocalStorageService } from '../../../core/services/auth/local-storage.service';
+import { AppointmentModalComponent } from './appointment-modal/appointment-modal.component';
 
 @Component({
   selector: 'app-dentist-dashboard',
@@ -25,7 +27,8 @@ import { LocalStorageService } from '../../../core/services/auth/local-storage.s
     MatTooltipModule,
     MatFormFieldModule,
     MatInputModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatDialogModule
   ],
   templateUrl: './dentist-dashboard.component.html',
   styleUrl: './dentist-dashboard.component.css'
@@ -34,6 +37,7 @@ export class DentistDashboardComponent implements OnInit {
   private router = inject(Router);
   private dentistService = inject(DentistService);
   private localStorage = inject(LocalStorageService);
+  private dialog = inject(MatDialog);
   
   dentistId = this.localStorage.getDentistId();
   patients: PatientSummary[] = [];
@@ -137,14 +141,34 @@ export class DentistDashboardComponent implements OnInit {
 
   // Acciones de pacientes
   scheduleAppointment(patientId: number) {
-    this.router.navigate(['/dentist/appointments/create'], { 
-      queryParams: { patientId } 
+    const patient = this.patients.find(p => p.id === patientId);
+    
+    if (!patient || !this.dentistId) {
+      console.error('Patient or dentist not found');
+      return;
+    }
+
+    const dialogRef = this.dialog.open(AppointmentModalComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      disableClose: false,
+      data: {
+        patientId: patientId,
+        patientName: `${patient.firstName} ${patient.lastName}`,
+        dentistId: this.dentistId
+      }
     });
-    console.log('Agendar cita para paciente:', patientId);
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Cita creada exitosamente:', result);
+        // Aquí podrías actualizar las estadísticas del dashboard si es necesario
+      }
+    });
   }
 
   viewTreatments(patientId: number) {
-    this.router.navigate([`/dentist/patients/${patientId}/treatments`]);
+    this.router.navigate([`/dentist/${patientId}/treatments`]);
     console.log('Ver tratamientos del paciente:', patientId);
   }
 

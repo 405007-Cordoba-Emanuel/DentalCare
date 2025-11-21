@@ -59,7 +59,7 @@
             <div class="flex items-center space-x-3 mb-2">
               <h3 class="text-lg font-medium text-gray-900">{{ treatment.name }}</h3>
               <span class="dental-badge" [class]="getStatusColor(treatment.status)">
-                {{ treatment.status }}
+                {{ getStatusLabel(treatment.status) }}
               </span>
             </div>
             
@@ -103,18 +103,25 @@
               </div>
             </div>
 
-            <div class="text-sm text-gray-500">
-              <strong>Paciente:</strong> {{ treatment.patient.firstName }} {{ treatment.patient.lastName }} (DNI: {{ treatment.patient.dni }})
+            <!-- Notas del tratamiento -->
+            @if(treatment.notes) {
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-3">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <app-icon name="alertCircle" class="h-5 w-5 text-yellow-400"></app-icon>
+                </div>
+                <div class="ml-3">
+                  <p class="text-sm text-yellow-700">
+                    <strong>Notas:</strong> {{ treatment.notes }}
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
-          
-          <div class="ml-6 flex flex-col space-y-2">
-            <button 
-              (click)="viewTreatmentDetail(treatment.id)"
-              class="dental-btn-primary flex items-center space-x-2">
-              <app-icon name="eye" class="h-4 w-4"></app-icon>
-              <span>Ver Detalle</span>
-            </button>
+            }
+
+            <div class="text-sm text-gray-500">
+              <strong>Paciente:</strong> {{ treatment.patientName }}
+            </div>
           </div>
         </div>
       </div>
@@ -166,7 +173,7 @@
               <dt class="text-sm font-medium text-gray-500">Estado</dt>
               <dd class="text-sm">
                 <span class="dental-badge" [class]="getStatusColor(selectedTreatment.status)">
-                  {{ selectedTreatment.status }}
+                  {{ getStatusLabel(selectedTreatment.status) }}
                 </span>
               </dd>
             </div>

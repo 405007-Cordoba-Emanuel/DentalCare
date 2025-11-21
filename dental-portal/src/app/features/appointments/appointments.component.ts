@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { CalendarOptions } from '@fullcalendar/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { CalendarOptions, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -7,11 +7,26 @@ import { FullCalendarModule } from '@fullcalendar/angular';
 import esLocale from '@fullcalendar/core/locales/es';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { AppointmentService } from '../../core/services/appointment.service';
+import { DentistService } from '../../core/services/dentist.service';
+import { PatientService } from '../../core/services/patient.service';
+import { LocalStorageService } from '../../core/services/auth/local-storage.service';
+import { AppointmentResponse } from '../dentists/interfaces/appointment.interface';
 
 @Component({
   selector: 'app-appointments',
-  imports: [FullCalendarModule, MatButtonModule, MatIconModule],
+  imports: [
+    CommonModule,
+    FullCalendarModule, 
+    MatButtonModule, 
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule
+  ],
   templateUrl: './appointments.component.html',
   styles: [
     `
@@ -67,98 +82,211 @@ import { Router } from '@angular/router';
     `,
   ],
 })
-export class AppointmentsComponent {
+export class AppointmentsComponent implements OnInit {
+  private router = inject(Router);
+  private appointmentService = inject(AppointmentService);
+  private dentistService = inject(DentistService);
+  private patientService = inject(PatientService);
+  private localStorage = inject(LocalStorageService);
+  private snackBar = inject(MatSnackBar);
+
   currentView: 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay' = 'dayGridMonth';
-  router = inject(Router);
+  isLoading = false;
+  userRole: string | null = null;
+  userId: number | null = null;
+  dentistId: number | null = null;
+  patientId: number | null = null;
+
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
     initialView: this.currentView,
     headerToolbar: false,
-    slotMinTime: '09:00:00',     // Inicia a las 9 AM
-    slotMaxTime: '20:00:00',     // Termina a las 8 PM
-    slotLabelFormat: {           // Formato de las etiquetas de hora
+    slotMinTime: '09:00:00',
+    slotMaxTime: '20:00:00',
+    slotLabelFormat: {
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false              // Formato 24 horas (cambia a true para AM/PM)
+      hour12: false
     },
     allDaySlot: false,
     locale: esLocale,
-    events: [
-      {
-        title: 'Consulta con Juan Pérez',
-        start: '2025-10-21T10:00:00',
-        end: '2025-10-21T11:00:00',
-      },
-      {
-        title: 'Limpieza dental - María',
-        start: '2025-10-21T14:00:00',
-        end: '2025-10-21T15:00:00',
-      },
-      {
-        title: 'Limpieza dental - María',
-        start: '2025-10-21T14:00:00',
-        end: '2025-10-21T15:00:00',
-      },
-      {
-        title: 'Limpieza dental - María',
-        start: '2025-10-21T14:00:00',
-        end: '2025-10-21T15:00:00',
-      },
-      {
-        title: 'Limpieza dental - María',
-        start: '2025-10-21T14:00:00',
-        end: '2025-10-21T15:00:00',
-      },
-      // 7
-      {
-        title: 'Limpieza dental - María',
-        start: '2025-10-07T14:00:00',
-        end: '2025-10-07T15:00:00',
-      },
-      {
-        title: 'Limpieza dental - María',
-        start: '2025-10-07T14:00:00',
-        end: '2025-10-07T15:00:00',
-      },
-      {
-        title: 'Limpieza dental - María',
-        start: '2025-10-07T14:00:00',
-        end: '2025-10-07T15:00:00',
-      },
-      // 14
-      {
-        title: 'Limpieza dental - María',
-        start: '2025-10-14T14:00:00',
-        end: '2025-10-14T15:00:00',
-      },
-      {
-        title: 'Limpieza dental - María',
-        start: '2025-10-14T14:00:00',
-        end: '2025-10-14T15:00:00',
-      },
-      {
-        title: 'Limpieza dental - María',
-        start: '2025-10-14T14:00:00',
-        end: '2025-10-14T15:00:00',
-      },
-      {
-        title: 'Limpieza dental - María',
-        start: '2025-10-14T14:00:00',
-        end: '2025-10-14T15:00:00',
-      },
-      {
-        title: 'Limpieza dental - María',
-        start: '2025-10-14T14:00:00',
-        end: '2025-10-14T15:00:00',
-      },
-      {
-        title: 'Limpieza dental - María',
-        start: '2025-10-14T14:00:00',
-        end: '2025-10-14T15:00:00',
-      },
-      
-    ],
+    events: [],
+    eventClick: this.handleEventClick.bind(this),
   };
+
+  ngOnInit() {
+    this.loadUserData();
+  }
+
+  private loadUserData() {
+    const userDataString = this.localStorage.getUserData();
+    if (!userDataString) {
+      this.snackBar.open('No se encontró información del usuario', 'Cerrar', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+
+    try {
+      const userData = JSON.parse(userDataString);
+      this.userRole = userData.role;
+      this.userId = parseInt(userData.id, 10);
+
+      if (this.userRole === 'DENTIST') {
+        this.loadDentistAppointments(userData);
+      } else if (this.userRole === 'PATIENT') {
+        this.loadPatientAppointments(userData);
+      } else {
+        this.snackBar.open('Rol de usuario no válido', 'Cerrar', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+      }
+    } catch (error) {
+      console.error('Error parsing user data:', error);
+      this.snackBar.open('Error al cargar datos del usuario', 'Cerrar', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+    }
+  }
+
+  private loadDentistAppointments(userData: any) {
+    this.dentistId = userData.dentistId;
+
+    if (this.dentistId) {
+      this.fetchAppointments();
+    } else if (this.userId) {
+      // Obtener dentistId desde el backend si no está en localStorage
+      this.dentistService.getDentistIdByUserId(this.userId.toString()).subscribe({
+        next: (dentistId) => {
+          this.dentistId = dentistId;
+          userData.dentistId = dentistId;
+          this.localStorage.setUserData(userData);
+          this.fetchAppointments();
+        },
+        error: (error) => {
+          console.error('Error fetching dentistId:', error);
+          this.snackBar.open('Error al obtener ID del dentista', 'Cerrar', {
+            duration: 3000,
+            panelClass: ['error-snackbar']
+          });
+        }
+      });
+    }
+  }
+
+  private loadPatientAppointments(userData: any) {
+    this.patientId = userData.patientId;
+
+    if (this.patientId) {
+      this.fetchAppointments();
+    } else if (this.userId) {
+      // Obtener patientId desde el backend si no está en localStorage
+      this.patientService.getPatientIdByUserId(this.userId).subscribe({
+        next: (patientId) => {
+          this.patientId = patientId;
+          userData.patientId = patientId;
+          this.localStorage.setUserData(userData);
+          this.fetchAppointments();
+        },
+        error: (error) => {
+          console.error('Error fetching patientId:', error);
+          this.snackBar.open('Error al obtener ID del paciente', 'Cerrar', {
+            duration: 3000,
+            panelClass: ['error-snackbar']
+          });
+        }
+      });
+    } else {
+      this.snackBar.open('No se encontró ID del paciente', 'Cerrar', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+    }
+  }
+
+  private fetchAppointments() {
+    this.isLoading = true;
+
+    const id = this.userRole === 'DENTIST' ? this.dentistId : this.patientId;
+    const role = this.userRole || '';
+
+    if (!id) {
+      this.isLoading = false;
+      return;
+    }
+
+    this.appointmentService.getAppointmentsByRoleAndId(role, id, false).subscribe({
+      next: (appointments) => {
+        const events = this.mapAppointmentsToEvents(appointments);
+        this.calendarOptions.events = events;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error fetching appointments:', error);
+        this.snackBar.open('Error al cargar las citas', 'Cerrar', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private mapAppointmentsToEvents(appointments: AppointmentResponse[]): EventInput[] {
+    return appointments.map(appointment => {
+      // Determinar el título según el rol del usuario
+      let title = '';
+      if (this.userRole === 'DENTIST') {
+        title = `${appointment.patientName} - ${appointment.reason || 'Consulta'}`;
+      } else {
+        title = `${appointment.dentistName} - ${appointment.reason || 'Consulta'}`;
+      }
+
+      // Determinar el color según el estado
+      let backgroundColor = '#2563eb'; // blue-600 por defecto
+      let borderColor = '#2563eb';
+
+      switch (appointment.status) {
+        case 'PROGRAMADO':
+          backgroundColor = '#3b82f6'; // blue-500
+          borderColor = '#3b82f6';
+          break;
+        case 'CONFIRMADO':
+          backgroundColor = '#10b981'; // green-500
+          borderColor = '#10b981';
+          break;
+        case 'COMPLETADO':
+          backgroundColor = '#6b7280'; // gray-500
+          borderColor = '#6b7280';
+          break;
+        case 'AUSENTE':
+          backgroundColor = '#f59e0b'; // amber-500
+          borderColor = '#f59e0b';
+          break;
+      }
+
+      return {
+        id: appointment.id.toString(),
+        title: title,
+        start: appointment.startDateTime,
+        end: appointment.endDateTime,
+        backgroundColor: backgroundColor,
+        borderColor: borderColor,
+        extendedProps: {
+          appointment: appointment
+        }
+      };
+    });
+  }
+
+  handleEventClick(clickInfo: any) {
+    const appointment = clickInfo.event.extendedProps.appointment;
+    console.log('Appointment clicked:', appointment);
+    // Aquí puedes abrir un modal o navegar a los detalles de la cita
+  }
 
   changeView(
     view: 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay',
@@ -169,6 +297,13 @@ export class AppointmentsComponent {
   }
 
   navigateToCreateAppointment() {
-    this.router.navigate(['/dentist/appointments/create']);
+    if (this.userRole === 'DENTIST') {
+      this.router.navigate(['/dentist/appointments/create']);
+    } else {
+      this.snackBar.open('Solo los dentistas pueden crear citas', 'Cerrar', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+    }
   }
 }

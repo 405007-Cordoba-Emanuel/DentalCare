@@ -1,0 +1,206 @@
+.appointment-modal {
+  min-width: 500px;
+  max-width: 600px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 0;
+}
+
+.modal-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 24px;
+  font-weight: 600;
+  color: #1e40af;
+  margin: 0;
+  padding: 16px 0;
+}
+
+.title-icon {
+  color: #1e40af;
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+.close-button {
+  color: #64748b;
+}
+
+.close-button:hover {
+  color: #1e40af;
+  background-color: #eff6ff;
+}
+
+.modal-content {
+  padding: 24px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.patient-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  border-radius: 12px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.2);
+}
+
+.patient-icon {
+  color: white;
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.patient-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.patient-label {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.patient-name {
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.appointment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.time-row {
+  display: flex;
+  gap: 16px;
+}
+
+.time-field {
+  flex: 1;
+}
+
+.time-icon {
+  color: #64748b;
+  margin-right: 8px;
+}
+
+mat-form-field {
+  font-size: 14px;
+}
+
+::ng-deep .mat-mdc-form-field-icon-prefix {
+  padding-right: 8px;
+}
+
+mat-icon[matPrefix] {
+  color: #64748b;
+  margin-right: 8px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid #e0e0e0;
+  margin: 0;
+}
+
+.cancel-button {
+  color: #64748b;
+  border-color: #cbd5e1;
+}
+
+.cancel-button:hover {
+  background-color: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.submit-button {
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 140px;
+  justify-content: center;
+}
+
+.submit-button:disabled {
+  background: #cbd5e1;
+  color: #94a3b8;
+}
+
+.button-spinner {
+  display: inline-block;
+  margin-right: 8px;
+}
+
+::ng-deep .button-spinner circle {
+  stroke: white !important;
+}
+
+/* Snackbar styles */
+::ng-deep .success-snackbar {
+  background-color: #10b981 !important;
+  color: white !important;
+}
+
+::ng-deep .error-snackbar {
+  background-color: #ef4444 !important;
+  color: white !important;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .appointment-modal {
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  .time-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .modal-header {
+    padding: 0 16px;
+  }
+
+  .modal-content {
+    padding: 16px;
+  }
+
+  .modal-actions {
+    padding: 16px;
+    flex-direction: column-reverse;
+  }
+
+  .cancel-button,
+  .submit-button {
+    width: 100%;
+  }
+}
+

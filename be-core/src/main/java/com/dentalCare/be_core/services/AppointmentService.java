@@ -53,4 +53,8 @@ public interface AppointmentService {
     long countAppointmentsByPatientIdAndStatus(Long patientId, AppointmentStatus status);
 
     Appointment getAppointmentEntityByIdAndDentistId(Long appointmentId, Long dentistId);
+
+    List<AppointmentResponseDto> getAppointmentsByDentistIdExcludingCancelled(Long dentistId);
+
+    List<AppointmentResponseDto> getAppointmentsByPatientIdExcludingCancelled(Long patientId);
 }

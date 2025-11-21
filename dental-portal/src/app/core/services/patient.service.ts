@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { AppointmentResponse } from '../../features/dentists/interfaces/appointment.interface';
 
 export interface Patient {
   id: number;
@@ -40,6 +41,26 @@ export class PatientService {
 
   assignDentistToPatient(patientId: number, dentistId: number): Observable<Patient> {
     return this.http.put<Patient>(`${this.apiUrl}/${patientId}/assign-dentist/${dentistId}`, {});
+  }
+
+  // Obtener todas las appointments de un paciente
+  getAppointmentsByPatientId(patientId: number): Observable<AppointmentResponse[]> {
+    return this.http.get<AppointmentResponse[]>(`${this.apiUrl}/${patientId}/appointments`);
+  }
+
+  // Obtener appointments activas (excluyendo canceladas) de un paciente
+  getActiveAppointmentsByPatientId(patientId: number): Observable<AppointmentResponse[]> {
+    return this.http.get<AppointmentResponse[]>(`${this.apiUrl}/${patientId}/appointments/active`);
+  }
+
+  // Obtener próximas appointments del paciente
+  getUpcomingAppointmentsByPatientId(patientId: number): Observable<AppointmentResponse[]> {
+    return this.http.get<AppointmentResponse[]>(`${this.apiUrl}/${patientId}/appointments/upcoming`);
+  }
+
+  // Obtener appointments pasadas del paciente
+  getPastAppointmentsByPatientId(patientId: number): Observable<AppointmentResponse[]> {
+    return this.http.get<AppointmentResponse[]>(`${this.apiUrl}/${patientId}/appointments/past`);
   }
 }
 

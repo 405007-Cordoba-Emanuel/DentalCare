@@ -1,6 +1,7 @@
 package com.dentalCare.be_core.services.impl;
 
 import com.dentalCare.be_core.config.mapper.ModelMapperUtils;
+import com.dentalCare.be_core.dtos.external.EmailRequestDto;
 import com.dentalCare.be_core.dtos.external.UserDetailDto;
 import com.dentalCare.be_core.dtos.request.appointment.AppointmentRequestDto;
 import com.dentalCare.be_core.dtos.request.appointment.AppointmentUpdateRequestDto;
@@ -14,6 +15,7 @@ import com.dentalCare.be_core.repositories.AppointmentRepository;
 import com.dentalCare.be_core.repositories.DentistRepository;
 import com.dentalCare.be_core.repositories.PatientRepository;
 import com.dentalCare.be_core.services.AppointmentService;
+import com.dentalCare.be_core.services.EmailServiceClient;
 import com.dentalCare.be_core.services.UserServiceClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +24,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,6 +47,9 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Autowired
     private UserServiceClient userServiceClient;
+
+    @Autowired
+    private EmailServiceClient emailServiceClient;
 
     @Autowired
     private ModelMapperUtils modelMapperUtils;
@@ -84,7 +93,76 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setActive(true);
 
         Appointment savedAppointment = appointmentRepository.save(appointment);
+        
+        // Enviar notificaciones por email
+        sendAppointmentCreatedEmails(savedAppointment, dentist, patient);
+        
         return mapToResponseDto(savedAppointment);
+    }
+
+    private void sendAppointmentCreatedEmails(Appointment appointment, Dentist dentist, Patient patient) {
+        try {
+            UserDetailDto patientUser = userServiceClient.getUserById(patient.getUserId());
+            UserDetailDto dentistUser = userServiceClient.getUserById(dentist.getUserId());
+            
+            // Formatear fecha y hora
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("d 'de' MMMM, yyyy", new Locale("es", "ES"));
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+            
+            String appointmentDate = appointment.getStartDateTime().format(dateFormatter);
+            String startTime = appointment.getStartDateTime().format(timeFormatter);
+            String endTime = appointment.getEndDateTime().format(timeFormatter);
+            long duration = java.time.Duration.between(appointment.getStartDateTime(), appointment.getEndDateTime()).toMinutes();
+            
+            // Email para el paciente
+            Map<String, Object> patientVariables = new HashMap<>();
+            patientVariables.put("patientName", patientUser.getFirstName() + " " + patientUser.getLastName());
+            patientVariables.put("dentistName", "Dr./Dra. " + dentistUser.getFirstName() + " " + dentistUser.getLastName());
+            patientVariables.put("dentistSpecialty", dentist.getSpecialty());
+            patientVariables.put("dentistLicense", dentist.getLicenseNumber());
+            patientVariables.put("appointmentDate", appointmentDate);
+            patientVariables.put("startTime", startTime);
+            patientVariables.put("endTime", endTime);
+            patientVariables.put("duration", duration);
+            patientVariables.put("reason", appointment.getReason() != null ? appointment.getReason() : "");
+            patientVariables.put("notes", appointment.getNotes() != null ? appointment.getNotes() : "");
+            
+            EmailRequestDto patientEmail = EmailRequestDto.builder()
+                    .to(List.of(patientUser.getEmail()))
+                    .subject("Confirmación de Cita - DentalCare")
+                    .emailType("APPOINTMENT_CREATED_PATIENT")
+                    .variables(patientVariables)
+                    .build();
+            
+            emailServiceClient.sendEmail(patientEmail);
+            log.info("Appointment confirmation email sent to patient: {}", patientUser.getEmail());
+            
+            // Email para el dentista
+            Map<String, Object> dentistVariables = new HashMap<>();
+            dentistVariables.put("dentistName", "Dr./Dra. " + dentistUser.getFirstName() + " " + dentistUser.getLastName());
+            dentistVariables.put("patientName", patientUser.getFirstName() + " " + patientUser.getLastName());
+            dentistVariables.put("patientDni", patient.getDni());
+            dentistVariables.put("appointmentDate", appointmentDate);
+            dentistVariables.put("startTime", startTime);
+            dentistVariables.put("endTime", endTime);
+            dentistVariables.put("duration", duration);
+            dentistVariables.put("reason", appointment.getReason() != null ? appointment.getReason() : "");
+            dentistVariables.put("notes", appointment.getNotes() != null ? appointment.getNotes() : "");
+            
+            EmailRequestDto dentistEmail = EmailRequestDto.builder()
+                    .to(List.of(dentistUser.getEmail()))
+                    .subject("Nueva Cita Agendada - DentalCare")
+                    .emailType("APPOINTMENT_CREATED_DENTIST")
+                    .variables(dentistVariables)
+                    .build();
+            
+            emailServiceClient.sendEmail(dentistEmail);
+            log.info("Appointment notification email sent to dentist: {}", dentistUser.getEmail());
+            
+        } catch (Exception e) {
+            log.error("Error sending appointment emails: {}", e.getMessage(), e);
+            // No lanzamos excepción para no afectar el flujo principal
+        }
     }
 
     @Override
@@ -251,6 +329,24 @@ public class AppointmentServiceImpl implements AppointmentService {
     public Appointment getAppointmentEntityByIdAndDentistId(Long appointmentId, Long dentistId) {
         return appointmentRepository.findByIdAndDentistIdAndActiveTrue(appointmentId, dentistId)
                 .orElseThrow(() -> new IllegalArgumentException("No appointment found with ID: " + appointmentId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AppointmentResponseDto> getAppointmentsByDentistIdExcludingCancelled(Long dentistId) {
+        List<Appointment> appointments = appointmentRepository.findByDentistIdAndActiveTrueAndStatusNotCancelled(dentistId);
+        return appointments.stream()
+                .map(this::mapToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AppointmentResponseDto> getAppointmentsByPatientIdExcludingCancelled(Long patientId) {
+        List<Appointment> appointments = appointmentRepository.findByPatientIdAndActiveTrueAndStatusNotCancelled(patientId);
+        return appointments.stream()
+                .map(this::mapToResponseDto)
+                .collect(Collectors.toList());
     }
 
     private AppointmentResponseDto mapToResponseDto(Appointment appointment) {

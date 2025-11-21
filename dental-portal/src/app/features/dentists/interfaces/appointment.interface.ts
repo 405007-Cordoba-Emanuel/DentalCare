@@ -1,7 +1,7 @@
 export interface AppointmentRequest {
   patientId: number;
-  startDateTime: Date;
-  endDateTime: Date;
+  startDateTime: Date | string;
+  endDateTime: Date | string;
   reason: string;
   notes: string;
 }
@@ -15,13 +15,13 @@ export interface AppointmentResponse {
   dentistName: string;
   dentistLicenseNumber: string;
   dentistSpecialty: string;
-  startDateTime: Date;
-  endDateTime: Date;
+  startDateTime: string;
+  endDateTime: string;
   durationMinutes: number;
   status: string;
   reason: string;
   notes: string;
   active: boolean;
-  createdDatetime: Date;
-  lastUpdatedDatetime: Date;
+  createdDatetime: string;
+  lastUpdatedDatetime: string;
 }
