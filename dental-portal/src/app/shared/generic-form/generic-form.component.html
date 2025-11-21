@@ -45,6 +45,32 @@
           </mat-form-field>
           }
 
+          <!-- Campo password con botón de mostrar/ocultar -->
+          @if (field.type === 'password') {
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>{{ field.label }}</mat-label>
+            <input
+              matInput
+              [type]="isPasswordVisible(field.name) ? 'text' : 'password'"
+              [formControlName]="field.name"
+              [placeholder]="field.placeholder || ''"
+            />
+            <mat-icon
+              matIconSuffix
+              (click)="togglePasswordVisibility(field.name)"
+              class="cursor-pointer hover:text-blue-600 transition-colors"
+              [title]="isPasswordVisible(field.name) ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            >
+              {{ isPasswordVisible(field.name) ? 'visibility_off' : 'visibility' }}
+            </mat-icon>
+            @if (isFieldInvalid(field.name)) {
+            <mat-error>{{ getFieldError(field.name) }}</mat-error>
+            } @if (isFieldDisabled(field.name)) {
+            <mat-hint>(No editable)</mat-hint>
+            }
+          </mat-form-field>
+          }
+
           <!-- Campo textarea -->
           @if (field.type === 'textarea') {
           <mat-form-field appearance="fill" class="w-full">

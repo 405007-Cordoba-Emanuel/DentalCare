@@ -93,14 +93,14 @@ export class RegisterComponent implements OnInit {
       {
         name: 'password',
         label: 'Contraseña',
-        type: 'text',
+        type: 'password',
         placeholder: 'Ingresa tu contraseña',
         validators: [Validators.required, Validators.minLength(6)],
       },
       {
         name: 'confirmPassword',
         label: 'Confirmar Contraseña',
-        type: 'text',
+        type: 'password',
         placeholder: 'Confirma tu contraseña',
         validators: [Validators.required],
       },

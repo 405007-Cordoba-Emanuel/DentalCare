@@ -19,7 +19,7 @@ import { MatIconModule } from '@angular/material/icon';
 export interface FormField {
   name: string;
   label: string;
-  type: 'text' | 'textarea' | 'select' | 'datetime-local' | 'date' | 'time' | 'number';
+  type: 'text' | 'password' | 'textarea' | 'select' | 'datetime-local' | 'date' | 'time' | 'number';
   placeholder?: string;
   options?: { label: string; value: any }[];
   validators?: any[];
@@ -354,5 +354,18 @@ export class GenericFormComponent implements OnInit {
       inputElement.focus();
       inputElement.click();
     }
+  }
+
+  // Estado para mostrar/ocultar contraseñas
+  passwordVisibility: { [key: string]: boolean } = {};
+
+  // Método para alternar la visibilidad de la contraseña
+  togglePasswordVisibility(fieldName: string): void {
+    this.passwordVisibility[fieldName] = !this.passwordVisibility[fieldName];
+  }
+
+  // Método para verificar si la contraseña está visible
+  isPasswordVisible(fieldName: string): boolean {
+    return this.passwordVisibility[fieldName] || false;
   }
 }
