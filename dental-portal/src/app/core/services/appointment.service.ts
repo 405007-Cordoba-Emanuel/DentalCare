@@ -72,6 +72,21 @@ export class AppointmentService {
       throw new Error('Invalid role. Must be DENTIST or PATIENT');
     }
   }
+
+  /**
+   * Obtiene todas las citas en un rango de 2 años (1 año atrás + 1 año adelante)
+   * @param role - 'DENTIST' o 'PATIENT'
+   * @param id - ID del dentista o paciente
+   */
+  getTwoYearAppointments(role: string, id: number): Observable<AppointmentResponse[]> {
+    if (role === 'DENTIST') {
+      return this.dentistService.getTwoYearAppointments(id);
+    } else if (role === 'PATIENT') {
+      return this.patientService.getTwoYearAppointments(id);
+    } else {
+      throw new Error('Invalid role. Must be DENTIST or PATIENT');
+    }
+  }
 }
 
 // Re-export tipos para conveniencia

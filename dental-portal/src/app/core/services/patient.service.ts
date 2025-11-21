@@ -62,5 +62,10 @@ export class PatientService {
   getPastAppointmentsByPatientId(patientId: number): Observable<AppointmentResponse[]> {
     return this.http.get<AppointmentResponse[]>(`${this.apiUrl}/${patientId}/appointments/past`);
   }
+
+  // Obtener citas de 2 años (1 año atrás + 1 año adelante)
+  getTwoYearAppointments(patientId: number): Observable<AppointmentResponse[]> {
+    return this.http.get<AppointmentResponse[]>(`${this.apiUrl}/${patientId}/appointments/two-year-range`);
+  }
 }
 

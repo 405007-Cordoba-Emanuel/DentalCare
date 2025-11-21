@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { DentistResponse, DentistUpdateRequest } from '../../features/dentists/interfaces/dentist.interface';
 import { DentistPatientsResponse, PatientInfo, PatientRequest, PatientResponse } from '../../features/dentists/interfaces/patient.interface';
-import { AppointmentRequest, AppointmentResponse } from '../../features/dentists/interfaces/appointment.interface';
+import { AppointmentRequest, AppointmentResponse, AppointmentUpdateRequest } from '../../features/dentists/interfaces/appointment.interface';
 import { PagedResponse } from '../../features/dentists/interfaces/paged-response.interface';
 
 @Injectable({
@@ -70,6 +70,31 @@ export class DentistService {
     return this.http.get<PagedResponse<PatientResponse>>(`${this.apiUrl}/available-patients/paged`, { params });
   }
 
+  // Obtener citas por mes
+  getMonthlyAppointments(dentistId: number, year: number, month: number): Observable<AppointmentResponse[]> {
+    const params = new HttpParams()
+      .set('year', year.toString())
+      .set('month', month.toString());
+    
+    return this.http.get<AppointmentResponse[]>(`${this.apiUrl}/${dentistId}/appointments/month`, { params });
+  }
+
+  // Obtener citas por semana
+  getWeeklyAppointments(dentistId: number, startDate: string): Observable<AppointmentResponse[]> {
+    const params = new HttpParams()
+      .set('startDate', startDate);
+    
+    return this.http.get<AppointmentResponse[]>(`${this.apiUrl}/${dentistId}/appointments/week`, { params });
+  }
+
+  // Obtener citas por día
+  getDailyAppointments(dentistId: number, date: string): Observable<AppointmentResponse[]> {
+    const params = new HttpParams()
+      .set('date', date);
+    
+    return this.http.get<AppointmentResponse[]>(`${this.apiUrl}/${dentistId}/appointments/day`, { params });
+  }
+
   // Verificar conflicto de horario
   checkTimeConflict(dentistId: number, startTime: string, endTime: string): Observable<boolean> {
     const params = new HttpParams()
@@ -77,5 +102,35 @@ export class DentistService {
       .set('endTime', endTime);
     
     return this.http.get<boolean>(`${this.apiUrl}/${dentistId}/appointments/conflict-check`, { params });
+  }
+
+  // Obtener citas de 2 años (1 año atrás + 1 año adelante)
+  getTwoYearAppointments(dentistId: number): Observable<AppointmentResponse[]> {
+    return this.http.get<AppointmentResponse[]>(`${this.apiUrl}/${dentistId}/appointments/two-year-range`);
+  }
+
+  // Obtener una cita específica por ID
+  getAppointmentById(dentistId: number, appointmentId: number): Observable<AppointmentResponse> {
+    return this.http.get<AppointmentResponse>(`${this.apiUrl}/${dentistId}/appointments/${appointmentId}`);
+  }
+
+  // Actualizar una cita
+  updateAppointment(dentistId: number, appointmentId: number, appointment: AppointmentUpdateRequest): Observable<AppointmentResponse> {
+    return this.http.put<AppointmentResponse>(`${this.apiUrl}/${dentistId}/appointments/${appointmentId}`, appointment);
+  }
+
+  // Actualizar el estado de una cita
+  updateAppointmentStatus(dentistId: number, appointmentId: number, status: string): Observable<AppointmentResponse> {
+    const params = new HttpParams().set('status', status);
+    return this.http.put<AppointmentResponse>(
+      `${this.apiUrl}/${dentistId}/appointments/${appointmentId}/status`,
+      null,
+      { params }
+    );
+  }
+
+  // Cancelar una cita
+  cancelAppointment(dentistId: number, appointmentId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${dentistId}/appointments/${appointmentId}`);
   }
 }

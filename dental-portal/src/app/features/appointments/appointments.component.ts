@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AppointmentService } from '../../core/services/appointment.service';
@@ -16,6 +17,7 @@ import { DentistService } from '../../core/services/dentist.service';
 import { PatientService } from '../../core/services/patient.service';
 import { LocalStorageService } from '../../core/services/auth/local-storage.service';
 import { AppointmentResponse } from '../dentists/interfaces/appointment.interface';
+import { AppointmentDetailDialogComponent } from './appointment-detail-dialog/appointment-detail-dialog.component';
 
 @Component({
   selector: 'app-appointments',
@@ -25,7 +27,8 @@ import { AppointmentResponse } from '../dentists/interfaces/appointment.interfac
     MatButtonModule, 
     MatIconModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatDialogModule
   ],
   templateUrl: './appointments.component.html',
   styles: [
@@ -89,6 +92,7 @@ export class AppointmentsComponent implements OnInit {
   private patientService = inject(PatientService);
   private localStorage = inject(LocalStorageService);
   private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
 
   currentView: 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay' = 'dayGridMonth';
   isLoading = false;
@@ -96,10 +100,14 @@ export class AppointmentsComponent implements OnInit {
   userId: number | null = null;
   dentistId: number | null = null;
   patientId: number | null = null;
+  currentDate: Date = new Date();
+  currentDateLabel: string = '';
+  navigationLabel: string = 'período';
+  allAppointments: any[] = []; // Almacena todas las citas cargadas una sola vez
 
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-    initialView: this.currentView,
+    initialView: 'dayGridMonth',
     headerToolbar: false,
     slotMinTime: '09:00:00',
     slotMaxTime: '20:00:00',
@@ -112,9 +120,13 @@ export class AppointmentsComponent implements OnInit {
     locale: esLocale,
     events: [],
     eventClick: this.handleEventClick.bind(this),
+    height: 'auto',
+    expandRows: true,
   };
 
   ngOnInit() {
+    this.updateDateLabel();
+    this.updateNavigationLabel();
     this.loadUserData();
   }
 
@@ -207,9 +219,7 @@ export class AppointmentsComponent implements OnInit {
     }
   }
 
-  private fetchAppointments() {
-    this.isLoading = true;
-
+  private fetchAppointments(forceReload: boolean = false) {
     const id = this.userRole === 'DENTIST' ? this.dentistId : this.patientId;
     const role = this.userRole || '';
 
@@ -218,10 +228,26 @@ export class AppointmentsComponent implements OnInit {
       return;
     }
 
-    this.appointmentService.getAppointmentsByRoleAndId(role, id, false).subscribe({
+    // Si ya tenemos las citas cargadas y no es una recarga forzada, no hacemos nada
+    // FullCalendar se encargará de filtrar las citas según la vista actual
+    if (this.allAppointments.length > 0 && !forceReload) {
+      return;
+    }
+
+    // Cargar todas las citas de 2 años (1 año atrás + 1 año adelante) UNA SOLA VEZ
+    this.isLoading = true;
+    
+    this.appointmentService.getTwoYearAppointments(role, id).subscribe({
       next: (appointments) => {
+        // Guardar todas las citas
+        this.allAppointments = appointments;
+        
+        // Mapear a eventos de FullCalendar
         const events = this.mapAppointmentsToEvents(appointments);
+        
+        // Asignar al calendario (FullCalendar filtrará automáticamente según la vista)
         this.calendarOptions.events = events;
+        
         this.isLoading = false;
       },
       error: (error) => {
@@ -235,7 +261,14 @@ export class AppointmentsComponent implements OnInit {
     });
   }
 
-  private mapAppointmentsToEvents(appointments: AppointmentResponse[]): EventInput[] {
+  private getWeekStartDate(date: Date): Date {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Ajustar al lunes
+    return new Date(d.setDate(diff));
+  }
+
+  private mapAppointmentsToEvents(appointments: any[]): EventInput[] {
     return appointments.map(appointment => {
       // Determinar el título según el rol del usuario
       let title = '';
@@ -268,32 +301,93 @@ export class AppointmentsComponent implements OnInit {
           break;
       }
 
+      // Manejar ambos formatos de fecha/hora
+      let startDateTime: string;
+      let endDateTime: string;
+
+      if (appointment.startDateTime && appointment.endDateTime) {
+        // Formato del endpoint general (startDateTime y endDateTime combinados)
+        startDateTime = appointment.startDateTime;
+        endDateTime = appointment.endDateTime;
+      } else if (appointment.date && appointment.startTime && appointment.endTime) {
+        // Formato del endpoint de calendario mensual (date, startTime, endTime separados)
+        startDateTime = `${appointment.date}T${appointment.startTime}`;
+        endDateTime = `${appointment.date}T${appointment.endTime}`;
+      } else {
+        console.error('Invalid appointment format:', appointment);
+        return null;
+      }
+
       return {
         id: appointment.id.toString(),
         title: title,
-        start: appointment.startDateTime,
-        end: appointment.endDateTime,
+        start: startDateTime,
+        end: endDateTime,
         backgroundColor: backgroundColor,
         borderColor: borderColor,
         extendedProps: {
           appointment: appointment
         }
       };
-    });
+    }).filter(event => event !== null) as EventInput[];
   }
 
   handleEventClick(clickInfo: any) {
     const appointment = clickInfo.event.extendedProps.appointment;
     console.log('Appointment clicked:', appointment);
-    // Aquí puedes abrir un modal o navegar a los detalles de la cita
+    
+    // Abrir el diálogo con los detalles de la cita
+    const dialogRef = this.dialog.open(AppointmentDetailDialogComponent, {
+      width: '700px',
+      maxWidth: '100vw',
+      data: {
+        appointment: appointment,
+        dentistId: this.dentistId,
+        userRole: this.userRole
+      },
+      panelClass: 'appointment-detail-dialog',
+      autoFocus: false
+    });
+
+    // Cuando se cierra el diálogo, recargar las citas si se actualizaron
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.updated) {
+        // Recargar las citas del calendario
+        this.fetchAppointments(true);
+      }
+    });
   }
 
   changeView(
     view: 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay',
     calendar: any
   ) {
-    this.currentView = view;
-    calendar.getApi().changeView(view);
+    try {
+      // Actualizar la vista actual
+      this.currentView = view;
+      
+      // Obtener la API del calendario
+      const calendarApi = calendar?.getApi();
+      
+      if (!calendarApi) {
+        console.error('No se pudo obtener la API del calendario');
+        return;
+      }
+      
+      // Cambiar la vista del calendario
+      calendarApi.changeView(view);
+      
+      // Obtener la fecha actual del calendario después del cambio de vista
+      this.currentDate = calendarApi.getDate();
+      
+      // Actualizar los labels de navegación
+      this.updateNavigationLabel();
+      this.updateDateLabel();
+      
+      // No es necesario recargar las citas, FullCalendar filtra automáticamente
+    } catch (error) {
+      console.error('Error al cambiar de vista:', error);
+    }
   }
 
   navigateToCreateAppointment() {
@@ -304,6 +398,80 @@ export class AppointmentsComponent implements OnInit {
         duration: 3000,
         panelClass: ['error-snackbar']
       });
+    }
+  }
+
+  // Navegación del calendario
+  previous(calendar: any) {
+    const calendarApi = calendar.getApi();
+    calendarApi.prev();
+    this.currentDate = calendarApi.getDate();
+    this.updateDateLabel();
+    // No es necesario recargar, FullCalendar filtra automáticamente
+  }
+
+  next(calendar: any) {
+    const calendarApi = calendar.getApi();
+    calendarApi.next();
+    this.currentDate = calendarApi.getDate();
+    this.updateDateLabel();
+    // No es necesario recargar, FullCalendar filtra automáticamente
+  }
+
+  goToToday(calendar: any) {
+    const calendarApi = calendar.getApi();
+    calendarApi.today();
+    this.currentDate = calendarApi.getDate();
+    this.updateDateLabel();
+    // No es necesario recargar, FullCalendar filtra automáticamente
+  }
+
+  private updateDateLabel() {
+    const monthNames = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    const dayNames = [
+      'Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'
+    ];
+
+    const month = monthNames[this.currentDate.getMonth()];
+    const year = this.currentDate.getFullYear();
+
+    if (this.currentView === 'dayGridMonth') {
+      // Vista mensual: "Noviembre 2025"
+      this.currentDateLabel = `${month} ${year}`;
+    } else if (this.currentView === 'timeGridWeek') {
+      // Vista semanal: "Semana del 18 al 24 de Noviembre 2025"
+      const startDate = this.getWeekStartDate(this.currentDate);
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 6);
+      
+      const startDay = startDate.getDate();
+      const endDay = endDate.getDate();
+      const startMonth = monthNames[startDate.getMonth()];
+      const endMonth = monthNames[endDate.getMonth()];
+      
+      if (startDate.getMonth() === endDate.getMonth()) {
+        this.currentDateLabel = `Semana del ${startDay} al ${endDay} de ${startMonth} ${year}`;
+      } else {
+        this.currentDateLabel = `Semana del ${startDay} de ${startMonth} al ${endDay} de ${endMonth} ${year}`;
+      }
+    } else if (this.currentView === 'timeGridDay') {
+      // Vista diaria: "Lunes 18 de Noviembre 2025"
+      const day = dayNames[this.currentDate.getDay()];
+      const date = this.currentDate.getDate();
+      this.currentDateLabel = `${day} ${date} de ${month} ${year}`;
+    }
+  }
+
+  private updateNavigationLabel() {
+    if (this.currentView === 'dayGridMonth') {
+      this.navigationLabel = 'mes';
+    } else if (this.currentView === 'timeGridWeek') {
+      this.navigationLabel = 'semana';
+    } else if (this.currentView === 'timeGridDay') {
+      this.navigationLabel = 'día';
     }
   }
 }

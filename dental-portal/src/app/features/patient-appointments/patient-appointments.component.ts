@@ -143,7 +143,7 @@ export class PatientAppointmentsComponent implements OnInit {
     });
   }
 
-  formatDate(dateStr: string): string {
+  formatDate(dateStr: string | undefined): string {
     if (!dateStr) return '';
     // Parsear manualmente para evitar problemas de timezone
     const parts = dateStr.split('T')[0].split('-');
@@ -160,7 +160,7 @@ export class PatientAppointmentsComponent implements OnInit {
     return `${day} ${monthName} ${year} - ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
   }
 
-  formatShortDate(dateStr: string): string {
+  formatShortDate(dateStr: string | undefined): string {
     if (!dateStr) return '';
     // Parsear manualmente para evitar problemas de timezone
     const parts = dateStr.split('T')[0].split('-');
@@ -174,7 +174,7 @@ export class PatientAppointmentsComponent implements OnInit {
     return `${day} ${monthName} ${year}`;
   }
 
-  formatDateOnly(dateStr: string): string {
+  formatDateOnly(dateStr: string | undefined): string {
     if (!dateStr) return '';
     // Parsear manualmente para evitar problemas de timezone
     const parts = dateStr.split('T')[0].split('-');
@@ -185,7 +185,7 @@ export class PatientAppointmentsComponent implements OnInit {
     return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
   }
 
-  formatTime(dateStr: string): string {
+  formatTime(dateStr: string | undefined): string {
     if (!dateStr) return '';
     const timeParts = dateStr.split('T')[1]?.split(':') || [];
     const hours = timeParts.length > 0 ? parseInt(timeParts[0]) : 0;

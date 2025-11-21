@@ -1,0 +1,45 @@
+/* Ocultar título del generic-form */
+:host ::ng-deep .mat-mdc-card h2 {
+  display: none;
+}
+
+/* Personalizar card del generic-form */
+:host ::ng-deep .mat-mdc-card {
+  box-shadow: none !important;
+  border: 1px solid rgb(229 231 235);
+  border-radius: 0.75rem;
+}
+
+:host ::ng-deep .mat-mdc-card-content {
+  padding: 1rem 0 !important;
+}
+
+:host ::ng-deep .mat-mdc-card-actions {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Scrollbar personalizada para el contenido */
+:host ::ng-deep .overflow-y-auto {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(203 213 225) rgb(241 245 249);
+}
+
+:host ::ng-deep .overflow-y-auto::-webkit-scrollbar {
+  width: 8px;
+}
+
+:host ::ng-deep .overflow-y-auto::-webkit-scrollbar-track {
+  background: rgb(241 245 249);
+  border-radius: 4px;
+}
+
+:host ::ng-deep .overflow-y-auto::-webkit-scrollbar-thumb {
+  background: rgb(203 213 225);
+  border-radius: 4px;
+}
+
+:host ::ng-deep .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: rgb(148 163 184);
+}
+

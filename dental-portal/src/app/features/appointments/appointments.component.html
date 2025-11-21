@@ -6,54 +6,98 @@
 
   <!-- Contenido principal (solo visible cuando no está cargando) -->
   <div *ngIf="!isLoading" class="flex flex-col gap-6 w-full">
-    <!-- Botones de vista y nueva cita -->
-    <div class="flex justify-between items-center w-full px-6 container mx-auto">
-    <!-- Botones de vista a la izquierda -->
-    <div class="flex gap-3">
-      <button
-        class="px-4 py-2 rounded-lg font-medium transition-all cursor-pointer"
-        [class.bg-blue-600]="currentView === 'timeGridDay'"
-        [class.text-white]="currentView === 'timeGridDay'"
-        [class.bg-gray-200]="currentView !== 'timeGridDay'"
-        [class.hover:bg-gray-300]="currentView !== 'timeGridDay'"
-        (click)="changeView('timeGridDay', calendarRef)"
-      >
-        Diario
-      </button>
+    <!-- Barra superior: Navegación y acciones -->
+    <div class="flex flex-col lg:flex-row gap-4 w-full px-6 container mx-auto">
+      
+      <!-- Sección izquierda: Navegación de fecha -->
+      <div class="flex items-center gap-3 bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3">
+        <button
+          class="flex items-center justify-center w-9 h-9 rounded-lg bg-white hover:bg-gray-100 border border-gray-300 transition-all duration-200 hover:shadow-md cursor-pointer group"
+          (click)="previous(calendarRef)"
+          [title]="navigationLabel === 'día' ? 'Día anterior' : navigationLabel === 'semana' ? 'Semana anterior' : 'Mes anterior'"
+        >
+          <mat-icon class="text-gray-600 group-hover:text-gray-800 text-xl">chevron_left</mat-icon>
+        </button>
+        
+        <div class="text-lg font-semibold text-gray-800 min-w-[280px] text-center">
+          {{ currentDateLabel }}
+        </div>
+        
+        <button
+          class="flex items-center justify-center w-9 h-9 rounded-lg bg-white hover:bg-gray-100 border border-gray-300 transition-all duration-200 hover:shadow-md cursor-pointer group"
+          (click)="next(calendarRef)"
+          [title]="navigationLabel === 'día' ? 'Día siguiente' : navigationLabel === 'semana' ? 'Semana siguiente' : 'Mes siguiente'"
+        >
+          <mat-icon class="text-gray-600 group-hover:text-gray-800 text-xl">chevron_right</mat-icon>
+        </button>
 
-      <button
-        class="px-4 py-2 rounded-lg font-medium transition-all cursor-pointer"
-        [class.bg-blue-600]="currentView === 'timeGridWeek'"
-        [class.text-white]="currentView === 'timeGridWeek'"
-        [class.bg-gray-200]="currentView !== 'timeGridWeek'"
-        [class.hover:bg-gray-300]="currentView !== 'timeGridWeek'"
-        (click)="changeView('timeGridWeek', calendarRef)"
-      >
-        Semanal
-      </button>
+        <div class="w-px h-8 bg-gray-300 mx-2"></div>
 
-      <button
-        class="px-4 py-2 rounded-lg font-medium transition-all cursor-pointer"
-        [class.bg-blue-600]="currentView === 'dayGridMonth'"
-        [class.text-white]="currentView === 'dayGridMonth'"
-        [class.bg-gray-200]="currentView !== 'dayGridMonth'"
-        [class.hover:bg-gray-300]="currentView !== 'dayGridMonth'"
-        (click)="changeView('dayGridMonth', calendarRef)"
-      >
-        Mensual
-      </button>
+        <button
+          class="px-4 py-2 rounded-lg bg-white hover:bg-gray-100 border border-gray-300 font-medium text-gray-700 hover:text-gray-900 transition-all duration-200 hover:shadow-md cursor-pointer"
+          (click)="goToToday(calendarRef)"
+        >
+          Hoy
+        </button>
+      </div>
+
+      <!-- Sección central: Selector de vista -->
+      <div class="flex items-center gap-0 bg-white rounded-xl shadow-sm border border-gray-200 p-1.5">
+        <button
+          class="px-5 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer flex items-center gap-2"
+          [class.bg-blue-600]="currentView === 'timeGridDay'"
+          [class.text-white]="currentView === 'timeGridDay'"
+          [class.shadow-sm]="currentView === 'timeGridDay'"
+          [class.text-gray-600]="currentView !== 'timeGridDay'"
+          [class.hover:bg-gray-100]="currentView !== 'timeGridDay'"
+          [class.hover:text-gray-800]="currentView !== 'timeGridDay'"
+          (click)="changeView('timeGridDay', calendarRef)"
+        >
+          <mat-icon class="text-xl">today</mat-icon>
+          <span>Diario</span>
+        </button>
+  
+        <button
+          class="px-5 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer flex items-center gap-2"
+          [class.bg-blue-600]="currentView === 'timeGridWeek'"
+          [class.text-white]="currentView === 'timeGridWeek'"
+          [class.shadow-sm]="currentView === 'timeGridWeek'"
+          [class.text-gray-600]="currentView !== 'timeGridWeek'"
+          [class.hover:bg-gray-100]="currentView !== 'timeGridWeek'"
+          [class.hover:text-gray-800]="currentView !== 'timeGridWeek'"
+          (click)="changeView('timeGridWeek', calendarRef)"
+        >
+          <mat-icon class="text-xl">view_week</mat-icon>
+          <span>Semanal</span>
+        </button>
+  
+        <button
+          class="px-5 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer flex items-center gap-2"
+          [class.bg-blue-600]="currentView === 'dayGridMonth'"
+          [class.text-white]="currentView === 'dayGridMonth'"
+          [class.shadow-sm]="currentView === 'dayGridMonth'"
+          [class.text-gray-600]="currentView !== 'dayGridMonth'"
+          [class.hover:bg-gray-100]="currentView !== 'dayGridMonth'"
+          [class.hover:text-gray-800]="currentView !== 'dayGridMonth'"
+          (click)="changeView('dayGridMonth', calendarRef)"
+        >
+          <mat-icon class="text-xl">calendar_month</mat-icon>
+          <span>Mensual</span>
+        </button>
+      </div>
+
+      <!-- Sección derecha: Botón de acción -->
+      <div class="flex items-center ml-auto">
+        <button
+          *ngIf="userRole === 'DENTIST'"
+          class="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-2.5 rounded-xl font-medium transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer"
+          (click)="navigateToCreateAppointment()"
+        >
+          <mat-icon class="text-xl">add_circle</mat-icon>
+          <span>Nueva Cita</span>
+        </button>
+      </div>
     </div>
-
-    <!-- Botón de nueva cita a la derecha (solo para dentistas) -->
-    <button
-      *ngIf="userRole === 'DENTIST'"
-      class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-all hover:bg-blue-700 shadow-sm cursor-pointer"
-      (click)="navigateToCreateAppointment()"
-    >
-      + Nueva Cita
-    </button>
-  </div>
-
   <!-- Calendario -->
   <full-calendar
     #calendarRef
