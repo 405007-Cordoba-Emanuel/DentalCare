@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AppointmentService } from '../../core/services/appointment.service';
@@ -16,6 +17,7 @@ import { DentistService } from '../../core/services/dentist.service';
 import { PatientService } from '../../core/services/patient.service';
 import { LocalStorageService } from '../../core/services/auth/local-storage.service';
 import { AppointmentResponse } from '../dentists/interfaces/appointment.interface';
+import { AppointmentDetailDialogComponent } from './appointment-detail-dialog/appointment-detail-dialog.component';
 
 @Component({
   selector: 'app-appointments',
@@ -25,7 +27,8 @@ import { AppointmentResponse } from '../dentists/interfaces/appointment.interfac
     MatButtonModule, 
     MatIconModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatDialogModule
   ],
   templateUrl: './appointments.component.html',
   styles: [
@@ -89,6 +92,7 @@ export class AppointmentsComponent implements OnInit {
   private patientService = inject(PatientService);
   private localStorage = inject(LocalStorageService);
   private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
 
   currentView: 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay' = 'dayGridMonth';
   isLoading = false;
@@ -331,7 +335,27 @@ export class AppointmentsComponent implements OnInit {
   handleEventClick(clickInfo: any) {
     const appointment = clickInfo.event.extendedProps.appointment;
     console.log('Appointment clicked:', appointment);
-    // Aquí puedes abrir un modal o navegar a los detalles de la cita
+    
+    // Abrir el diálogo con los detalles de la cita
+    const dialogRef = this.dialog.open(AppointmentDetailDialogComponent, {
+      width: '700px',
+      maxWidth: '100vw',
+      data: {
+        appointment: appointment,
+        dentistId: this.dentistId,
+        userRole: this.userRole
+      },
+      panelClass: 'appointment-detail-dialog',
+      autoFocus: false
+    });
+
+    // Cuando se cierra el diálogo, recargar las citas si se actualizaron
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.updated) {
+        // Recargar las citas del calendario
+        this.fetchAppointments(true);
+      }
+    });
   }
 
   changeView(

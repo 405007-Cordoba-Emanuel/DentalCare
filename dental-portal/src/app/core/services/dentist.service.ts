@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { DentistResponse, DentistUpdateRequest } from '../../features/dentists/interfaces/dentist.interface';
 import { DentistPatientsResponse, PatientInfo, PatientRequest, PatientResponse } from '../../features/dentists/interfaces/patient.interface';
-import { AppointmentRequest, AppointmentResponse } from '../../features/dentists/interfaces/appointment.interface';
+import { AppointmentRequest, AppointmentResponse, AppointmentUpdateRequest } from '../../features/dentists/interfaces/appointment.interface';
 import { PagedResponse } from '../../features/dentists/interfaces/paged-response.interface';
 
 @Injectable({
@@ -107,5 +107,25 @@ export class DentistService {
   // Obtener citas de 2 años (1 año atrás + 1 año adelante)
   getTwoYearAppointments(dentistId: number): Observable<AppointmentResponse[]> {
     return this.http.get<AppointmentResponse[]>(`${this.apiUrl}/${dentistId}/appointments/two-year-range`);
+  }
+
+  // Obtener una cita específica por ID
+  getAppointmentById(dentistId: number, appointmentId: number): Observable<AppointmentResponse> {
+    return this.http.get<AppointmentResponse>(`${this.apiUrl}/${dentistId}/appointments/${appointmentId}`);
+  }
+
+  // Actualizar una cita
+  updateAppointment(dentistId: number, appointmentId: number, appointment: AppointmentUpdateRequest): Observable<AppointmentResponse> {
+    return this.http.put<AppointmentResponse>(`${this.apiUrl}/${dentistId}/appointments/${appointmentId}`, appointment);
+  }
+
+  // Actualizar el estado de una cita
+  updateAppointmentStatus(dentistId: number, appointmentId: number, status: string): Observable<AppointmentResponse> {
+    return this.http.patch<AppointmentResponse>(`${this.apiUrl}/${dentistId}/appointments/${appointmentId}/status`, { status });
+  }
+
+  // Cancelar una cita
+  cancelAppointment(dentistId: number, appointmentId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${dentistId}/appointments/${appointmentId}`);
   }
 }
