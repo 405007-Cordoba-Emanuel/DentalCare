@@ -194,7 +194,7 @@ export class PatientAppointmentsComponent implements OnInit {
     return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
   }
 
-  getStatusLabel(status: AppointmentStatus): string {
+  getStatusLabel(status: string): string {
     const statusMap: { [key: string]: string } = {
       'PROGRAMADO': 'Programado',
       'CONFIRMADO': 'Confirmado',
@@ -205,7 +205,7 @@ export class PatientAppointmentsComponent implements OnInit {
     return statusMap[status] || status;
   }
 
-  getBadgeVariant(status: AppointmentStatus): 'ausente' | 'en-curso' | 'completado' | 'abandonado' | 'default' {
+  getBadgeVariant(status: string): 'ausente' | 'en-curso' | 'completado' | 'abandonado' | 'default' {
     switch (status) {
       case AppointmentStatus.COMPLETADO:
         return 'completado';
