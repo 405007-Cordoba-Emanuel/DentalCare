@@ -392,6 +392,14 @@
   background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
   color: #1e40af;
   border-color: #bfdbfe;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.treatment-link:hover {
+  background: linear-gradient(135deg, #bfdbfe 0%, #c7d2fe 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
 }
 
 .treatment-link mat-icon {

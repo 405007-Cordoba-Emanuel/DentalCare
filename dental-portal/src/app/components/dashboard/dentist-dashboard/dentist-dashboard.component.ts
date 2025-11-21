@@ -168,8 +168,10 @@ export class DentistDashboardComponent implements OnInit {
   }
 
   viewTreatments(patientId: number) {
-    this.router.navigate([`/dentist/${patientId}/treatments`]);
-    console.log('Ver tratamientos del paciente:', patientId);
+    this.router.navigate(['/dentist/patients', patientId, 'treatments']).then(
+      success => console.log('Navegación a tratamientos exitosa:', success),
+      error => console.error('Error en navegación a tratamientos:', error)
+    );
   }
 
   viewPrescriptions(patientId: number) {

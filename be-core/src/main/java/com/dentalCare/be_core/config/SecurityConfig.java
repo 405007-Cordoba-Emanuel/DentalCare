@@ -57,8 +57,8 @@ public class SecurityConfig {
         // Permitir todos los métodos HTTP
         config.addAllowedMethod("*");
         
-        // Exponer headers de autenticación
-        config.setExposedHeaders(Arrays.asList("Authorization", "X-User-Email", "X-User-Role"));
+        // Exponer headers de autenticación y descarga de archivos
+        config.setExposedHeaders(Arrays.asList("Authorization", "X-User-Email", "X-User-Role", "Content-Disposition"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

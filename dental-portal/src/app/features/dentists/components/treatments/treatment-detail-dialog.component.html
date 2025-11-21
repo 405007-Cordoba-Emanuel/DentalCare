@@ -1,0 +1,123 @@
+<div class="dialog-container">
+  <div class="dialog-header">
+    <h2 class="dialog-title">
+      {{ treatment.name }}
+    </h2>
+    <button mat-icon-button (click)="onClose()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="dialog-content">
+    <!-- Status Badge -->
+    <div class="status-section">
+      <span class="status-badge" [ngClass]="getStatusColor(treatment.status)">
+        {{ getStatusLabel(treatment.status) }}
+      </span>
+    </div>
+
+    <!-- Description -->
+    <div class="info-section" *ngIf="treatment.description">
+      <h3 class="section-title">Descripción</h3>
+      <p class="section-content">{{ treatment.description }}</p>
+    </div>
+
+    <!-- Progress Section -->
+    <div class="progress-section">
+      <div class="progress-header">
+        <h3 class="section-title">Progreso del Tratamiento</h3>
+        <span class="progress-percentage">{{ getProgressPercentage() }}%</span>
+      </div>
+      <mat-progress-bar
+        mode="determinate"
+        [value]="getProgressPercentage()"
+        [color]="getProgressColor()"
+        class="progress-bar"
+      ></mat-progress-bar>
+      <div class="sessions-info">
+        <span>{{ treatment.completedSessions }} de {{ treatment.totalSessions }} sesiones completadas</span>
+      </div>
+    </div>
+
+    <!-- Dates Section -->
+    <div class="dates-section">
+      <div class="date-item">
+        <mat-icon class="date-icon">calendar_today</mat-icon>
+        <div class="date-info">
+          <span class="date-label">Fecha de Inicio</span>
+          <span class="date-value">{{ formatDate(treatment.startDate) }}</span>
+        </div>
+      </div>
+      <div class="date-item" *ngIf="treatment.estimatedEndDate">
+        <mat-icon class="date-icon">event</mat-icon>
+        <div class="date-info">
+          <span class="date-label">Fin Estimado</span>
+          <span class="date-value">{{ formatDate(treatment.estimatedEndDate) }}</span>
+        </div>
+      </div>
+      <div class="date-item" *ngIf="treatment.actualEndDate">
+        <mat-icon class="date-icon">check_circle</mat-icon>
+        <div class="date-info">
+          <span class="date-label">Fecha de Finalización</span>
+          <span class="date-value">{{ formatDate(treatment.actualEndDate) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="info-section" *ngIf="treatment.notes">
+      <h3 class="section-title">Notas</h3>
+      <p class="section-content">{{ treatment.notes }}</p>
+    </div>
+
+    <!-- Sessions Section -->
+    <div class="sessions-section">
+      <div class="sessions-header">
+        <h3 class="section-title">Sesiones Realizadas</h3>
+        <button 
+          *ngIf="data.dentistId && data.dentistId > 0"
+          mat-raised-button 
+          color="primary" 
+          (click)="openAddSessionDialog()"
+          [disabled]="treatment.status === 'COMPLETADO'"
+          class="add-session-button"
+        >
+          <mat-icon>add</mat-icon>
+          Agregar Sesión
+        </button>
+      </div>
+
+      <div class="sessions-list" *ngIf="treatment.sessions && treatment.sessions.length > 0">
+        <div class="session-item" *ngFor="let session of treatment.sessions">
+          <div class="session-header">
+            <div class="session-date">
+              <mat-icon>event</mat-icon>
+              <span>{{ formatDate(session.entryDate) }}</span>
+            </div>
+          </div>
+          <div class="session-description">
+            {{ session.description }}
+          </div>
+          <div class="session-file" *ngIf="session.fileUrl">
+            <mat-icon>attach_file</mat-icon>
+            <a [href]="session.fileUrl" target="_blank" class="file-link">
+              Ver archivo adjunto
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="empty-sessions" *ngIf="!treatment.sessions || treatment.sessions.length === 0">
+        <mat-icon>info</mat-icon>
+        <p>No hay sesiones registradas aún. Agrega la primera sesión del tratamiento.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="dialog-actions">
+    <button mat-button (click)="onClose()">
+      Cerrar
+    </button>
+  </div>
+</div>
+

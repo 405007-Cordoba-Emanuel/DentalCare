@@ -70,7 +70,7 @@ public class GatewayConfig {
         config.setAllowCredentials(true);
         
         // Headers expuestos
-        config.setExposedHeaders(Arrays.asList("Authorization", "X-User-Email", "X-User-Role"));
+        config.setExposedHeaders(Arrays.asList("Authorization", "X-User-Email", "X-User-Role", "Content-Disposition"));
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

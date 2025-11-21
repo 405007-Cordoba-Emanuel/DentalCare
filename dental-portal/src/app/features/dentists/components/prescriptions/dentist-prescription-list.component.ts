@@ -234,15 +234,13 @@ export class DentistPrescriptionListComponent implements OnInit {
     if (!this.dentistId) return;
 
     this.prescriptionService.downloadPrescriptionPdf(this.dentistId, prescription.id).subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
+      next: (response) => {
+        const url = window.URL.createObjectURL(response.blob);
         const link = document.createElement('a');
         link.href = url;
         
-        // Generar nombre de archivo
-        const date = new Date(prescription.prescriptionDate).toISOString().split('T')[0];
-        const patientName = prescription.patientName.replace(/\s+/g, '_');
-        link.download = `Receta_${date}_${patientName}.pdf`;
+        // Usar el nombre del archivo que viene del backend
+        link.download = response.filename;
         
         document.body.appendChild(link);
         link.click();
@@ -347,8 +345,16 @@ export class DentistPrescriptionListComponent implements OnInit {
 
   formatDate(dateStr: string): string {
     if (!dateStr) return 'No especificada';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('es-ES');
+    // Para evitar problemas de timezone, parseamos la fecha manualmente
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      const year = parseInt(parts[0]);
+      const month = parseInt(parts[1]) - 1; // Los meses en JS van de 0-11
+      const day = parseInt(parts[2]);
+      const date = new Date(year, month, day);
+      return date.toLocaleDateString('es-ES');
+    }
+    return dateStr;
   }
 
   getMedicationsPreview(medications: string): string[] {

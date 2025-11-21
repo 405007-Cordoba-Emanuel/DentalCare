@@ -21,6 +21,8 @@ import { User } from '../../../../interfaces/user/user.interface';
 import { ClinicalHistoryFormDialogComponent, ClinicalHistoryFormData } from './clinical-history-form-dialog.component';
 import { ConfirmDeleteDialogComponent, ConfirmDeleteData } from '../prescriptions/confirm-delete-dialog.component';
 import { ImageViewerDialogComponent, ImageViewerData } from '../../../../shared/components/image-viewer-dialog.component';
+import { TreatmentService } from '../../services/treatment.service';
+import { TreatmentDetailDialogComponent, TreatmentDetailData } from '../treatments/treatment-detail-dialog.component';
 
 @Component({
   selector: 'app-dentist-clinical-history-list',
@@ -51,6 +53,7 @@ export class DentistClinicalHistoryListComponent implements OnInit {
   private clinicalHistoryService = inject(DentistClinicalHistoryService);
   private localStorage = inject(LocalStorageService);
   private patientService = inject(PatientService);
+  private treatmentService = inject(TreatmentService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
   private route = inject(ActivatedRoute);
@@ -465,6 +468,40 @@ export class DentistClinicalHistoryListComponent implements OnInit {
         imageUrl,
         imageName
       } as ImageViewerData
+    });
+  }
+
+  openTreatmentDetail(treatmentId: number) {
+    if (!this.dentistId || !this.patientId) {
+      this.snackBar.open('Error: No se pudo obtener la información necesaria', 'Cerrar', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top'
+      });
+      return;
+    }
+
+    this.treatmentService.getTreatmentDetail(this.dentistId, treatmentId).subscribe({
+      next: (treatment) => {
+        this.dialog.open(TreatmentDetailDialogComponent, {
+          width: '900px',
+          maxWidth: '90vw',
+          maxHeight: '90vh',
+          data: {
+            treatment,
+            dentistId: this.dentistId!,
+            patientId: this.patientId!
+          } as TreatmentDetailData
+        });
+      },
+      error: (error) => {
+        console.error('Error al cargar el detalle del tratamiento:', error);
+        this.snackBar.open('Error al cargar el detalle del tratamiento', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top'
+        });
+      }
     });
   }
 }

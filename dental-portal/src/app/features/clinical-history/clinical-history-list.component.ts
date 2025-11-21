@@ -17,6 +17,10 @@ import { PatientService } from '../../core/services/patient.service';
 import { User } from '../../interfaces/user/user.interface';
 import { ClinicalHistoryDetailDialogComponent } from './clinical-history-detail-dialog.component';
 import { ImageViewerDialogComponent, ImageViewerData } from '../../shared/components/image-viewer-dialog.component';
+import { TreatmentService } from '../../core/services/treatment.service';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { TreatmentDetailDialogComponent, TreatmentDetailData } from '../../features/dentists/components/treatments/treatment-detail-dialog.component';
+import { TreatmentDetailResponse } from '../../features/dentists/interfaces/treatment.interface';
 
 @Component({
   selector: 'app-clinical-history-list',
@@ -33,7 +37,8 @@ import { ImageViewerDialogComponent, ImageViewerData } from '../../shared/compon
     MatChipsModule,
     MatBadgeModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    MatSnackBarModule
   ],
   templateUrl: './clinical-history-list.component.html',
   styleUrl: './clinical-history-list.component.css'
@@ -42,7 +47,9 @@ export class ClinicalHistoryListComponent implements OnInit {
   private clinicalHistoryService = inject(ClinicalHistoryService);
   private localStorage = inject(LocalStorageService);
   private patientService = inject(PatientService);
+  private treatmentService = inject(TreatmentService);
   private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
 
   user: User | null = null;
   entries: ClinicalHistoryEntry[] = [];
@@ -334,6 +341,51 @@ export class ClinicalHistoryListComponent implements OnInit {
         imageUrl,
         imageName
       } as ImageViewerData
+    });
+  }
+
+  openTreatmentDetail(treatmentId: number) {
+    if (!this.user || !this.user.patientId) {
+      this.snackBar.open('Error: No se pudo obtener la información del paciente', 'Cerrar', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top'
+      });
+      return;
+    }
+
+    const patientId = this.user.patientId;
+
+    this.treatmentService.getTreatmentById(patientId, treatmentId).subscribe({
+      next: (treatment) => {
+        // Convertir TreatmentResponse a TreatmentDetailResponse para el modal
+        const treatmentDetail: TreatmentDetailResponse = {
+          ...treatment,
+          sessions: [] // El servicio del paciente no devuelve sesiones
+        };
+
+        // Obtener el dentistId del tratamiento
+        const dentistId = treatment.dentistId || 0;
+
+        this.dialog.open(TreatmentDetailDialogComponent, {
+          width: '900px',
+          maxWidth: '90vw',
+          maxHeight: '90vh',
+          data: {
+            treatment: treatmentDetail,
+            dentistId: dentistId,
+            patientId: patientId
+          } as TreatmentDetailData
+        });
+      },
+      error: (error) => {
+        console.error('Error al cargar el detalle del tratamiento:', error);
+        this.snackBar.open('Error al cargar el detalle del tratamiento', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top'
+        });
+      }
     });
   }
 }

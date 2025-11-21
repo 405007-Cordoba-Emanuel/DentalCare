@@ -64,12 +64,6 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         prescription.setDentist(dentist);
         prescription.setPatient(patient);
         prescription.setActive(true);
-        
-        // Solución temporal: agregar 1 día a la fecha para compensar problemas de zona horaria
-        if (prescription.getPrescriptionDate() != null) {
-            LocalDate adjustedDate = prescription.getPrescriptionDate().plusDays(1);
-            prescription.setPrescriptionDate(adjustedDate);
-        }
 
         Prescription savedPrescription = prescriptionRepository.save(prescription);
         return mapToResponseDto(savedPrescription);
@@ -114,13 +108,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         }
 
         prescription.setPatient(patient);
-        
-        // Solución temporal: agregar 1 día a la fecha para compensar problemas de zona horaria
-        LocalDate adjustedDate = prescriptionRequestDto.getPrescriptionDate();
-        if (adjustedDate != null) {
-            adjustedDate = adjustedDate.plusDays(1);
-        }
-        prescription.setPrescriptionDate(adjustedDate);
+        prescription.setPrescriptionDate(prescriptionRequestDto.getPrescriptionDate());
         prescription.setObservations(prescriptionRequestDto.getObservations());
         prescription.setMedications(prescriptionRequestDto.getMedications());
 
