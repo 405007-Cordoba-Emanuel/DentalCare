@@ -62,44 +62,44 @@
         </mat-card>
       </div>
 
-      <!-- Último Tratamiento en Curso y Mensajes Recientes -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <!-- Último Tratamiento en Curso -->
-        <mat-card class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-          <mat-card-header class="p-5 pb-0">
-            <mat-card-title class="flex items-center">
-              <mat-icon class="mr-3 text-blue-600 flex-shrink-0">history</mat-icon>
-              Último Tratamiento en Curso
-            </mat-card-title>
-          </mat-card-header>
+      <!-- Tratamiento en Curso - Ancho Completo -->
+      <div class="mb-6">
+        <mat-card 
+          class="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer group"
+          (click)="navigateToTreatments()"
+        >
+          <div class="p-5 pb-3 border-b border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <mat-icon class="text-blue-600">healing</mat-icon>
+              <span class="text-lg font-semibold text-slate-800">Tratamiento en Curso</span>
+            </div>
+            <mat-icon class="text-slate-300 group-hover:text-blue-600 group-hover:translate-x-1 transition-all duration-300">chevron_right</mat-icon>
+          </div>
           
           <mat-card-content class="p-5">
-            @if (getLastTreatmentInProgress(); as lastTreatment) {
-              <div 
-                class="group flex items-center gap-4 p-4 bg-gray-50 rounded-xl cursor-pointer transition-all duration-300 overflow-hidden flex-wrap hover:bg-slate-100 hover:translate-x-1"
-                (click)="viewTreatmentDetails(lastTreatment.id)"
-              >
-                <div class="flex-shrink-0 min-w-[60px]">
-                  <span class="text-slate-500 text-sm font-medium whitespace-nowrap">{{ formatShortDate(lastTreatment.date) }}</span>
+            @if (currentTreatment) {
+              <div class="flex flex-col gap-4">
+                <div>
+                  <h3 class="text-xl font-semibold text-slate-800 m-0 mb-2 break-words">{{ currentTreatment.name }}</h3>
+                  <p class="text-slate-500 m-0 text-sm break-words">{{ currentTreatment.description || 'Sin descripción' }}</p>
                 </div>
                 
-                <div class="flex-1 min-w-[150px]">
-                  <h4 class="text-base font-semibold text-slate-800 m-0 mb-1 break-words">{{ lastTreatment.procedure }}</h4>
-                  <p class="text-slate-500 m-0 text-sm break-words">{{ lastTreatment.dentist }}</p>
+                <div>
+                  <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-medium text-slate-600">Progreso</span>
+                    <span class="text-sm font-semibold text-blue-600">{{ currentTreatment.progressPercentage || 0 }}%</span>
+                  </div>
+                  <mat-progress-bar 
+                    mode="determinate" 
+                    [value]="currentTreatment.progressPercentage || 0"
+                    [color]="getProgressColor(currentTreatment.progressPercentage || 0)"
+                    class="h-3 rounded-full"
+                  ></mat-progress-bar>
+                  <div class="flex justify-between items-center mt-2 text-xs text-slate-500">
+                    <span>{{ currentTreatment.completedSessions || 0 }} de {{ currentTreatment.totalSessions || 0 }} sesiones</span>
+                    <span>{{ getTreatmentStatusLabel(currentTreatment.status) }}</span>
+                  </div>
                 </div>
-                
-                <div class="flex-shrink-0 min-w-[60px] text-center">
-                  <span class="text-lg font-semibold text-blue-600 whitespace-nowrap">${{ lastTreatment.cost }}</span>
-                </div>
-                
-                <div class="flex-shrink-0 min-w-[80px] max-w-[120px]">
-                  <app-badge 
-                    [text]="lastTreatment.status"
-                    [variant]="getBadgeVariant(lastTreatment.status)"
-                  ></app-badge>
-                </div>
-                
-                <mat-icon class="text-slate-300 transition-all duration-300 flex-shrink-0 ml-auto group-hover:text-blue-600 group-hover:translate-x-1">chevron_right</mat-icon>
               </div>
             } @else {
               <div class="flex flex-col items-center gap-3 py-8">
@@ -109,126 +109,58 @@
             }
           </mat-card-content>
         </mat-card>
+      </div>
 
-        <!-- Mensajes Recientes -->
-        <mat-card class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-          <mat-card-header class="p-5 pb-0">
-            <mat-card-title class="flex items-center">
-              <mat-icon class="mr-3 text-blue-600 flex-shrink-0">message</mat-icon>
-              Mensajes Recientes
-            </mat-card-title>
-          </mat-card-header>
+      <!-- Cards de Información Rápida -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Mensajes No Leídos -->
+        <mat-card 
+          class="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer group"
+          (click)="navigateToMessages()"
+        >
+          <div class="p-5 pb-3 border-b border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <mat-icon class="text-blue-600">message</mat-icon>
+              <span class="text-lg font-semibold text-slate-800">Mensajes</span>
+            </div>
+            <mat-icon class="text-slate-300 group-hover:text-blue-600 group-hover:translate-x-1 transition-all duration-300">chevron_right</mat-icon>
+          </div>
           
           <mat-card-content class="p-5">
-            <div class="flex flex-col gap-4 mb-5">
-              @for (message of recentMessages; track message.from) {
-              <div 
-                class="flex items-start gap-3 p-3 rounded-lg transition-all duration-300 overflow-hidden"
-                [class.bg-blue-50]="message.unread"
-                [class.border-l-4]="message.unread" [class.border-blue-600]="message.unread" [class.bg-gray-50]="!message.unread" [class.hover:bg-slate-100]="!message.unread">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <mat-icon class="text-blue-600 text-xl w-5 h-5">{{ message.from === 'Sistema' ? 'notifications' : 'medical_services' }}</mat-icon>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex justify-between items-center mb-1 flex-wrap gap-2">
-                    <h4 class="text-sm font-semibold text-slate-800 m-0 break-words">{{ message.from }}</h4>
-                    <span class="text-slate-400 text-xs whitespace-nowrap">{{ message.time }}</span>
-                  </div>
-                  <p class="text-slate-500 m-0 text-sm leading-relaxed break-words">{{ message.message }}</p>
-                </div>
-                
-                @if (message.unread) {
-                  <div class="flex-shrink-0 mt-2">
-                    <div class="w-2 h-2 bg-blue-600 rounded-full"></div>
-                  </div>
-                }
+            <div class="text-center">
+              <div class="flex flex-col items-center bg-gradient-to-br from-blue-600 to-blue-700 text-white p-6 rounded-2xl mb-3">
+                <span class="text-5xl font-bold leading-none">{{ unreadMessagesCount }}</span>
+                <span class="text-sm font-medium uppercase mt-2 opacity-90">{{ unreadMessagesCount === 1 ? 'Sin Leer' : 'Sin Leer' }}</span>
               </div>
-            }
             </div>
-            
-            <button 
-              mat-stroked-button 
-              color="primary"
-              class="w-full justify-center whitespace-nowrap"
-              (click)="sendMessage()"
-            >
-              <mat-icon>send</mat-icon>
-              Enviar Mensaje
-            </button>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Recetas Recientes -->
+        <mat-card 
+          class="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer group"
+          (click)="navigateToPrescriptions()"
+        >
+          <div class="p-5 pb-3 border-b border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <mat-icon class="text-blue-600">description</mat-icon>
+              <span class="text-lg font-semibold text-slate-800">Mis Recetas</span>
+            </div>
+            <mat-icon class="text-slate-300 group-hover:text-blue-600 group-hover:translate-x-1 transition-all duration-300">chevron_right</mat-icon>
+          </div>
+          
+          <mat-card-content class="p-5">
+            <div class="text-center">
+              <div class="flex flex-col items-center bg-gradient-to-br from-green-600 to-green-700 text-white p-5 rounded-2xl mb-3">
+                <mat-icon class="text-4xl mb-2">receipt_long</mat-icon>
+                <span class="text-sm font-medium uppercase opacity-90">Recetas Médicas</span>
+              </div>
+              <p class="text-slate-600 m-0 text-sm">Accede a tu historial completo de recetas</p>
+            </div>
           </mat-card-content>
         </mat-card>
       </div>
 
-      <!-- Próximas Citas - Dropdown -->
-      <div class="mb-6">
-        <mat-card class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-          <button 
-            (click)="toggleAppointmentsDropdown()"
-            class="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors duration-200 text-left"
-          >
-            <div class="flex items-center">
-              <mat-icon class="mr-3 text-blue-600 flex-shrink-0">schedule</mat-icon>
-              <h3 class="text-lg font-semibold text-slate-800 m-0">
-                Próximas Citas
-                @if (upcomingAppointments.length > 0) {
-                  <span class="text-sm font-normal text-slate-500 ml-2">({{ upcomingAppointments.length }})</span>
-                }
-              </h3>
-            </div>
-            <mat-icon 
-              [class.rotate-180]="appointmentsDropdownOpen"
-              class="text-slate-400 transition-transform duration-200"
-            >
-              expand_more
-            </mat-icon>
-          </button>
-          
-          @if (appointmentsDropdownOpen) {
-            <mat-card-content class="p-6 pt-0 border-t border-slate-100">
-              <div class="flex flex-col gap-4">
-                @if (upcomingAppointments.length > 0) {
-                  @for (appointment of upcomingAppointments; track appointment.id) {
-                    <div 
-                      class="flex items-center gap-5 p-5 bg-gray-50 rounded-xl transition-all duration-300 overflow-hidden flex-wrap hover:bg-slate-100 hover:translate-x-1"
-                    >
-                      <div class="flex-shrink-0">
-                        <div class="flex flex-col items-center bg-gradient-to-br from-blue-600 to-blue-700 text-white p-3 rounded-xl min-w-[60px]">
-                          <span class="text-2xl font-bold leading-none">{{ formatDay(appointment.date) }}</span>
-                          <span class="text-xs font-medium uppercase mt-1">{{ formatMonth(appointment.date) }}</span>
-                        </div>
-                      </div>
-                      
-                      <div class="flex-1 min-w-0">
-                        <h4 class="text-lg font-semibold text-slate-800 m-0 mb-2 break-words">{{ appointment.type }}</h4>
-                        <p class="flex items-center gap-2 text-slate-500 m-0 mb-1 text-sm break-words">
-                          <mat-icon class="text-base w-4 h-4 text-blue-600 flex-shrink-0">access_time</mat-icon>
-                          {{ appointment.time }}
-                        </p>
-                        <p class="flex items-center gap-2 text-slate-500 m-0 text-sm break-words">
-                          <mat-icon class="text-base w-4 h-4 text-blue-600 flex-shrink-0">medical_services</mat-icon>
-                          {{ appointment.dentist }}
-                        </p>
-                      </div>
-                      
-                      <div class="flex-shrink-0">
-                        <app-badge 
-                          [text]="appointment.status"
-                          [variant]="getBadgeVariant(appointment.status)"
-                        ></app-badge>
-                      </div>
-                    </div>
-                  }
-                } @else {
-                  <div class="flex flex-col items-center gap-3 py-8">
-                    <mat-icon class="text-slate-400 text-5xl">calendar_today</mat-icon>
-                    <p class="text-slate-500 m-0">No hay citas próximas</p>
-                  </div>
-                }
-              </div>
-            </mat-card-content>
-          }
-        </mat-card>
-      </div>
       }
     </div>
   </div>
