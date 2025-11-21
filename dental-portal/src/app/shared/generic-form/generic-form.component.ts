@@ -6,14 +6,20 @@ import {
   OnInit,
   effect,
 } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
 import { FormGroup } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 
 export interface FormField {
   name: string;
   label: string;
-  type: 'text' | 'textarea' | 'select' | 'datetime-local' | 'date' | 'number';
+  type: 'text' | 'textarea' | 'select' | 'datetime-local' | 'date' | 'time' | 'number';
   placeholder?: string;
   options?: { label: string; value: any }[];
   validators?: any[];
@@ -22,7 +28,16 @@ export interface FormField {
 
 @Component({
   selector: 'app-generic-form',
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [
+    ReactiveFormsModule, 
+    CommonModule, 
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule
+  ],
   templateUrl: './generic-form.component.html',
   standalone: true,
 })
@@ -33,6 +48,7 @@ export class GenericFormComponent implements OnInit {
   initialData = input<any>({});
   readonly = input<boolean>(false);
   disabledFields = input<string[]>([]);
+  loading = input<boolean>(false);
   icon = input<{ name: string; size?: number; class?: string } | undefined>(
     undefined
   );
@@ -86,9 +102,22 @@ export class GenericFormComponent implements OnInit {
     const group: any = {};
     this.fields().forEach((field) => {
       // Asegurar que los validators sean un array válido
-      const validators = field.validators && Array.isArray(field.validators) 
-        ? field.validators 
+      let validators = field.validators && Array.isArray(field.validators) 
+        ? [...field.validators]
         : [];
+      
+      // Agregar validadores automáticos según el tipo de campo
+      if (field.type === 'date') {
+        validators.push(this.minDateValidator());
+      }
+      if (field.type === 'time') {
+        validators.push(this.timeRangeValidator());
+      }
+      if (field.type === 'datetime-local') {
+        validators.push(this.minDateValidator());
+        validators.push(this.dateTimeRangeValidator());
+      }
+      
       group[field.name] = ['', validators];
     });
     this.formGroup = this.fb.group(group);
@@ -219,6 +248,12 @@ export class GenericFormComponent implements OnInit {
     if (control.errors['email']) {
       return 'Debe ser un email válido';
     }
+    if (control.errors['minDate']) {
+      return control.errors['minDate'].message || 'No se pueden seleccionar fechas pasadas';
+    }
+    if (control.errors['timeRange']) {
+      return control.errors['timeRange'].message || 'El horario debe estar entre 7:00 y 22:00';
+    }
     if (control.errors['min']) {
       return `El valor mínimo es ${control.errors['min'].min}`;
     }
@@ -236,5 +271,88 @@ export class GenericFormComponent implements OnInit {
     }
 
     return 'Campo inválido';
+  }
+
+  // Validador para fecha mínima (hoy)
+  private minDateValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) return null;
+      
+      const inputDate = new Date(control.value);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      if (inputDate < today) {
+        return { minDate: { value: control.value, message: 'No se pueden seleccionar fechas pasadas' } };
+      }
+      
+      return null;
+    };
+  }
+
+  // Validador para rango de hora (7:00 - 22:00)
+  private timeRangeValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) return null;
+      
+      const timeValue = control.value;
+      const [hours, minutes] = timeValue.split(':').map(Number);
+      
+      if (hours < 7 || hours > 22 || (hours === 22 && minutes > 0)) {
+        return { timeRange: { value: control.value, message: 'El horario debe estar entre 7:00 y 22:00' } };
+      }
+      
+      return null;
+    };
+  }
+
+  // Validador para datetime-local (fecha mínima y rango de hora)
+  private dateTimeRangeValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) return null;
+      
+      const dateTime = new Date(control.value);
+      const hours = dateTime.getHours();
+      const minutes = dateTime.getMinutes();
+      
+      if (hours < 7 || hours > 22 || (hours === 22 && minutes > 0)) {
+        return { timeRange: { value: control.value, message: 'El horario debe estar entre 7:00 y 22:00' } };
+      }
+      
+      return null;
+    };
+  }
+
+  // Obtener fecha mínima (hoy) en formato YYYY-MM-DD
+  getMinDate(): string {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  }
+
+  // Obtener hora mínima
+  getMinTime(): string {
+    return '07:00';
+  }
+
+  // Obtener hora máxima
+  getMaxTime(): string {
+    return '22:00';
+  }
+
+  // Método auxiliar para abrir el selector nativo del input
+  openPicker(inputElement: any): void {
+    if (inputElement && typeof inputElement.showPicker === 'function') {
+      try {
+        inputElement.showPicker();
+      } catch (error) {
+        // Fallback: hacer focus y click en el input
+        inputElement.focus();
+        inputElement.click();
+      }
+    } else {
+      // Fallback para navegadores que no soportan showPicker()
+      inputElement.focus();
+      inputElement.click();
+    }
   }
 }

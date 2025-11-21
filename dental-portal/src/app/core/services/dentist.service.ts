@@ -69,4 +69,13 @@ export class DentistService {
     
     return this.http.get<PagedResponse<PatientResponse>>(`${this.apiUrl}/available-patients/paged`, { params });
   }
+
+  // Verificar conflicto de horario
+  checkTimeConflict(dentistId: number, startTime: string, endTime: string): Observable<boolean> {
+    const params = new HttpParams()
+      .set('startTime', startTime)
+      .set('endTime', endTime);
+    
+    return this.http.get<boolean>(`${this.apiUrl}/${dentistId}/appointments/conflict-check`, { params });
+  }
 }
