@@ -1,118 +1,211 @@
 <form
   [formGroup]="formGroup"
   (ngSubmit)="onSubmit()"
-  class="w-full max-w-5xl mx-auto bg-white p-6 sm:p-8"
+  class="w-full max-w-5xl mx-auto"
 >
-  <!-- Header con título e icono -->
+  <!-- Header con título -->
   @if (formTitle() && formTitle().trim() !== '') {
-    <div class="mb-8 border-b border-gray-200 pb-4 flex items-center gap-2">
-      <h2 class="text-2xl font-semibold text-gray-900">
-        {{ formTitle() }}
-      </h2>
-    </div>
+  <h2 class="text-2xl font-bold mb-4">{{ formTitle() }}</h2>
   }
+  <mat-card>
+    <mat-card-content>
+      <!-- Grid de campos -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+        @for (field of fields(); track field.name) {
+        <div [class]="field.fullWidth ? 'md:col-span-2' : 'col-span-1'">
+          <!-- MODO LECTURA -->
+          @if (readonly()) {
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-600 mb-1">
+              {{ field.label }}
+            </label>
+            <div class="text-base text-gray-900">
+              {{ getDisplayValue(field.name) }}
+            </div>
+          </div>
+          }
 
-  <!-- Grid de campos -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mb-8">
-    @for (field of fields(); track field.name) {
-    <div [class]="field.fullWidth ? 'md:col-span-2' : 'col-span-1'">
-      <label class="block text-sm font-medium text-gray-700 mb-1.5">
-        {{ field.label }}
-        @if (isFieldDisabled(field.name)) {
-          <span class="text-xs text-gray-500 ml-1">(No editable)</span>
-        }
-      </label>
-
-      <!-- MODO LECTURA -->
-      @if (readonly()) {
-        <div class="w-full px-0 py-2 text-gray-900 border-b-2 border-gray-200">
-          {{ getDisplayValue(field.name) }}
-        </div>
-      }
-      
-      <!-- MODO EDICIÓN -->
-      @else {
-        @if (field.type === 'text' || field.type === 'number') {
-          <input
-            [type]="field.type"
-            [formControlName]="field.name"
-            [placeholder]="field.placeholder"
-            [class.bg-gray-100]="isFieldDisabled(field.name)"
-            [class.text-gray-500]="isFieldDisabled(field.name)"
-            [class.cursor-not-allowed]="isFieldDisabled(field.name)"
-            [class.border-gray-200]="isFieldDisabled(field.name)"
-            class="w-full border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-600 focus:ring-0 focus:outline-none transition-colors"
-          />
-        } 
-        @if (field.type === 'textarea') {
-          <textarea
-            [formControlName]="field.name"
-            [placeholder]="field.placeholder"
-            rows="4"
-            [class.bg-gray-100]="isFieldDisabled(field.name)"
-            [class.text-gray-500]="isFieldDisabled(field.name)"
-            [class.cursor-not-allowed]="isFieldDisabled(field.name)"
-            [class.border-gray-200]="isFieldDisabled(field.name)"
-            class="w-full border border-gray-300 bg-transparent rounded px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 focus:outline-none transition-colors resize-none"
-          ></textarea>
-        } 
-        @if (field.type === 'select') {
-          <select
-            [formControlName]="field.name"
-            [class.bg-gray-100]="isFieldDisabled(field.name)"
-            [class.text-gray-500]="isFieldDisabled(field.name)"
-            [class.cursor-not-allowed]="isFieldDisabled(field.name)"
-            [class.border-gray-200]="isFieldDisabled(field.name)"
-            class="w-full border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2 text-gray-900 focus:border-blue-600 focus:ring-0 focus:outline-none transition-colors"
-          >
-            <option value="" disabled selected>Seleccionar...</option>
-            @for (opt of field.options; track opt.value) {
-              <option [value]="opt.value">{{ opt.label }}</option>
+          <!-- MODO EDICIÓN -->
+          @else {
+          <!-- Campos de texto y número -->
+          @if (field.type === 'text' || field.type === 'number') {
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>{{ field.label }}</mat-label>
+            <input
+              matInput
+              [type]="field.type"
+              [formControlName]="field.name"
+              [placeholder]="field.placeholder || ''"
+            />
+            @if (isFieldInvalid(field.name)) {
+            <mat-error>{{ getFieldError(field.name) }}</mat-error>
+            } @if (isFieldDisabled(field.name)) {
+            <mat-hint>(No editable)</mat-hint>
             }
-          </select>
-        } 
-        @if (field.type === 'date') {
-          <input
-            type="date"
-            [formControlName]="field.name"
-            [class.bg-gray-100]="isFieldDisabled(field.name)"
-            [class.text-gray-500]="isFieldDisabled(field.name)"
-            [class.cursor-not-allowed]="isFieldDisabled(field.name)"
-            [class.border-gray-200]="isFieldDisabled(field.name)"
-            class="w-full border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2 text-gray-900 focus:border-blue-600 focus:ring-0 focus:outline-none transition-colors"
-          />
-        }
-        @if (field.type === 'datetime-local') {
-          <input
-            type="datetime-local"
-            [formControlName]="field.name"
-            [class.bg-gray-100]="isFieldDisabled(field.name)"
-            [class.text-gray-500]="isFieldDisabled(field.name)"
-            [class.cursor-not-allowed]="isFieldDisabled(field.name)"
-            [class.border-gray-200]="isFieldDisabled(field.name)"
-            class="w-full border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2 text-gray-900 focus:border-blue-600 focus:ring-0 focus:outline-none transition-colors"
-          />
-        }
+          </mat-form-field>
+          }
 
-        <!-- Mensaje de error si el campo es inválido y fue tocado -->
-        @if (isFieldInvalid(field.name) && !readonly()) {
-          <p class="mt-1 text-xs text-red-600">{{ getFieldError(field.name) }}</p>
-        }
-      }
-    </div>
-    }
-  </div>
+          <!-- Campo textarea -->
+          @if (field.type === 'textarea') {
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>{{ field.label }}</mat-label>
+            <textarea
+              matInput
+              [formControlName]="field.name"
+              [placeholder]="field.placeholder || ''"
+              rows="4"
+              cdkTextareaAutosize
+            ></textarea>
+            @if (isFieldInvalid(field.name)) {
+            <mat-error>{{ getFieldError(field.name) }}</mat-error>
+            } @if (isFieldDisabled(field.name)) {
+            <mat-hint>(No editable)</mat-hint>
+            }
+          </mat-form-field>
+          }
 
-  <!-- Botón de submit (solo en modo edición) -->
-  @if (!readonly()) {
-    <div class="flex justify-end pt-4 border-t border-gray-200">
+          <!-- Campo select -->
+          @if (field.type === 'select') {
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>{{ field.label }}</mat-label>
+            <mat-select [formControlName]="field.name">
+              @for (opt of field.options; track opt.value) {
+              <mat-option [value]="opt.value" [disabled]="opt.value === ''">
+                {{ opt.label }}
+              </mat-option>
+              }
+            </mat-select>
+            @if (isFieldInvalid(field.name)) {
+            <mat-error>{{ getFieldError(field.name) }}</mat-error>
+            } @if (isFieldDisabled(field.name)) {
+            <mat-hint>(No editable)</mat-hint>
+            }
+          </mat-form-field>
+          }
+
+          <!-- Campo fecha -->
+          @if (field.type === 'date') {
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>{{ field.label }}</mat-label>
+            <input
+              #dateInput
+              matInput
+              type="date"
+              [id]="'date-' + field.name"
+              [formControlName]="field.name"
+              [min]="getMinDate()"
+              [placeholder]="field.placeholder || 'dd/mm/aaaa'"
+            />
+            <mat-icon
+              matIconSuffix
+              (click)="openPicker(dateInput)"
+              class="cursor-pointer hover:text-blue-600 transition-colors"
+              title="Seleccionar fecha"
+            >
+              calendar_today
+            </mat-icon>
+            @if (isFieldInvalid(field.name)) {
+            <mat-error>{{ getFieldError(field.name) }}</mat-error>
+            } @if (isFieldDisabled(field.name)) {
+            <mat-hint>(No editable)</mat-hint>
+            } @else {
+            <mat-hint>Haz clic en el calendario o escribe la fecha</mat-hint>
+            }
+          </mat-form-field>
+          }
+
+          <!-- Campo hora -->
+          @if (field.type === 'time') {
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>{{ field.label }}</mat-label>
+            <input
+              #timeInput
+              matInput
+              type="time"
+              [id]="'time-' + field.name"
+              [formControlName]="field.name"
+              [min]="getMinTime()"
+              [max]="getMaxTime()"
+              [placeholder]="field.placeholder || 'HH:MM'"
+            />
+            <mat-icon
+              matIconSuffix
+              (click)="openPicker(timeInput)"
+              class="cursor-pointer hover:text-blue-600 transition-colors"
+              title="Seleccionar hora"
+            >
+              schedule
+            </mat-icon>
+            @if (isFieldInvalid(field.name)) {
+            <mat-error>{{ getFieldError(field.name) }}</mat-error>
+            } @if (isFieldDisabled(field.name)) {
+            <mat-hint>(No editable)</mat-hint>
+            } @else {
+            <mat-hint>Haz clic en el reloj o escribe (7:00 - 22:00)</mat-hint>
+            }
+          </mat-form-field>
+          }
+
+          <!-- Campo datetime-local -->
+          @if (field.type === 'datetime-local') {
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>{{ field.label }}</mat-label>
+            <input
+              #datetimeInput
+              matInput
+              type="datetime-local"
+              [id]="'datetime-' + field.name"
+              [formControlName]="field.name"
+              [min]="getMinDate() + 'T' + getMinTime()"
+              [placeholder]="field.placeholder || 'dd/mm/aaaa HH:MM'"
+            />
+            <mat-icon
+              matIconSuffix
+              (click)="openPicker(datetimeInput)"
+              class="cursor-pointer hover:text-blue-600 transition-colors"
+              title="Seleccionar fecha y hora"
+            >
+              event
+            </mat-icon>
+            @if (isFieldInvalid(field.name)) {
+            <mat-error>{{ getFieldError(field.name) }}</mat-error>
+            } @if (isFieldDisabled(field.name)) {
+            <mat-hint>(No editable)</mat-hint>
+            } @else {
+            <mat-hint
+              >Haz clic en el icono o escribe. Horario: 7:00 - 22:00</mat-hint
+            >
+            }
+          </mat-form-field>
+          } }
+        </div>
+        }
+      </div>
+    </mat-card-content>
+
+    <!-- Botón de submit (solo en modo edición) -->
+    @if (!readonly()) {
+    <mat-card-actions align="end" class="pb-4 pr-4">
       <button
+        mat-raised-button
+        color="primary"
         type="submit"
-        class="px-6 py-2.5 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        [disabled]="formGroup.invalid"
+        [disabled]="formGroup.invalid || loading()"
+        class="relative"
       >
-        {{ submitText() }}
+        @if (loading()) {
+          <span class="flex items-center gap-2">
+            <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Procesando...</span>
+          </span>
+        } @else {
+          {{ submitText() }}
+        }
       </button>
-    </div>
-  }
+    </mat-card-actions>
+    }
+  </mat-card>
 </form>
