@@ -362,7 +362,7 @@ export class PatientDashboardComponent implements OnInit {
     return `${day} ${monthName} ${year}`;
   }
 
-  private getStatusLabel(status: AppointmentStatus): string {
+  private getStatusLabel(status: string | AppointmentStatus): string {
     const statusMap: { [key: string]: string } = {
       'PROGRAMADO': 'Programado',
       'CONFIRMADO': 'Confirmada',

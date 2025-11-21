@@ -92,18 +92,41 @@ export class DentistTreatmentsComponent implements OnInit {
   }
 
   getStatusColor(status: string): string {
-    switch (status.toLowerCase()) {
-      case 'en_progreso':
-      case 'in_progress':
+    const statusUpper = status?.toUpperCase() || '';
+    switch (statusUpper) {
+      case 'EN_CURSO':
+      case 'EN CURSO':
+      case 'EN_PROGRESO':
+      case 'IN_PROGRESS':
         return 'dental-badge-primary';
-      case 'completado':
-      case 'completed':
+      case 'COMPLETADO':
+      case 'COMPLETED':
         return 'dental-badge-accent';
-      case 'pendiente':
-      case 'pending':
+      case 'PENDIENTE':
+      case 'PENDING':
         return 'dental-badge-warn';
+      case 'ABANDONADO':
+      case 'ABANDONED':
+        return 'dental-badge-danger';
       default:
         return 'dental-badge-primary';
+    }
+  }
+
+  getStatusLabel(status: string): string {
+    const statusUpper = status?.toUpperCase() || '';
+    switch (statusUpper) {
+      case 'EN_CURSO':
+      case 'EN CURSO':
+        return 'En Curso';
+      case 'COMPLETADO':
+        return 'Completado';
+      case 'PENDIENTE':
+        return 'Pendiente';
+      case 'ABANDONADO':
+        return 'Abandonado';
+      default:
+        return status;
     }
   }
 
@@ -112,7 +135,16 @@ export class DentistTreatmentsComponent implements OnInit {
     return Math.round((treatment.completedSessions / treatment.totalSessions) * 100);
   }
 
-  formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('es-ES');
+  formatDate(dateString: string | null): string {
+    if (!dateString) return 'No especificada';
+    try {
+      return new Date(dateString).toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    } catch (error) {
+      return 'Fecha inválida';
+    }
   }
 }

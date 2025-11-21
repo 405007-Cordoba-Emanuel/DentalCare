@@ -1,6 +1,13 @@
-<div class="flex flex-col gap-6 w-full ">
-  <!-- Botones de vista y nueva cita -->
-  <div class="flex justify-between items-center w-full px-6 container mx-auto">
+<div class="flex flex-col gap-6 w-full">
+  <!-- Spinner de carga -->
+  <div *ngIf="isLoading" class="flex justify-center items-center py-8">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <!-- Contenido principal (solo visible cuando no está cargando) -->
+  <div *ngIf="!isLoading" class="flex flex-col gap-6 w-full">
+    <!-- Botones de vista y nueva cita -->
+    <div class="flex justify-between items-center w-full px-6 container mx-auto">
     <!-- Botones de vista a la izquierda -->
     <div class="flex gap-3">
       <button
@@ -37,8 +44,9 @@
       </button>
     </div>
 
-    <!-- Botón de nueva cita a la derecha -->
+    <!-- Botón de nueva cita a la derecha (solo para dentistas) -->
     <button
+      *ngIf="userRole === 'DENTIST'"
       class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-all hover:bg-blue-700 shadow-sm cursor-pointer"
       (click)="navigateToCreateAppointment()"
     >
@@ -52,4 +60,5 @@
     [options]="calendarOptions"
     class="w-full bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-md container mx-auto"
   ></full-calendar>
+  </div>
 </div>

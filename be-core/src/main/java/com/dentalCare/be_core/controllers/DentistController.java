@@ -813,6 +813,20 @@ public class DentistController {
     }
 
     /**
+     * Ver Todos los Turnos del Dentista (Excluyendo Cancelados)
+     * Retorna todos los turnos activos del dentista ordenados por fecha/hora de inicio.
+     * Excluye los turnos con estado CANCELADO.
+     */
+    @Operation(summary = "Listar turnos del dentista excluyendo cancelados")
+    @GetMapping("/{id}/appointments/active")
+    public ResponseEntity<List<AppointmentResponseDto>> getActiveAppointmentsByDentistId(
+            @Parameter(description = "Dentist ID", required = true)
+            @PathVariable Long id) {
+        List<AppointmentResponseDto> appointments = appointmentService.getAppointmentsByDentistIdExcludingCancelled(id);
+        return ResponseEntity.ok(appointments);
+    }
+
+    /**
      * Ver Turnos de un Paciente Específico
      * Retorna todos los turnos que el dentista tiene con un paciente en particular.
      * Útil para ver el historial de citas de un paciente específico.

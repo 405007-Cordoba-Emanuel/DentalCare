@@ -49,4 +49,20 @@ export class LocalStorageService {
     }
     return null;
   }
+
+  getPatientId() {
+    if (isPlatformBrowser(this.platformId)) {
+      const user = JSON.parse(this.getUserData() || '{}');
+      return user.patientId;
+    }
+    return null;
+  }
+
+  getUserRole() {
+    if (isPlatformBrowser(this.platformId)) {
+      const user = JSON.parse(this.getUserData() || '{}');
+      return user.role;
+    }
+    return null;
+  }
 }

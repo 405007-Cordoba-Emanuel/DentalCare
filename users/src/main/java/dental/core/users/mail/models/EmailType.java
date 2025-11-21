@@ -6,7 +6,9 @@ import lombok.Getter;
 public enum EmailType {
     DEFAULT("default"),
     NOTIFICATION("notification"),
-    PASSWORD_RESET("password-reset");
+    PASSWORD_RESET("password-reset"),
+    APPOINTMENT_CREATED_PATIENT("appointment-created-patient"),
+    APPOINTMENT_CREATED_DENTIST("appointment-created-dentist");
 
     private final String templateName;
 
