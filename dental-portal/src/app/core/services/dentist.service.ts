@@ -121,7 +121,12 @@ export class DentistService {
 
   // Actualizar el estado de una cita
   updateAppointmentStatus(dentistId: number, appointmentId: number, status: string): Observable<AppointmentResponse> {
-    return this.http.patch<AppointmentResponse>(`${this.apiUrl}/${dentistId}/appointments/${appointmentId}/status`, { status });
+    const params = new HttpParams().set('status', status);
+    return this.http.put<AppointmentResponse>(
+      `${this.apiUrl}/${dentistId}/appointments/${appointmentId}/status`,
+      null,
+      { params }
+    );
   }
 
   // Cancelar una cita

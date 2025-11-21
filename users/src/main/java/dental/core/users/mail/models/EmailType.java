@@ -8,7 +8,11 @@ public enum EmailType {
     NOTIFICATION("notification"),
     PASSWORD_RESET("password-reset"),
     APPOINTMENT_CREATED_PATIENT("appointment-created-patient"),
-    APPOINTMENT_CREATED_DENTIST("appointment-created-dentist");
+    APPOINTMENT_CREATED_DENTIST("appointment-created-dentist"),
+    APPOINTMENT_UPDATED_PATIENT("appointment-updated-patient"),
+    APPOINTMENT_UPDATED_DENTIST("appointment-updated-dentist"),
+    APPOINTMENT_STATUS_CHANGED_PATIENT("appointment-status-changed-patient"),
+    APPOINTMENT_STATUS_CHANGED_DENTIST("appointment-status-changed-dentist");
 
     private final String templateName;
 

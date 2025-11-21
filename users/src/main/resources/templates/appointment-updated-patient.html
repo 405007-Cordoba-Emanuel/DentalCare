@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cambio en tu Cita - DentalCare</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            padding: 30px 20px;
+            text-align: center;
+            color: white;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .header .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .content h2 {
+            color: #f59e0b;
+            margin-top: 0;
+            font-size: 22px;
+        }
+        .content p {
+            font-size: 16px;
+            margin: 15px 0;
+            color: #555;
+        }
+        .patient-name {
+            font-weight: 600;
+            color: #f59e0b;
+        }
+        .change-box {
+            background-color: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+        .change-box h3 {
+            color: #d97706;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+        }
+        .change-box h3::before {
+            content: "⚠️";
+            margin-right: 10px;
+            font-size: 24px;
+        }
+        .comparison-container {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .comparison-box {
+            flex: 1;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .old-data {
+            background-color: #fee2e2;
+            border: 2px solid #ef4444;
+        }
+        .old-data h4 {
+            color: #991b1b;
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        .new-data {
+            background-color: #d1fae5;
+            border: 2px solid #10b981;
+        }
+        .new-data h4 {
+            color: #065f46;
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        .comparison-box .date {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 5px 0;
+        }
+        .comparison-box .time {
+            font-size: 16px;
+            margin: 5px 0;
+        }
+        .detail-row {
+            display: flex;
+            padding: 8px 0;
+            border-bottom: 1px solid #fef3c7;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #374151;
+            min-width: 120px;
+        }
+        .detail-value {
+            color: #1f2937;
+            flex: 1;
+        }
+        .info-box {
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .info-box p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #1e40af;
+        }
+        .footer {
+            background-color: #f9fafb;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+        .footer p {
+            margin: 10px 0;
+            font-size: 14px;
+            color: #6b7280;
+        }
+        .footer .contact {
+            color: #1e40af;
+            font-weight: 600;
+        }
+        @media only screen and (max-width: 600px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+            }
+            .content {
+                padding: 30px 20px;
+            }
+            .comparison-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="icon">🔄</div>
+            <h1>Cambio en tu Cita</h1>
+        </div>
+        
+        <div class="content">
+            <h2>Hola <span class="patient-name" th:text="${patientName}">Paciente</span>,</h2>
+            
+            <p>Te informamos que tu cita con <strong th:text="${dentistName}">Dr./Dra.</strong> ha sido <strong>modificada</strong>.</p>
+            
+            <div class="change-box">
+                <h3>Detalles del Cambio</h3>
+                
+                <div class="comparison-container">
+                    <div class="comparison-box old-data">
+                        <h4>❌ Fecha/Hora Anterior</h4>
+                        <div class="date" th:text="${originalAppointmentDate}">24 de noviembre, 2025</div>
+                        <div class="time">
+                            <span th:text="${originalStartTime}">14:00</span> - <span th:text="${originalEndTime}">15:00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="comparison-box new-data">
+                        <h4>✅ Nueva Fecha/Hora</h4>
+                        <div class="date" th:text="${newAppointmentDate}">25 de noviembre, 2025</div>
+                        <div class="time">
+                            <span th:text="${newStartTime}">16:00</span> - <span th:text="${newEndTime}">17:00</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Duración:</span>
+                    <span class="detail-value"><span th:text="${duration}">60</span> minutos</span>
+                </div>
+                
+                <div class="detail-row" th:if="${reason != null and !reason.isEmpty()}">
+                    <span class="detail-label">Motivo:</span>
+                    <span class="detail-value" th:text="${reason}">Consulta general</span>
+                </div>
+                
+                <div class="detail-row" th:if="${notes != null and !notes.isEmpty()}">
+                    <span class="detail-label">Notas:</span>
+                    <span class="detail-value" th:text="${notes}">Notas adicionales</span>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>👨‍⚕️ Dentista:</strong> <span th:text="${dentistName}">Dr./Dra.</span></p>
+                <p><strong>🏥 Especialidad:</strong> <span th:text="${dentistSpecialty}">Odontología General</span></p>
+                <p><strong>📋 Matrícula:</strong> <span th:text="${dentistLicense}">MP 12345</span></p>
+            </div>
+            
+            <p style="margin-top: 30px;">Si tienes alguna duda o necesitas realizar algún cambio, no dudes en contactarnos.</p>
+            
+            <p style="color: #6b7280; font-size: 14px; margin-top: 20px;">
+                <strong>Importante:</strong> Si no puedes asistir en la nueva fecha, por favor comunícate con nosotros con al menos 24 horas de anticipación.
+            </p>
+        </div>
+        <div class="footer">
+            <p>Este correo fue enviado automáticamente. Por favor no respondas a este mensaje.</p>
+            <p class="contact">📞 Contacto: (123) 456-7890 | 📧 info@dentalcare.com</p>
+            <p class="company">DentalCare - Sistema de Gestión Dental</p>
+            <p>© 2025 DentalCare. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>
+

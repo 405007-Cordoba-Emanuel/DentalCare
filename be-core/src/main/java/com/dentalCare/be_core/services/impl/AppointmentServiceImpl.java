@@ -165,6 +165,179 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
     }
 
+    private void sendAppointmentUpdatedEmails(Appointment appointment, LocalDateTime originalStartDateTime, LocalDateTime originalEndDateTime) {
+        try {
+            Dentist dentist = appointment.getDentist();
+            Patient patient = appointment.getPatient();
+            
+            UserDetailDto patientUser = userServiceClient.getUserById(patient.getUserId());
+            UserDetailDto dentistUser = userServiceClient.getUserById(dentist.getUserId());
+            
+            // Formatear fecha y hora
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("d 'de' MMMM, yyyy", new Locale("es", "ES"));
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+            
+            // Datos originales
+            String originalAppointmentDate = originalStartDateTime.format(dateFormatter);
+            String originalStartTime = originalStartDateTime.format(timeFormatter);
+            String originalEndTime = originalEndDateTime.format(timeFormatter);
+            
+            // Datos nuevos
+            String newAppointmentDate = appointment.getStartDateTime().format(dateFormatter);
+            String newStartTime = appointment.getStartDateTime().format(timeFormatter);
+            String newEndTime = appointment.getEndDateTime().format(timeFormatter);
+            long duration = java.time.Duration.between(appointment.getStartDateTime(), appointment.getEndDateTime()).toMinutes();
+            
+            // Email para el paciente
+            Map<String, Object> patientVariables = new HashMap<>();
+            patientVariables.put("patientName", patientUser.getFirstName() + " " + patientUser.getLastName());
+            patientVariables.put("dentistName", "Dr./Dra. " + dentistUser.getFirstName() + " " + dentistUser.getLastName());
+            patientVariables.put("dentistSpecialty", dentist.getSpecialty());
+            patientVariables.put("dentistLicense", dentist.getLicenseNumber());
+            patientVariables.put("originalAppointmentDate", originalAppointmentDate);
+            patientVariables.put("originalStartTime", originalStartTime);
+            patientVariables.put("originalEndTime", originalEndTime);
+            patientVariables.put("newAppointmentDate", newAppointmentDate);
+            patientVariables.put("newStartTime", newStartTime);
+            patientVariables.put("newEndTime", newEndTime);
+            patientVariables.put("duration", duration);
+            patientVariables.put("reason", appointment.getReason() != null ? appointment.getReason() : "");
+            patientVariables.put("notes", appointment.getNotes() != null ? appointment.getNotes() : "");
+            
+            EmailRequestDto patientEmail = EmailRequestDto.builder()
+                    .to(List.of(patientUser.getEmail()))
+                    .subject("Cambio en tu Cita - DentalCare")
+                    .emailType("APPOINTMENT_UPDATED_PATIENT")
+                    .variables(patientVariables)
+                    .build();
+            
+            emailServiceClient.sendEmail(patientEmail);
+            log.info("Appointment update email sent to patient: {}", patientUser.getEmail());
+            
+            // Email para el dentista
+            Map<String, Object> dentistVariables = new HashMap<>();
+            dentistVariables.put("dentistName", "Dr./Dra. " + dentistUser.getFirstName() + " " + dentistUser.getLastName());
+            dentistVariables.put("patientName", patientUser.getFirstName() + " " + patientUser.getLastName());
+            dentistVariables.put("patientDni", patient.getDni());
+            dentistVariables.put("originalAppointmentDate", originalAppointmentDate);
+            dentistVariables.put("originalStartTime", originalStartTime);
+            dentistVariables.put("originalEndTime", originalEndTime);
+            dentistVariables.put("newAppointmentDate", newAppointmentDate);
+            dentistVariables.put("newStartTime", newStartTime);
+            dentistVariables.put("newEndTime", newEndTime);
+            dentistVariables.put("duration", duration);
+            dentistVariables.put("reason", appointment.getReason() != null ? appointment.getReason() : "");
+            dentistVariables.put("notes", appointment.getNotes() != null ? appointment.getNotes() : "");
+            
+            EmailRequestDto dentistEmail = EmailRequestDto.builder()
+                    .to(List.of(dentistUser.getEmail()))
+                    .subject("Cita Modificada - DentalCare")
+                    .emailType("APPOINTMENT_UPDATED_DENTIST")
+                    .variables(dentistVariables)
+                    .build();
+            
+            emailServiceClient.sendEmail(dentistEmail);
+            log.info("Appointment update email sent to dentist: {}", dentistUser.getEmail());
+            
+        } catch (Exception e) {
+            log.error("Error sending appointment update emails: {}", e.getMessage(), e);
+            // No lanzamos excepción para no afectar el flujo principal
+        }
+    }
+
+    private void sendAppointmentStatusChangedEmails(Appointment appointment, AppointmentStatus originalStatus) {
+        try {
+            Dentist dentist = appointment.getDentist();
+            Patient patient = appointment.getPatient();
+            
+            UserDetailDto patientUser = userServiceClient.getUserById(patient.getUserId());
+            UserDetailDto dentistUser = userServiceClient.getUserById(dentist.getUserId());
+            
+            // Formatear fecha y hora
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("d 'de' MMMM, yyyy", new Locale("es", "ES"));
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+            
+            String appointmentDate = appointment.getStartDateTime().format(dateFormatter);
+            String startTime = appointment.getStartDateTime().format(timeFormatter);
+            String endTime = appointment.getEndDateTime().format(timeFormatter);
+            long duration = java.time.Duration.between(appointment.getStartDateTime(), appointment.getEndDateTime()).toMinutes();
+            
+            // Traducir estados al español
+            String originalStatusSpanish = translateStatus(originalStatus);
+            String newStatusSpanish = translateStatus(appointment.getStatus());
+            
+            // Email para el paciente
+            Map<String, Object> patientVariables = new HashMap<>();
+            patientVariables.put("patientName", patientUser.getFirstName() + " " + patientUser.getLastName());
+            patientVariables.put("dentistName", "Dr./Dra. " + dentistUser.getFirstName() + " " + dentistUser.getLastName());
+            patientVariables.put("dentistSpecialty", dentist.getSpecialty());
+            patientVariables.put("dentistLicense", dentist.getLicenseNumber());
+            patientVariables.put("appointmentDate", appointmentDate);
+            patientVariables.put("startTime", startTime);
+            patientVariables.put("endTime", endTime);
+            patientVariables.put("duration", duration);
+            patientVariables.put("originalStatus", originalStatusSpanish);
+            patientVariables.put("newStatus", newStatusSpanish);
+            patientVariables.put("reason", appointment.getReason() != null ? appointment.getReason() : "");
+            patientVariables.put("notes", appointment.getNotes() != null ? appointment.getNotes() : "");
+            
+            EmailRequestDto patientEmail = EmailRequestDto.builder()
+                    .to(List.of(patientUser.getEmail()))
+                    .subject("Cambio de Estado en tu Cita - DentalCare")
+                    .emailType("APPOINTMENT_STATUS_CHANGED_PATIENT")
+                    .variables(patientVariables)
+                    .build();
+            
+            emailServiceClient.sendEmail(patientEmail);
+            log.info("Appointment status change email sent to patient: {}", patientUser.getEmail());
+            
+            // Email para el dentista
+            Map<String, Object> dentistVariables = new HashMap<>();
+            dentistVariables.put("dentistName", "Dr./Dra. " + dentistUser.getFirstName() + " " + dentistUser.getLastName());
+            dentistVariables.put("patientName", patientUser.getFirstName() + " " + patientUser.getLastName());
+            dentistVariables.put("patientDni", patient.getDni());
+            dentistVariables.put("appointmentDate", appointmentDate);
+            dentistVariables.put("startTime", startTime);
+            dentistVariables.put("endTime", endTime);
+            dentistVariables.put("duration", duration);
+            dentistVariables.put("originalStatus", originalStatusSpanish);
+            dentistVariables.put("newStatus", newStatusSpanish);
+            dentistVariables.put("reason", appointment.getReason() != null ? appointment.getReason() : "");
+            dentistVariables.put("notes", appointment.getNotes() != null ? appointment.getNotes() : "");
+            
+            EmailRequestDto dentistEmail = EmailRequestDto.builder()
+                    .to(List.of(dentistUser.getEmail()))
+                    .subject("Cambio de Estado de Cita - DentalCare")
+                    .emailType("APPOINTMENT_STATUS_CHANGED_DENTIST")
+                    .variables(dentistVariables)
+                    .build();
+            
+            emailServiceClient.sendEmail(dentistEmail);
+            log.info("Appointment status change email sent to dentist: {}", dentistUser.getEmail());
+            
+        } catch (Exception e) {
+            log.error("Error sending appointment status change emails: {}", e.getMessage(), e);
+            // No lanzamos excepción para no afectar el flujo principal
+        }
+    }
+
+    private String translateStatus(AppointmentStatus status) {
+        switch (status) {
+            case PROGRAMADO:
+                return "Programado";
+            case CONFIRMADO:
+                return "Confirmado";
+            case COMPLETADO:
+                return "Completado";
+            case CANCELADO:
+                return "Cancelado";
+            case AUSENTE:
+                return "Ausente";
+            default:
+                return status.name();
+        }
+    }
+
     @Override
     @Transactional(readOnly = true)
     public List<AppointmentResponseDto> getAppointmentsByDentistId(Long dentistId) {
@@ -223,12 +396,26 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new IllegalArgumentException("There is a time conflict with another appointment");
         }
 
+        // Guardar valores originales para detectar cambios
+        LocalDateTime originalStartDateTime = appointment.getStartDateTime();
+        LocalDateTime originalEndDateTime = appointment.getEndDateTime();
+        
+        // Detectar si cambió la fecha u hora
+        boolean dateOrTimeChanged = !originalStartDateTime.equals(appointmentUpdateRequestDto.getStartDateTime()) 
+                                    || !originalEndDateTime.equals(appointmentUpdateRequestDto.getEndDateTime());
+
         appointment.setStartDateTime(appointmentUpdateRequestDto.getStartDateTime());
         appointment.setEndDateTime(appointmentUpdateRequestDto.getEndDateTime());
         appointment.setReason(appointmentUpdateRequestDto.getReason());
         appointment.setNotes(appointmentUpdateRequestDto.getNotes());
 
         Appointment updatedAppointment = appointmentRepository.save(appointment);
+        
+        // Enviar notificaciones por email si cambió la fecha u hora
+        if (dateOrTimeChanged) {
+            sendAppointmentUpdatedEmails(updatedAppointment, originalStartDateTime, originalEndDateTime);
+        }
+        
         return mapToResponseDto(updatedAppointment);
     }
 
@@ -237,8 +424,17 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository.findByIdAndDentistIdAndActiveTrue(appointmentId, dentistId)
                 .orElseThrow(() -> new IllegalArgumentException("No appointment found with ID: " + appointmentId));
 
+        // Guardar estado original
+        AppointmentStatus originalStatus = appointment.getStatus();
+        
         appointment.setStatus(status);
         Appointment updatedAppointment = appointmentRepository.save(appointment);
+        
+        // Enviar notificaciones por email si cambió el estado
+        if (!originalStatus.equals(status)) {
+            sendAppointmentStatusChangedEmails(updatedAppointment, originalStatus);
+        }
+        
         return mapToResponseDto(updatedAppointment);
     }
 
