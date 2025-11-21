@@ -157,13 +157,23 @@
             <p>{{ entry.description }}</p>
           </div>
 
-          <!-- Mostrar imagen si existe -->
+          <!-- Mostrar icono de imagen si existe -->
           <div class="entry-footer" *ngIf="entry.hasFile && entry.fileUrl && isImageFile(entry.fileType || '')">
-            <div class="image-preview">
-              <img [src]="entry.fileUrl" 
-                   [alt]="entry.fileName || 'Imagen adjunta'"
-                   class="preview-image"
-                   (click)="openImageDialog(entry.fileUrl!)">
+            <div class="linked-items">
+              <div class="link-badge file-link image-link" (click)="openImageDialog(entry.fileUrl!, entry.fileName)">
+                <mat-icon>image</mat-icon>
+                <span>{{ entry.fileName || 'Imagen' }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Mostrar badge de archivo si no es imagen -->
+          <div class="entry-footer" *ngIf="entry.hasFile && (!entry.fileUrl || !isImageFile(entry.fileType || ''))">
+            <div class="linked-items">
+              <div class="link-badge file-link">
+                <mat-icon>attachment</mat-icon>
+                <span>{{ entry.fileName || 'Archivo' }}</span>
+              </div>
             </div>
           </div>
         </div>

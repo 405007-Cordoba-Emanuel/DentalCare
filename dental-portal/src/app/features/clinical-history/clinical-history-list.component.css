@@ -418,6 +418,38 @@
   color: #f59e0b;
 }
 
+.image-link {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.image-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Image Preview */
+.image-preview {
+  max-width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.preview-image {
+  max-width: 100%;
+  max-height: 400px;
+  width: auto;
+  height: auto;
+  display: block;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.preview-image:hover {
+  transform: scale(1.02);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .clinical-history-container {

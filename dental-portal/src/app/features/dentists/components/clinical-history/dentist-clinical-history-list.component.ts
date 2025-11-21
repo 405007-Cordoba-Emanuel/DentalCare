@@ -20,6 +20,7 @@ import { PatientService } from '../../../../core/services/patient.service';
 import { User } from '../../../../interfaces/user/user.interface';
 import { ClinicalHistoryFormDialogComponent, ClinicalHistoryFormData } from './clinical-history-form-dialog.component';
 import { ConfirmDeleteDialogComponent, ConfirmDeleteData } from '../prescriptions/confirm-delete-dialog.component';
+import { ImageViewerDialogComponent, ImageViewerData } from '../../../../shared/components/image-viewer-dialog.component';
 
 @Component({
   selector: 'app-dentist-clinical-history-list',
@@ -455,9 +456,16 @@ export class DentistClinicalHistoryListComponent implements OnInit {
     return fileType.startsWith('image/');
   }
 
-  openImageDialog(imageUrl: string) {
-    // Abrir imagen en nueva pestaña
-    window.open(imageUrl, '_blank');
+  openImageDialog(imageUrl: string, imageName?: string) {
+    this.dialog.open(ImageViewerDialogComponent, {
+      width: '90vw',
+      maxWidth: '1200px',
+      maxHeight: '90vh',
+      data: {
+        imageUrl,
+        imageName
+      } as ImageViewerData
+    });
   }
 }
 
