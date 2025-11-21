@@ -349,6 +349,34 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<AppointmentCalendarDto> getTwoYearAppointmentsByDentistId(Long dentistId) {
+        // Calcular rango de fechas: 1 año atrás + 1 año adelante desde hoy
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startDate = now.minusYears(1);
+        LocalDateTime endDate = now.plusYears(1);
+        
+        List<Appointment> appointments = appointmentRepository.findByDentistIdAndTwoYearRange(dentistId, startDate, endDate);
+        return appointments.stream()
+                .map(this::mapToCalendarDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AppointmentCalendarDto> getTwoYearAppointmentsByPatientId(Long patientId) {
+        // Calcular rango de fechas: 1 año atrás + 1 año adelante desde hoy
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startDate = now.minusYears(1);
+        LocalDateTime endDate = now.plusYears(1);
+        
+        List<Appointment> appointments = appointmentRepository.findByPatientIdAndTwoYearRange(patientId, startDate, endDate);
+        return appointments.stream()
+                .map(this::mapToCalendarDto)
+                .collect(Collectors.toList());
+    }
+
     private AppointmentResponseDto mapToResponseDto(Appointment appointment) {
         AppointmentResponseDto responseDto = modelMapperUtils.map(appointment, AppointmentResponseDto.class);
 

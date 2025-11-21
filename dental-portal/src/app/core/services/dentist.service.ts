@@ -70,6 +70,31 @@ export class DentistService {
     return this.http.get<PagedResponse<PatientResponse>>(`${this.apiUrl}/available-patients/paged`, { params });
   }
 
+  // Obtener citas por mes
+  getMonthlyAppointments(dentistId: number, year: number, month: number): Observable<AppointmentResponse[]> {
+    const params = new HttpParams()
+      .set('year', year.toString())
+      .set('month', month.toString());
+    
+    return this.http.get<AppointmentResponse[]>(`${this.apiUrl}/${dentistId}/appointments/month`, { params });
+  }
+
+  // Obtener citas por semana
+  getWeeklyAppointments(dentistId: number, startDate: string): Observable<AppointmentResponse[]> {
+    const params = new HttpParams()
+      .set('startDate', startDate);
+    
+    return this.http.get<AppointmentResponse[]>(`${this.apiUrl}/${dentistId}/appointments/week`, { params });
+  }
+
+  // Obtener citas por día
+  getDailyAppointments(dentistId: number, date: string): Observable<AppointmentResponse[]> {
+    const params = new HttpParams()
+      .set('date', date);
+    
+    return this.http.get<AppointmentResponse[]>(`${this.apiUrl}/${dentistId}/appointments/day`, { params });
+  }
+
   // Verificar conflicto de horario
   checkTimeConflict(dentistId: number, startTime: string, endTime: string): Observable<boolean> {
     const params = new HttpParams()
@@ -77,5 +102,10 @@ export class DentistService {
       .set('endTime', endTime);
     
     return this.http.get<boolean>(`${this.apiUrl}/${dentistId}/appointments/conflict-check`, { params });
+  }
+
+  // Obtener citas de 2 años (1 año atrás + 1 año adelante)
+  getTwoYearAppointments(dentistId: number): Observable<AppointmentResponse[]> {
+    return this.http.get<AppointmentResponse[]>(`${this.apiUrl}/${dentistId}/appointments/two-year-range`);
   }
 }

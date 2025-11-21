@@ -210,10 +210,10 @@ export class PatientDashboardComponent implements OnInit {
         if (appointments.length > 0) {
           // Ordenar por fecha descendente y tomar la más reciente
           const sorted = appointments.sort((a, b) => 
-            new Date(b.startDateTime).getTime() - new Date(a.startDateTime).getTime()
+            new Date(b.startDateTime || '').getTime() - new Date(a.startDateTime || '').getTime()
           );
           const lastAppointment = sorted[0];
-          this.patientInfo.lastVisit = lastAppointment.startDateTime.split('T')[0];
+          this.patientInfo.lastVisit = lastAppointment.startDateTime?.split('T')[0] || '';
         }
         pastAppointmentsLoaded = true;
         checkComplete();
@@ -242,8 +242,8 @@ export class PatientDashboardComponent implements OnInit {
   }
 
   private mapAppointmentToDisplay(appointment: Appointment): AppointmentDisplay {
-    const time = this.formatTime(appointment.startDateTime);
-    const dateStr = appointment.startDateTime.split('T')[0];
+    const time = this.formatTime(appointment.startDateTime || '00:00');
+    const dateStr = appointment.startDateTime?.split('T')[0] || '';
     
     return {
       id: appointment.id,

@@ -91,4 +91,19 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     long countByDentistIdAndActiveTrue(Long dentistId);
 
     long countByPatientIdAndActiveTrue(Long patientId);
+
+    // Métodos para obtener appointments en un rango de fechas (2 años: 1 año atrás + 1 año adelante)
+    @Query("SELECT a FROM Appointment a WHERE a.dentist.id = :dentistId AND a.active = true " +
+           "AND a.startDateTime >= :startDate AND a.startDateTime <= :endDate " +
+           "ORDER BY a.startDateTime ASC")
+    List<Appointment> findByDentistIdAndTwoYearRange(@Param("dentistId") Long dentistId,
+                                                      @Param("startDate") LocalDateTime startDate,
+                                                      @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT a FROM Appointment a WHERE a.patient.id = :patientId AND a.active = true " +
+           "AND a.startDateTime >= :startDate AND a.startDateTime <= :endDate " +
+           "ORDER BY a.startDateTime ASC")
+    List<Appointment> findByPatientIdAndTwoYearRange(@Param("patientId") Long patientId,
+                                                      @Param("startDate") LocalDateTime startDate,
+                                                      @Param("endDate") LocalDateTime endDate);
 }

@@ -57,4 +57,14 @@ public interface AppointmentService {
     List<AppointmentResponseDto> getAppointmentsByDentistIdExcludingCancelled(Long dentistId);
 
     List<AppointmentResponseDto> getAppointmentsByPatientIdExcludingCancelled(Long patientId);
+
+    /**
+     * Obtiene todas las citas de un dentista en un rango de 2 años (1 año atrás + 1 año adelante desde hoy)
+     */
+    List<AppointmentCalendarDto> getTwoYearAppointmentsByDentistId(Long dentistId);
+
+    /**
+     * Obtiene todas las citas de un paciente en un rango de 2 años (1 año atrás + 1 año adelante desde hoy)
+     */
+    List<AppointmentCalendarDto> getTwoYearAppointmentsByPatientId(Long patientId);
 }

@@ -442,4 +442,20 @@ public class PatientController {
         return ResponseEntity.ok(count);
     }
 
+    /**
+     * Ver Agenda de 2 Años (1 año atrás + 1 año adelante)
+     * Retorna todos los turnos del paciente en un rango de 2 años desde hoy.
+     * Formato optimizado para mostrar en calendario con navegación libre.
+     * Permite al frontend filtrar localmente por día/semana/mes sin hacer múltiples llamadas.
+     */
+    @Operation(summary = "Listar turnos de 2 años (1 año atrás + 1 año adelante)")
+    @GetMapping("/{id}/appointments/two-year-range")
+    public ResponseEntity<List<com.dentalCare.be_core.dtos.response.appointment.AppointmentCalendarDto>> getTwoYearAppointments(
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long id) {
+        List<com.dentalCare.be_core.dtos.response.appointment.AppointmentCalendarDto> appointments = 
+            appointmentService.getTwoYearAppointmentsByPatientId(id);
+        return ResponseEntity.ok(appointments);
+    }
+
 }
