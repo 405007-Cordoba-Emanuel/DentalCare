@@ -43,7 +43,7 @@ export interface FormField {
 })
 export class GenericFormComponent implements OnInit {
   fields = input<FormField[]>([]);
-  formTitle = input<string>('Form');
+  formTitle = input<string>('');
   submitText = input<string>('Submit');
   initialData = input<any>({});
   readonly = input<boolean>(false);

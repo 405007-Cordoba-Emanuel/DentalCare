@@ -6,6 +6,13 @@ export interface AppointmentRequest {
   notes: string;
 }
 
+export interface AppointmentUpdateRequest {
+  startDateTime: Date | string;
+  endDateTime: Date | string;
+  reason: string;
+  notes: string;
+}
+
 export interface AppointmentResponse {
   id: number;
   patientId: number;
