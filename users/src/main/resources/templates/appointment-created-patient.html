@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmación de Cita - DentalCare</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+            padding: 30px 20px;
+            text-align: center;
+            color: white;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .header .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .content h2 {
+            color: #1e40af;
+            margin-top: 0;
+            font-size: 22px;
+        }
+        .content p {
+            font-size: 16px;
+            margin: 15px 0;
+            color: #555;
+        }
+        .patient-name {
+            font-weight: 600;
+            color: #1e40af;
+        }
+        .appointment-details {
+            background-color: #eff6ff;
+            border-left: 4px solid #1e40af;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+        .appointment-details h3 {
+            color: #1e40af;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .detail-row {
+            display: flex;
+            padding: 8px 0;
+            border-bottom: 1px solid #dbeafe;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #374151;
+            min-width: 120px;
+        }
+        .detail-value {
+            color: #1f2937;
+            flex: 1;
+        }
+        .highlight-box {
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .highlight-box .date {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        .highlight-box .time {
+            font-size: 20px;
+            font-weight: 500;
+            opacity: 0.95;
+        }
+        .info-box {
+            background-color: #f0f9ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .info-box p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .warning {
+            background-color: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .warning p {
+            margin: 5px 0;
+            color: #92400e;
+            font-size: 14px;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #dee2e6;
+        }
+        .footer p {
+            margin: 5px 0;
+            font-size: 12px;
+            color: #6c757d;
+        }
+        .footer .company {
+            font-weight: 600;
+            color: #1e40af;
+            margin-top: 10px;
+        }
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 30px 20px;
+            }
+            .detail-row {
+                flex-direction: column;
+            }
+            .detail-label {
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="icon">📅</div>
+            <h1>¡Cita Confirmada!</h1>
+        </div>
+        
+        <div class="content">
+            <h2>Hola <span class="patient-name" th:text="${patientName}">Paciente</span>,</h2>
+            
+            <p>
+                Tu cita con <strong th:text="${dentistName}">Dr. Dentista</strong> ha sido agendada exitosamente.
+            </p>
+            
+            <div class="highlight-box">
+                <p style="margin: 0; font-size: 14px; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px;">Fecha de tu Cita</p>
+                <div class="date" th:text="${appointmentDate}">20 de Noviembre, 2025</div>
+                <div class="time">
+                    <span th:text="${startTime}">10:00</span> - <span th:text="${endTime}">10:30</span>
+                </div>
+            </div>
+            
+            <div class="appointment-details">
+                <h3>Detalles de la Cita</h3>
+                
+                <div class="detail-row">
+                    <span class="detail-label">🦷 Dentista:</span>
+                    <span class="detail-value" th:text="${dentistName}">Dr. Juan Pérez</span>
+                </div>
+                
+                <div class="detail-row" th:if="${dentistSpecialty}">
+                    <span class="detail-label">🎓 Especialidad:</span>
+                    <span class="detail-value" th:text="${dentistSpecialty}">Odontología General</span>
+                </div>
+                
+                <div class="detail-row" th:if="${dentistLicense}">
+                    <span class="detail-label">📋 Matrícula:</span>
+                    <span class="detail-value" th:text="${dentistLicense}">MP-12345</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">📅 Fecha:</span>
+                    <span class="detail-value" th:text="${appointmentDate}">20 de Noviembre, 2025</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">⏰ Horario:</span>
+                    <span class="detail-value">
+                        <span th:text="${startTime}">10:00</span> - <span th:text="${endTime}">10:30</span>
+                    </span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">⏱️ Duración:</span>
+                    <span class="detail-value"><span th:text="${duration}">30</span> minutos</span>
+                </div>
+                
+                <div class="detail-row" th:if="${reason}">
+                    <span class="detail-label">📝 Motivo:</span>
+                    <span class="detail-value" th:text="${reason}">Revisión general</span>
+                </div>
+                
+                <div class="detail-row" th:if="${notes}">
+                    <span class="detail-label">📌 Notas:</span>
+                    <span class="detail-value" th:text="${notes}">Traer estudios previos</span>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>ℹ️ Recordatorio:</strong></p>
+                <p>• Por favor, llega 10 minutos antes de tu cita</p>
+                <p>• Trae tu documentación y cualquier estudio previo</p>
+                <p>• Si necesitas cancelar o reprogramar, avisa con anticipación</p>
+            </div>
+            
+            <div class="warning">
+                <p><strong>⚠️ Importante:</strong></p>
+                <p>• Si no puedes asistir, por favor avisa con al menos 24 horas de anticipación</p>
+                <p>• Para cualquier consulta, contacta a tu dentista</p>
+            </div>
+            
+            <p style="margin-top: 30px;">
+                Si tienes alguna pregunta o necesitas reprogramar tu cita, no dudes en contactarnos.
+            </p>
+            
+            <p style="margin-top: 20px; color: #888; font-size: 14px;">
+                ¡Nos vemos pronto!<br>
+                <strong>El equipo de DentalCare</strong>
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>Este correo fue enviado automáticamente. Por favor no respondas a este mensaje.</p>
+            <p class="company">DentalCare - Sistema de Gestión Dental</p>
+            <p>© 2025 DentalCare. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>
+

@@ -362,6 +362,21 @@ public class PatientController {
     }
 
     /**
+     * Ver Todos los Turnos del Paciente (Excluyendo Cancelados)
+     * El paciente consulta todos sus turnos activos con el dentista.
+     * Los turnos se ordenan por fecha/hora de inicio.
+     * Excluye los turnos con estado CANCELADO.
+     */
+	@Operation(summary = "Listar turnos del paciente excluyendo cancelados")
+    @GetMapping("/{id}/appointments/active")
+    public ResponseEntity<List<AppointmentResponseDto>> getActiveAppointmentsByPatientId(
+            @Parameter(description = "Patient ID", required = true)
+            @PathVariable Long id) {
+        List<AppointmentResponseDto> appointments = appointmentService.getAppointmentsByPatientIdExcludingCancelled(id);
+        return ResponseEntity.ok(appointments);
+    }
+
+    /**
      * Ver Próximos Turnos del Paciente
      * El paciente consulta únicamente sus turnos futuros (que aún no han ocurrido).
      * Útil para recordar las próximas citas programadas.

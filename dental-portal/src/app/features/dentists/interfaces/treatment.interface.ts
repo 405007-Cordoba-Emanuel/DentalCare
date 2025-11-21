@@ -1,43 +1,38 @@
 export interface TreatmentResponse {
   id: number;
+  patientId: number;
+  patientName: string;
   dentistId: number;
   dentistName: string;
   name: string;
   description: string;
   startDate: string;
   estimatedEndDate: string;
-  actualEndDate: string;
+  actualEndDate: string | null;
   status: string;
   totalSessions: number;
   completedSessions: number;
   progressPercentage: number;
-  notes: string;
-  patient: {
-    id: number;
-    firstName: string;
-    lastName: string;
-    dni: string;
-  };
+  notes: string | null;
   active: boolean;
 }
 
 export interface TreatmentDetailResponse {
   id: number;
+  patientId: number;
+  patientName: string;
+  dentistId: number;
+  dentistName: string;
   name: string;
   description: string;
   startDate: string;
   estimatedEndDate: string;
-  actualEndDate: string;
+  actualEndDate: string | null;
   status: string;
   totalSessions: number;
   completedSessions: number;
-  notes: string;
+  notes: string | null;
   progressPercentage: number;
-  patient: {
-    id: number;
-    firstName: string;
-    lastName: string;
-    dni: string;
-  };
+  active: boolean;
   sessions: any[]; // Entradas de historia clínica
 }

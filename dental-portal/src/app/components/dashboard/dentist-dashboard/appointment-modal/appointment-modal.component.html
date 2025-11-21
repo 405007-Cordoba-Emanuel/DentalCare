@@ -1,0 +1,130 @@
+<div class="appointment-modal">
+  <div class="modal-header">
+    <h2 mat-dialog-title class="modal-title">
+      <mat-icon class="title-icon">event</mat-icon>
+      <span>Agendar Nueva Cita</span>
+    </h2>
+    <button mat-icon-button class="close-button" (click)="onCancel()" [disabled]="isLoading">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content class="modal-content">
+    <div class="patient-info">
+      <mat-icon class="patient-icon">person</mat-icon>
+      <div class="patient-details">
+        <span class="patient-label">Paciente:</span>
+        <span class="patient-name">{{ data.patientName }}</span>
+      </div>
+    </div>
+
+    <form [formGroup]="appointmentForm" class="appointment-form">
+      <!-- Fecha -->
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Fecha de la Cita</mat-label>
+        <input 
+          matInput 
+          [matDatepicker]="picker" 
+          formControlName="appointmentDate"
+          [min]="minDate"
+          placeholder="Seleccione una fecha"
+        >
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+        <mat-error *ngIf="appointmentForm.get('appointmentDate')?.invalid">
+          {{ getErrorMessage('appointmentDate') }}
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Horarios -->
+      <div class="time-row">
+        <mat-form-field appearance="fill" class="time-field">
+          <mat-label>Hora de Inicio</mat-label>
+          <input 
+            matInput 
+            type="time"
+            formControlName="startTime"
+            placeholder="HH:MM"
+          >
+          <mat-icon matPrefix class="time-icon">schedule</mat-icon>
+          <mat-error *ngIf="appointmentForm.get('startTime')?.invalid">
+            {{ getErrorMessage('startTime') }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="time-field">
+          <mat-label>Hora de Fin</mat-label>
+          <input 
+            matInput 
+            type="time"
+            formControlName="endTime"
+            placeholder="HH:MM"
+          >
+          <mat-icon matPrefix class="time-icon">schedule</mat-icon>
+          <mat-error *ngIf="appointmentForm.get('endTime')?.invalid">
+            {{ getErrorMessage('endTime') }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Motivo -->
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Motivo de la Cita</mat-label>
+        <input 
+          matInput 
+          formControlName="reason"
+          placeholder="Ej: Limpieza dental, Revisión general..."
+          maxlength="200"
+        >
+        <mat-icon matPrefix>description</mat-icon>
+        <mat-hint align="end">{{ appointmentForm.get('reason')?.value?.length || 0 }}/200</mat-hint>
+        <mat-error *ngIf="appointmentForm.get('reason')?.invalid">
+          {{ getErrorMessage('reason') }}
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Notas -->
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Notas Adicionales</mat-label>
+        <textarea 
+          matInput 
+          formControlName="notes"
+          placeholder="Información adicional o instrucciones especiales..."
+          rows="4"
+          maxlength="2000"
+        ></textarea>
+        <mat-icon matPrefix>note</mat-icon>
+        <mat-hint align="end">{{ appointmentForm.get('notes')?.value?.length || 0 }}/2000</mat-hint>
+        <mat-error *ngIf="appointmentForm.get('notes')?.invalid">
+          {{ getErrorMessage('notes') }}
+        </mat-error>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="modal-actions">
+    <button 
+      mat-stroked-button 
+      type="button"
+      (click)="onCancel()"
+      [disabled]="isLoading"
+      class="cancel-button"
+    >
+      Cancelar
+    </button>
+    <button 
+      mat-raised-button 
+      color="primary"
+      type="submit"
+      (click)="onSubmit()"
+      [disabled]="isLoading || appointmentForm.invalid"
+      class="submit-button"
+    >
+      <mat-spinner *ngIf="isLoading" diameter="20" class="button-spinner"></mat-spinner>
+      <mat-icon *ngIf="!isLoading">check</mat-icon>
+      <span *ngIf="!isLoading">Crear Cita</span>
+      <span *ngIf="isLoading">Creando...</span>
+    </button>
+  </mat-dialog-actions>
+</div>
+

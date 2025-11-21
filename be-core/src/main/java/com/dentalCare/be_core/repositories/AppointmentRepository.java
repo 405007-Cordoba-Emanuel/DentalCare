@@ -19,6 +19,17 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     List<Appointment> findByPatientIdAndActiveTrueOrderByStartDateTimeAsc(Long patientId);
 
+    // Métodos para obtener appointments activas excluyendo las canceladas
+    @Query("SELECT a FROM Appointment a WHERE a.dentist.id = :dentistId AND a.active = true " +
+           "AND a.status != com.dentalCare.be_core.entities.AppointmentStatus.CANCELADO " +
+           "ORDER BY a.startDateTime ASC")
+    List<Appointment> findByDentistIdAndActiveTrueAndStatusNotCancelled(@Param("dentistId") Long dentistId);
+
+    @Query("SELECT a FROM Appointment a WHERE a.patient.id = :patientId AND a.active = true " +
+           "AND a.status != com.dentalCare.be_core.entities.AppointmentStatus.CANCELADO " +
+           "ORDER BY a.startDateTime ASC")
+    List<Appointment> findByPatientIdAndActiveTrueAndStatusNotCancelled(@Param("patientId") Long patientId);
+
     List<Appointment> findByDentistIdAndPatientIdAndActiveTrueOrderByStartDateTimeAsc(Long dentistId, Long patientId);
 
     Optional<Appointment> findByIdAndDentistIdAndActiveTrue(Long appointmentId, Long dentistId);

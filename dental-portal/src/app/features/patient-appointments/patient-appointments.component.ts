@@ -112,12 +112,12 @@ export class PatientAppointmentsComponent implements OnInit {
 
     // Cargar próxima cita
     this.appointmentService.getUpcomingAppointmentsByPatientId(this.patientId).subscribe({
-      next: (appointments) => {
+      next: (appointments: Appointment[]) => {
         this.nextAppointment = appointments.length > 0 ? appointments[0] : null;
         upcomingLoaded = true;
         checkComplete();
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error al cargar próximas citas:', error);
         this.errorMessage = 'Error al cargar las próximas citas';
         upcomingLoaded = true;
@@ -127,12 +127,12 @@ export class PatientAppointmentsComponent implements OnInit {
 
     // Cargar historial de citas
     this.appointmentService.getPastAppointmentsByPatientId(this.patientId).subscribe({
-      next: (appointments) => {
+      next: (appointments: Appointment[]) => {
         this.pastAppointments = appointments;
         pastLoaded = true;
         checkComplete();
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error al cargar historial de citas:', error);
         if (!this.errorMessage) {
           this.errorMessage = 'Error al cargar el historial de citas';
@@ -194,7 +194,7 @@ export class PatientAppointmentsComponent implements OnInit {
     return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
   }
 
-  getStatusLabel(status: AppointmentStatus): string {
+  getStatusLabel(status: string): string {
     const statusMap: { [key: string]: string } = {
       'PROGRAMADO': 'Programado',
       'CONFIRMADO': 'Confirmado',
@@ -205,7 +205,7 @@ export class PatientAppointmentsComponent implements OnInit {
     return statusMap[status] || status;
   }
 
-  getBadgeVariant(status: AppointmentStatus): 'ausente' | 'en-curso' | 'completado' | 'abandonado' | 'default' {
+  getBadgeVariant(status: string): 'ausente' | 'en-curso' | 'completado' | 'abandonado' | 'default' {
     switch (status) {
       case AppointmentStatus.COMPLETADO:
         return 'completado';
