@@ -368,4 +368,14 @@ export class GenericFormComponent implements OnInit {
   isPasswordVisible(fieldName: string): boolean {
     return this.passwordVisibility[fieldName] || false;
   }
+
+  // Método público para resetear el formulario
+  resetForm(): void {
+    if (this.formGroup) {
+      this.formGroup.reset();
+      Object.keys(this.formGroup.controls).forEach(key => {
+        this.formGroup.get(key)?.setValue('');
+      });
+    }
+  }
 }

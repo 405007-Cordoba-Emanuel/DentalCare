@@ -313,10 +313,32 @@
               <span class="text-blue-700 font-medium">Creando dentista...</span>
             </div>
 
+            <!-- Mensaje de error -->
+            <div
+              *ngIf="createDentistError && !isCreatingDentist"
+              class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3"
+            >
+              <mat-icon class="text-red-600 mt-0.5">error</mat-icon>
+              <div class="flex-1">
+                <h4 class="text-red-800 font-semibold mb-1">Error al crear dentista</h4>
+                <p class="text-red-700 text-sm">{{ createDentistError }}</p>
+              </div>
+              <button
+                mat-icon-button
+                (click)="createDentistError = ''"
+                class="text-red-600 hover:bg-red-100"
+                matTooltip="Cerrar mensaje"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+
             <app-generic-form
+              #createDentistForm
               [fields]="createDentistFields()"
               formTitle=""
               submitText="Crear Dentista"
+              [initialData]="preservedFormData"
               [disabledFields]="
                 isCreatingDentist
                   ? [

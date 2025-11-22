@@ -21,6 +21,9 @@ import dental.core.users.modules.auth.dto.GoogleTokenRequest;
 import dental.core.users.modules.auth.repositories.UserRepository;
 import dental.core.users.modules.auth.services.GoogleAuthService;
 import dental.core.users.modules.auth.services.GoogleTokenService;
+import dental.core.users.services.CoreServiceClient;
+import dental.core.users.dto.CreatePatientFromUserRequest;
+import dental.core.users.dto.PatientResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,6 +41,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final GoogleTokenService googleTokenService;
+    private final CoreServiceClient coreServiceClient;
 
     @Value("${google.client.id}")
     private String googleClientId;
@@ -164,6 +168,25 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
             UserEntity savedUser = userRepository.save(newUser);
             log.info("New Google user created with email: {}", email);
+            
+            // Crear paciente automáticamente en el microservicio be-core
+            if (savedUser.getRole() == Role.PATIENT) {
+                try {
+                    log.info("Creating patient for Google user ID: {}", savedUser.getId());
+                    CreatePatientFromUserRequest patientRequest = new CreatePatientFromUserRequest();
+                    patientRequest.setUserId(savedUser.getId());
+                    patientRequest.setDni("0000000" + savedUser.getId()); // DNI temporal
+
+                    PatientResponse patientResponse = coreServiceClient.createPatientFromUser(patientRequest);
+                    log.info("Patient created successfully with ID: {} for Google user: {}", 
+                            patientResponse.getId(), email);
+                } catch (Exception e) {
+                    log.error("Error creating patient in core service for Google user ID {}: {}", 
+                            savedUser.getId(), e.getMessage(), e);
+                    // Continuar sin fallar la autenticación
+                }
+            }
+            
             return savedUser;
         }
     }
@@ -220,12 +243,17 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                     .setAudience(Collections.singletonList(googleClientId))
                     .build();
             
-            // Extraer email del token ID si está disponible
+            // Extraer información del usuario del token ID si está disponible
             String email = null;
+            String name = null;
+            String picture = null;
             if (tokenResponse.getIdToken() != null) {
                 GoogleIdToken idToken = verifier.verify(tokenResponse.getIdToken());
                 if (idToken != null) {
-                    email = idToken.getPayload().getEmail();
+                    Payload payload = idToken.getPayload();
+                    email = payload.getEmail();
+                    name = (String) payload.get("name");
+                    picture = (String) payload.get("picture");
                 }
             }
             
@@ -234,7 +262,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
             }
             
             // Buscar o crear usuario
-            UserEntity user = findOrCreateUser(email, email, null);
+            UserEntity user = findOrCreateUser(email, name != null ? name : email, picture);
             
             // Almacenar tokens
             googleTokenService.storeTokens(user, 

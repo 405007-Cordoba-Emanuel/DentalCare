@@ -79,26 +79,16 @@
         }
         
         <!-- User Profile Section -->
-        @if(currentUser$ | async) {
-          <button routerLink="/dentist" class="cursor-pointer">
+        @if(currentUser$ | async; as user) {
         <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 transition-all duration-200 hover-lift">
-          @if((currentUser$ | async)?.picture) {
-          <img 
-            [src]="(currentUser$ | async)?.picture || ''" 
-            alt="avatar" 
-            class="w-8 h-8 rounded-full ring-2 ring-blue-200 hover:ring-blue-300 transition-all duration-200 shadow-sm"
-          >
-          } @else {
           <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white text-sm font-medium shadow-sm">
-            {{ (currentUser$ | async)?.name?.charAt(0) || 'U' }}
+            {{ (user.firstName?.charAt(0) ?? 'U') }}
           </div>
-          }
           <div class="hidden sm:block">
-            <p class="text-sm font-medium text-stone-800">{{(currentUser$ | async)?.name || ''}}</p>
-            <p class="text-xs text-stone-500">{{(currentUser$ | async)?.email || ''}}</p>
+            <p class="text-sm font-medium text-stone-800">{{ (user.firstName || '') + ' ' + (user.lastName || '') }}</p>
+            <p class="text-xs text-stone-500">{{ user.email || '' }}</p>
           </div>
         </div>
-        </button>
         }
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild, inject, computed } from '@angular/core';
+import { GenericFormComponent } from '../../shared/generic-form/generic-form.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -18,7 +19,7 @@ import { AdminService } from './services/admin.service';
 import { UserDetailResponse } from './interfaces/user-detail.interface';
 import { CreateDentistRequest } from './interfaces/create-dentist.interface';
 import { PagedResponse } from './interfaces/paginated-response.interface';
-import { GenericFormComponent, FormField } from '../../shared/generic-form/generic-form.component';
+import { FormField } from '../../shared/generic-form/generic-form.component';
 import { ConfirmUserActionDialogComponent, ConfirmUserActionData } from './components/confirm-user-action-dialog.component';
 
 @Component({
@@ -47,6 +48,7 @@ import { ConfirmUserActionDialogComponent, ConfirmUserActionData } from './compo
 })
 export class AdminDashboardComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild('createDentistForm') createDentistFormRef!: GenericFormComponent;
 
   private adminService = inject(AdminService);
   private snackBar = inject(MatSnackBar);
@@ -70,6 +72,8 @@ export class AdminDashboardComponent implements OnInit {
   // Formulario para crear dentista
   isCreatingDentist = false;
   createDentistForm: FormGroup;
+  createDentistError = '';
+  preservedFormData: any = {};
 
   // Configuración del formulario genérico
   createDentistFields = computed<FormField[]>(() => [
@@ -240,6 +244,7 @@ export class AdminDashboardComponent implements OnInit {
     if (this.isCreatingDentist) return;
 
     this.isCreatingDentist = true;
+    this.createDentistError = '';
     
     const request: CreateDentistRequest = {
       email: formValue.email,
@@ -259,6 +264,15 @@ export class AdminDashboardComponent implements OnInit {
           duration: 5000
         });
         
+        // Limpiar datos preservados y error al tener éxito
+        this.preservedFormData = {};
+        this.createDentistError = '';
+        
+        // Resetear el formulario
+        if (this.createDentistFormRef) {
+          this.createDentistFormRef.resetForm();
+        }
+        
         // Volver a la primera página y recargar usuarios
         this.currentPage = 0;
         if (this.paginator) {
@@ -269,7 +283,26 @@ export class AdminDashboardComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al crear dentista:', error);
-        const errorMessage = error.error?.message || 'Error al crear dentista';
+        
+        // Preservar los datos del formulario
+        this.preservedFormData = { ...formValue };
+        
+        // Extraer el mensaje de error
+        let errorMessage = 'Error al crear dentista';
+        if (error.error?.message) {
+          errorMessage = error.error.message;
+        } else if (error.status === 400) {
+          errorMessage = 'Datos inválidos. Por favor, revisa la información ingresada.';
+        } else if (error.status === 409) {
+          errorMessage = 'El email ya está registrado en el sistema.';
+        } else if (error.status === 403) {
+          errorMessage = 'No tienes permisos para realizar esta acción.';
+        } else if (error.status === 0) {
+          errorMessage = 'Error de conexión con el servidor. Por favor, intenta nuevamente.';
+        }
+        
+        // Mostrar error en snackbar y en el componente
+        this.createDentistError = errorMessage;
         this.snackBar.open(errorMessage, 'Cerrar', {
           duration: 5000
         });

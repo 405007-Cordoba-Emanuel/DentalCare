@@ -11,6 +11,26 @@ import { LocalStorageService } from './local-storage.service';
 export class HandlerService {
   private localStorageService = inject(LocalStorageService);
   private currentUserSubject = new BehaviorSubject<User | null>(null);
+  public currentUser$ = this.currentUserSubject.asObservable();
+
+  constructor() {
+    // Inicializar usuario desde localStorage al crear el servicio
+    this.initializeUserFromStorage();
+  }
+
+  private initializeUserFromStorage(): void {
+    const token = this.localStorageService.getAuthToken();
+    const userDataString = this.localStorageService.getUserData();
+    
+    if (token && userDataString) {
+      try {
+        const userData = JSON.parse(userDataString);
+        this.currentUserSubject.next(userData);
+      } catch (error) {
+        console.error('Error parsing user data from localStorage:', error);
+      }
+    }
+  }
 
   handleError(error: HttpErrorResponse) {
     let errorMessage = 'Ha ocurrido un error';
@@ -61,5 +81,14 @@ export class HandlerService {
     this.localStorageService.setAuthToken(response.token);
     this.localStorageService.setUserData(user);
     this.currentUserSubject.next(user);
+  }
+
+  clearCurrentUser(): void {
+    this.currentUserSubject.next(null);
+  }
+
+  // Método para obtener el valor actual del usuario (para compatibilidad)
+  getCurrentUserValue(): User | null {
+    return this.currentUserSubject.value;
   }
 }
