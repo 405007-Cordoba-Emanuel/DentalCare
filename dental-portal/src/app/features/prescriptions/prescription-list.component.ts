@@ -62,22 +62,19 @@ export class PrescriptionListComponent implements OnInit {
 
     // Si no tiene patientId, obtenerlo usando userId
     if (!this.user?.patientId && this.user?.id) {
-      const userId = parseInt(this.user.id, 10);
-      if (!isNaN(userId)) {
-        this.patientService.getPatientIdByUserId(userId).subscribe({
-          next: (patientId) => {
-            this.user!.patientId = patientId;
-            // Actualizar en localStorage
-            this.localStorage.setUserData(this.user!);
-            this.loadPrescriptions();
-          },
-          error: (error) => {
-            console.error('Error al obtener patientId:', error);
-            this.isLoading = false;
-          }
-        });
-        return;
-      }
+      this.patientService.getPatientIdByUserId(this.user.id).subscribe({
+        next: (patientId) => {
+          this.user!.patientId = patientId;
+          // Actualizar en localStorage
+          this.localStorage.setUserData(this.user!);
+          this.loadPrescriptions();
+        },
+        error: (error) => {
+          console.error('Error al obtener patientId:', error);
+          this.isLoading = false;
+        }
+      });
+      return;
     }
 
     // Si ya tiene patientId, cargar directamente

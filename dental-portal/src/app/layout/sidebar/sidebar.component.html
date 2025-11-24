@@ -57,7 +57,7 @@
 
           <!-- Mensajes -->
           <a
-            routerLink="/messages"
+            [routerLink]="(currentUser$ | async)?.role === 'PATIENT' ? '/patient/messages' : '/dentist/messages'"
             routerLinkActive="bg-blue-100 text-blue-800 border-blue-300 shadow-blue-100"
             class="w-full px-3 py-3 text-left rounded-xl transition-all duration-200 flex items-center hover:bg-blue-50 hover:border-blue-200 hover-lift border border-transparent group relative overflow-hidden"
           >
@@ -69,6 +69,13 @@
               >message</mat-icon
             >
             <span class="ml-3 font-medium relative z-10">Mensajes</span>
+            <span
+              *ngIf="unreadCount > 0"
+              [matBadge]="unreadCount"
+              [matBadgeHidden]="unreadCount === 0"
+              matBadgeColor="warn"
+              class="ml-auto"
+            ></span>
           </a>
 
           <!-- Citas/Agenda - Solo para dentistas -->

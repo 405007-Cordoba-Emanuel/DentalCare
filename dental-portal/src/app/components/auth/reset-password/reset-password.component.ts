@@ -86,7 +86,6 @@ export class ResetPasswordComponent implements OnInit {
 
     this.authService.resetPassword(request).subscribe({
       next: (response) => {
-        console.log('Password reset successful:', response);
         this.successMessage = response.message;
         this.isLoading = false;
         

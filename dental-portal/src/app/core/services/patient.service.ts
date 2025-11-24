@@ -35,7 +35,7 @@ export class PatientService {
     return this.http.put<Patient>(`${this.apiUrl}/update/${patientId}`, updateData);
   }
 
-  getPatientIdByUserId(userId: number): Observable<number> {
+  getPatientIdByUserId(userId: string): Observable<number> {
     return this.http.get<number>(`${this.apiUrl}/user-id/${userId}`);
   }
 

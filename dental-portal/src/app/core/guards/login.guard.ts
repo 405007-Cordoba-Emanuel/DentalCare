@@ -28,11 +28,8 @@ export const loginGuard: CanActivateFn = (route) => {
       }
     }
     
-    console.log('User already authenticated, redirecting based on role:', userRole);
-    
     // Si aún no hay role, no redirigir para evitar bucles infinitos
     if (!userRole) {
-      console.warn('User authenticated but role is undefined, allowing access to login');
       return true;
     }
     

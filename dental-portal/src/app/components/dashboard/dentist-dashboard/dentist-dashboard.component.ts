@@ -1,4 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,7 +14,9 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DentistService } from '../../../core/services/dentist.service';
 import { PatientSummary } from '../../../features/dentists/interfaces/patient.interface';
 import { LocalStorageService } from '../../../core/services/auth/local-storage.service';
+import { ChatService } from '../../../core/services/chat/chat.service';
 import { AppointmentModalComponent } from './appointment-modal/appointment-modal.component';
+import { interval, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-dentist-dashboard',
@@ -33,11 +36,13 @@ import { AppointmentModalComponent } from './appointment-modal/appointment-modal
   templateUrl: './dentist-dashboard.component.html',
   styleUrl: './dentist-dashboard.component.css'
 })
-export class DentistDashboardComponent implements OnInit {
+export class DentistDashboardComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private dentistService = inject(DentistService);
   private localStorage = inject(LocalStorageService);
+  private chatService = inject(ChatService);
   private dialog = inject(MatDialog);
+  private destroy$ = new Subject<void>();
   
   dentistId = this.localStorage.getDentistId();
   patients: PatientSummary[] = [];
@@ -47,11 +52,17 @@ export class DentistDashboardComponent implements OnInit {
 
   // Estadísticas (KPIs)
   stats = {
-    appointmentsToday: 3,
-    unreadMessages: 2
+    appointmentsToday: 3
   };
+  unreadConversationsCount: number = 0;
 
   ngOnInit() {
+    this.loadUnreadMessagesCount();
+    // Actualizar cada 30 segundos
+    interval(30000).pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.loadUnreadMessagesCount();
+    });
+
     if (this.dentistId) {
       this.loadPatients(this.dentistId);
     } else {
@@ -200,5 +211,19 @@ export class DentistDashboardComponent implements OnInit {
       success => console.log('Navegación a historia clínica exitosa:', success),
       error => console.error('Error en navegación a historia clínica:', error)
     );
+  }
+
+  loadUnreadMessagesCount(): void {
+    this.chatService.getUnreadCount().subscribe({
+      next: (response) => {
+        this.unreadConversationsCount = response.unreadCount;
+      },
+      error: (err) => console.error('Error loading unread messages count:', err)
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

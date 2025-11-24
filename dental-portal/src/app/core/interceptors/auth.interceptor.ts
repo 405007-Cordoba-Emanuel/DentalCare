@@ -16,6 +16,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     return next(clonedRequest);
   }
 
+  // Si no hay token y es una petición protegida, la petición fallará con 401
+  // Esto es esperado y el frontend debe manejar el error
   return next(req);
 };
 

@@ -15,7 +15,7 @@ export const authGuard: CanActivateFn = (route) => {
     snackBar.open('Debes iniciar sesión para acceder a esta página', 'Cerrar', {
       duration: 3000,
     });
-    router.navigate(['/auth/login']);
+    router.navigate(['/login']);
     return false;
   }
 

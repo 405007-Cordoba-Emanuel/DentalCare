@@ -97,7 +97,7 @@ export class AppointmentsComponent implements OnInit {
   currentView: 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay' = 'dayGridMonth';
   isLoading = false;
   userRole: string | null = null;
-  userId: number | null = null;
+  userId: string | null = null;
   dentistId: number | null = null;
   patientId: number | null = null;
   currentDate: Date = new Date();
@@ -143,7 +143,7 @@ export class AppointmentsComponent implements OnInit {
     try {
       const userData = JSON.parse(userDataString);
       this.userRole = userData.role;
-      this.userId = parseInt(userData.id, 10);
+      this.userId = userData.id;
 
       if (this.userRole === 'DENTIST') {
         this.loadDentistAppointments(userData);
@@ -196,7 +196,7 @@ export class AppointmentsComponent implements OnInit {
       this.fetchAppointments();
     } else if (this.userId) {
       // Obtener patientId desde el backend si no está en localStorage
-      this.patientService.getPatientIdByUserId(this.userId).subscribe({
+      this.patientService.getPatientIdByUserId(this.userId.toString()).subscribe({
         next: (patientId) => {
           this.patientId = patientId;
           userData.patientId = patientId;

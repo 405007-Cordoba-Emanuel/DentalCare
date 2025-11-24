@@ -59,13 +59,7 @@ export class PatientTreatmentsComponent implements OnInit {
       if (this.user?.patientId) {
         this.patientId = this.user.patientId;
       } else if (this.user?.id) {
-        const userId = parseInt(this.user.id, 10);
-        if (isNaN(userId)) {
-          this.errorMessage = 'ID de usuario inválido';
-          this.isLoading = false;
-          return;
-        }
-        this.patientService.getPatientIdByUserId(userId).subscribe({
+        this.patientService.getPatientIdByUserId(this.user.id).subscribe({
           next: (id) => {
             this.patientId = id;
             this.loadTreatments();
