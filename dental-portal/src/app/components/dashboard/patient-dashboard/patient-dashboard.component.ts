@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -15,9 +15,11 @@ import { BadgeComponent } from '../../../shared/badge/badge.component';
 import { AppointmentService, Appointment, AppointmentStatus } from '../../../core/services/appointment.service';
 import { TreatmentService } from '../../../core/services/treatment.service';
 import { PatientService, Patient } from '../../../core/services/patient.service';
+import { ChatService } from '../../../core/services/chat/chat.service';
 import { LocalStorageService } from '../../../core/services/auth/local-storage.service';
 import { User } from '../../../interfaces/user/user.interface';
 import { TreatmentResponse } from '../../../features/dentists/interfaces/treatment.interface';
+import { Subject, interval, takeUntil } from 'rxjs';
 
 interface AppointmentDisplay {
   id: number;
@@ -61,16 +63,17 @@ interface PatientInfo {
     MatDividerModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
-    BadgeComponent,
   ],
   templateUrl: './patient-dashboard.component.html'
 })
-export class PatientDashboardComponent implements OnInit {
+export class PatientDashboardComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private appointmentService = inject(AppointmentService);
   private treatmentService = inject(TreatmentService);
   private patientService = inject(PatientService);
+  private chatService = inject(ChatService);
   private localStorage = inject(LocalStorageService);
+  private destroy$ = new Subject<void>();
 
   user: User | null = null;
   patientId: number | null = null;
@@ -100,11 +103,30 @@ export class PatientDashboardComponent implements OnInit {
     }
   ];
 
-  unreadMessagesCount = 0; // Por ahora mockeado, se puede conectar con un servicio de mensajes
+  unreadMessagesCount = 0;
   appointmentsDropdownOpen = false;
 
   ngOnInit() {
     this.loadData();
+    this.loadUnreadMessagesCount();
+    // Actualizar cada 30 segundos
+    interval(30000).pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.loadUnreadMessagesCount();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadUnreadMessagesCount(): void {
+    this.chatService.getUnreadCount().subscribe({
+      next: (response) => {
+        this.unreadMessagesCount = response.unreadCount;
+      },
+      error: (err) => console.error('Error loading unread messages count:', err)
+    });
   }
 
   private loadData() {
@@ -127,13 +149,7 @@ export class PatientDashboardComponent implements OnInit {
         this.patientId = this.user.patientId;
         this.loadAllData();
       } else if (this.user?.id) {
-        const userId = parseInt(this.user.id, 10);
-        if (isNaN(userId)) {
-          this.errorMessage = 'ID de usuario inválido';
-          this.isLoading = false;
-          return;
-        }
-        this.patientService.getPatientIdByUserId(userId).subscribe({
+        this.patientService.getPatientIdByUserId(this.user.id).subscribe({
           next: (id) => {
             this.patientId = id;
             if (this.user) {
@@ -476,8 +492,7 @@ export class PatientDashboardComponent implements OnInit {
   }
 
   navigateToMessages() {
-    // TODO: Navegar a mensajes cuando esté implementado
-    console.log('Navegar a mensajes');
+    this.router.navigate(['/patient/messages']);
   }
 
   navigateToTreatments() {

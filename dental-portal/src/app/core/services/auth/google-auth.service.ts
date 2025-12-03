@@ -13,10 +13,6 @@ export class GoogleAuthService extends BaseAuthService {
   loginWithGoogle(idToken: string): Observable<AuthResponse> {
     const googleAuthRequest: GoogleAuthRequest = { idToken };
 
-    // Debug: Log the request details
-    console.log('Making Google auth request to:', `${this.API_URL}/login`);
-    console.log('Request payload:', googleAuthRequest);
-
     return this.handleAuthRequest(
       this.http.post<AuthResponse>(`${this.API_URL}/login`, googleAuthRequest, {
         headers: {

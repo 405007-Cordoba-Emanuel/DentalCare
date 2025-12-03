@@ -56,8 +56,6 @@ export class DentistLoginComponent implements AfterViewInit {
 
       this.authService.login(loginRequest).subscribe({
         next: (response) => {
-          console.log('Login exitoso:', response);
-
           // Redirigir al dashboard del dentista
           if (response.role === 'DENTIST') {
             this.router.navigate(['/dentist']);

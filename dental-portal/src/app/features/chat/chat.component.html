@@ -1,0 +1,147 @@
+<div class="flex h-[calc(100vh-64px)] bg-gray-100 overflow-hidden">
+  <!-- Panel izquierdo: Lista de conversaciones -->
+  <div class="w-[300px] bg-white border-r border-gray-300 flex flex-col">
+    <div class="p-3 border-b border-gray-300">
+      <h2 class="m-0 mb-3 text-lg font-semibold text-gray-800">Conversaciones</h2>
+      <!-- Búsqueda solo para dentistas -->
+      <div *ngIf="userRole === 'DENTIST'" class="relative flex items-center">
+        <mat-icon class="absolute left-3 text-gray-500 text-xl">search</mat-icon>
+        <input
+          type="text"
+          placeholder="Buscar paciente..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+          class="w-full py-2.5 pl-10 pr-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-blue-600"
+        />
+      </div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-slate-100 scrollbar-thumb-slate-300 hover:scrollbar-thumb-slate-400" *ngIf="!isLoading">
+      <div
+        *ngFor="let conv of conversations"
+        class="flex p-3 cursor-pointer border-b border-gray-100 transition-colors duration-200 hover:bg-gray-50"
+        [class.bg-blue-50]="selectedConversation?.id === conv.conversationId"
+        [class.border-l-4]="selectedConversation?.id === conv.conversationId"
+        [class.border-l-blue-600]="selectedConversation?.id === conv.conversationId"
+        (click)="selectConversation(conv)"
+      >
+        <div class="flex-1 min-w-0">
+          <div class="flex justify-between items-center">
+            <span class="font-medium text-sm text-gray-800 truncate">{{ conv.contactName }}</span>
+            <span
+              *ngIf="conv.unreadCount > 0"
+              [matBadge]="conv.unreadCount"
+              [matBadgeHidden]="conv.unreadCount === 0"
+              matBadgeColor="warn"
+              class="ml-2"
+            ></span>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="conversations.length === 0" class="flex flex-col items-center justify-center p-10 text-gray-500">
+        <mat-icon class="text-5xl w-12 h-12 mb-4">message</mat-icon>
+        <p class="m-0">No hay conversaciones</p>
+      </div>
+    </div>
+
+    <div *ngIf="isLoading" class="flex justify-center items-center p-10">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  </div>
+
+  <!-- Panel derecho: Chat -->
+  <div class="flex-1 flex flex-col bg-white overflow-hidden" *ngIf="selectedConversation">
+    <div class="flex justify-between items-center p-2 border-b border-gray-300 bg-white flex-shrink-0">
+      <div class="flex items-center">
+        <div>
+          <h3 class="m-0 text-sm font-semibold text-gray-800">{{ userRole === 'DENTIST' ? selectedConversation.patientName : selectedConversation.dentistName }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="messages-container flex-1 overflow-y-auto p-2 bg-gray-100 flex flex-col gap-2 scrollbar-thin scrollbar-track-slate-100 scrollbar-thumb-slate-300 hover:scrollbar-thumb-slate-400" style="min-height: 0; max-height: 100%;">
+      <div
+        *ngFor="let message of messages"
+        class="flex max-w-[75%] animate-[fadeIn_0.3s_ease-in-out]"
+        [class.self-end]="isMyMessage(message)"
+        [class.self-start]="!isMyMessage(message)"
+      >
+        <div 
+          class="py-2 px-3 rounded-xl relative"
+          [class.bg-blue-100]="isMyMessage(message)"
+          [class.rounded-br-sm]="isMyMessage(message)"
+          [class.bg-white]="!isMyMessage(message)"
+          [class.rounded-bl-sm]="!isMyMessage(message)"
+          [class.shadow-sm]="!isMyMessage(message)"
+        >
+          <!-- Mensaje de texto -->
+          <p *ngIf="message.messageText" class="m-0 mb-1 text-xs text-gray-800 break-words">{{ message.messageText }}</p>
+          
+          <!-- Archivo adjunto -->
+          <div *ngIf="message.fileUrl" class="flex items-center gap-2 p-2 bg-black/5 rounded-lg mb-1">
+            <mat-icon class="text-blue-600" *ngIf="message.fileType === 'image'">image</mat-icon>
+            <mat-icon class="text-blue-600" *ngIf="message.fileType === 'pdf'">picture_as_pdf</mat-icon>
+            <div class="flex flex-col gap-1 flex-1">
+              <span class="text-[13px] text-gray-800 font-medium">{{ message.fileName }}</span>
+              <button
+                mat-button
+                color="primary"
+                (click)="viewFile(message.fileUrl!, message.fileName || 'archivo', message.fileType)"
+                class="text-xs p-0 min-w-0 h-auto leading-tight"
+              >
+                Ver
+              </button>
+            </div>
+          </div>
+          
+          <span class="text-[11px] text-gray-500 mt-1 block">{{ formatTime(message.createdDatetime) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-2 border-t border-gray-300 bg-white flex-shrink-0">
+      <div *ngIf="selectedFile" class="flex items-center gap-2 p-1.5 bg-gray-100 rounded-lg mb-1.5 text-xs">
+        <mat-icon class="text-blue-600 text-base">{{ selectedFile.type === 'application/pdf' ? 'picture_as_pdf' : 'image' }}</mat-icon>
+        <span class="flex-1 truncate">{{ selectedFile.name }}</span>
+        <button mat-icon-button (click)="removeFile()" class="ml-auto w-6 h-6">
+          <mat-icon class="text-base">close</mat-icon>
+        </button>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button mat-icon-button (click)="triggerFileInput()" class="w-8 h-8">
+          <mat-icon class="text-lg">attach_file</mat-icon>
+        </button>
+        <input
+          type="file"
+          #fileInput
+          (change)="onFileSelected($event)"
+          accept="image/*,application/pdf"
+          class="hidden"
+        />
+        <input
+          type="text"
+          [(ngModel)]="messageText"
+          (keyup.enter)="sendMessage()"
+          placeholder="Escribe tu mensaje..."
+          class="flex-1 py-1.5 px-3 border border-gray-300 rounded-full text-sm outline-none focus:border-blue-600"
+        />
+        <button
+          mat-icon-button
+          color="primary"
+          (click)="sendMessage()"
+          [disabled]="isSending || (!messageText.trim() && !selectedFile)"
+          class="w-8 h-8"
+        >
+          <mat-icon *ngIf="!isSending" class="text-lg">send</mat-icon>
+          <mat-spinner *ngIf="isSending" diameter="18"></mat-spinner>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estado vacío cuando no hay conversación seleccionada -->
+  <div class="flex-1 flex flex-col items-center justify-center bg-white text-gray-500" *ngIf="!selectedConversation">
+    <mat-icon class="text-6xl w-16 h-16 mb-4">message</mat-icon>
+    <p class="m-0 text-base">Selecciona una conversación para comenzar</p>
+  </div>
+</div>

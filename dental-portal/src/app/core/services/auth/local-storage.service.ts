@@ -44,7 +44,6 @@ export class LocalStorageService {
   getDentistId() {
     if (isPlatformBrowser(this.platformId)) {
       const user = JSON.parse(this.getUserData() || '{}');
-      console.log('User:', user);
       return user.dentistId;
     }
     return null;

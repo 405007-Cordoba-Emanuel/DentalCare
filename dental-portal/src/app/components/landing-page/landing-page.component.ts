@@ -24,4 +24,9 @@ import { IconComponent } from '../../shared/icon/icon.component';
 })
 export class LandingPageComponent {
   // Componente simple sin lógica adicional
+  
+  navigateToLogin() {
+    console.log('Navegando a login...');
+    // Este método puede ser llamado desde el template si routerLink no funciona
+  }
 }

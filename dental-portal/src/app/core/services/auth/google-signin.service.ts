@@ -50,7 +50,6 @@ export class GoogleSignInService {
         cancel_on_tap_outside: true,
       });
       this.isInitialized = true;
-      console.log('Google Sign-In inicializado correctamente');
     } catch (error) {
       console.error('Error al inicializar Google Sign-In:', error);
     }
@@ -66,7 +65,6 @@ export class GoogleSignInService {
     }
 
     if (!this.isInitialized) {
-      console.warn('Google Sign-In no está inicializado');
       return;
     }
 
@@ -93,15 +91,12 @@ export class GoogleSignInService {
     }
 
     if (!this.isInitialized) {
-      console.warn('Google Sign-In no está inicializado');
       return;
     }
 
     if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
       google.accounts.id.prompt((notification: any) => {
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          console.log('One Tap no se mostró:', notification.getNotDisplayedReason());
-        }
+        // One Tap notification handled silently
       });
     }
   }
@@ -120,8 +115,6 @@ export class GoogleSignInService {
     // Enviar el token al backend
     this.googleAuthService.loginWithGoogle(idToken).subscribe({
       next: (authResponse) => {
-        console.log('Login con Google exitoso:', authResponse);
-        
         // Redirigir directamente según el rol del usuario
         this.ngZone.run(() => {
           if (authResponse.role === 'DENTIST') {

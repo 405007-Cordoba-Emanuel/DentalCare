@@ -49,49 +49,57 @@ export class LoginComponent implements AfterViewInit {
   private dialog = inject(MatDialog);
 
   onSubmit() {
-    if (this.email && this.password) {
-      this.isLoading = true;
-      this.errorMessage = '';
-
-      const loginRequest: EmailAuthRequest = {
-        email: this.email,
-        password: this.password
-      };
-
-      this.authService.login(loginRequest).subscribe({
-        next: (response) => {
-          console.log('Login exitoso:', response);
-          
-          // Redirigir directamente según el rol del usuario
-          if (response.role === 'DENTIST') {
-            this.router.navigate(['/dentist']);
-          } else if (response.role === 'PATIENT') {
-            this.router.navigate(['/patient']);
-          } else if (response.role === 'ADMIN') {
-            this.router.navigate(['/admin']);
-          } else {
-            // Por defecto, redirigir al dashboard genérico
-            this.router.navigate(['/dashboard']);
-          }
-        },
-        error: (error) => {
-          console.error('Error en login:', error);
-          this.isLoading = false;
-          
-          // Manejar diferentes tipos de errores
-          if (error.status === 401) {
-            this.errorMessage = 'Email o contraseña incorrectos';
-          } else if (error.status === 0) {
-            this.errorMessage = 'Error de conexión con el servidor';
-          } else {
-            this.errorMessage = error.error?.message || 'Error al iniciar sesión';
-          }
-        },
-        complete: () => {
-          this.isLoading = false;
-        }
-      });
+    if (!this.email || !this.password) {
+      this.errorMessage = 'Por favor, completa todos los campos';
+      return;
     }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    const loginRequest: EmailAuthRequest = {
+      email: this.email,
+      password: this.password
+    };
+
+    this.authService.login(loginRequest).subscribe({
+      next: (response) => {
+        // Redirigir directamente según el rol del usuario
+        if (response.role === 'DENTIST') {
+          this.router.navigate(['/dentist']).catch(err => {
+            console.error('Error en navegación:', err);
+          });
+        } else if (response.role === 'PATIENT') {
+          this.router.navigate(['/patient']).catch(err => {
+            console.error('Error en navegación:', err);
+          });
+        } else if (response.role === 'ADMIN') {
+          this.router.navigate(['/admin']).catch(err => {
+            console.error('Error en navegación:', err);
+          });
+        } else {
+          this.router.navigate(['/dashboard']).catch(err => {
+            console.error('Error en navegación:', err);
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error en login:', error);
+        this.isLoading = false;
+        
+        // Manejar diferentes tipos de errores
+        if (error.status === 401) {
+          this.errorMessage = 'Email o contraseña incorrectos';
+        } else if (error.status === 0) {
+          this.errorMessage = 'Error de conexión con el servidor. Verifica que el backend esté corriendo.';
+        } else {
+          this.errorMessage = error.error?.message || error.message || 'Error al iniciar sesión';
+        }
+      },
+      complete: () => {
+        this.isLoading = false;
+      }
+    });
   }
 
   goToRegister() {

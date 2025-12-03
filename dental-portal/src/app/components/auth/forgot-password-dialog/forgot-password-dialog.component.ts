@@ -198,7 +198,6 @@ export class ForgotPasswordDialogComponent {
 
     this.authService.forgotPassword({ email: this.email }).subscribe({
       next: (response) => {
-        console.log('Forgot password successful:', response);
         this.emailSent = true;
         this.isLoading = false;
       },

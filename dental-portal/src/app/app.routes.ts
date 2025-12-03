@@ -36,6 +36,7 @@ import { CreateAppointmentComponent } from './features/appointments/create-appoi
 import { PatientProfileComponent } from './features/patient-profile/patient-profile.component';
 import { PrescriptionListComponent } from './features/prescriptions/prescription-list.component';
 import { AdminDashboardComponent } from './features/admin-dashboard/admin-dashboard.component';
+import { ChatComponent } from './features/chat/chat.component';
 
 
 export const routes: Routes = [
@@ -126,6 +127,12 @@ export const routes: Routes = [
         canActivate: [authGuard, roleGuard],
         data: { roles: ['PATIENT'] }
       },
+      {
+        path: 'patient/messages',
+        component: ChatComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['PATIENT'] }
+      },
       
       // Rutas del dentista (todas empiezan con dentist/)
       {
@@ -145,6 +152,7 @@ export const routes: Routes = [
           { path: 'patients/:patientId/treatments', component: DentistTreatmentListComponent },
           { path: 'appointments', component: AppointmentsComponent },
           { path: 'appointments/create', component: CreateAppointmentComponent },
+          { path: 'messages', component: ChatComponent },
           // Rutas de dentista por ID
           { path: ':id', component: DentistDetailComponent },
           { path: ':id/profile', component: DentistProfileComponent },

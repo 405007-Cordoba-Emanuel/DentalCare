@@ -17,7 +17,6 @@ export const roleRedirectGuard: CanActivateFn = (route) => {
 
   // Verificar si el usuario está autenticado
   if (!authService.isAuthenticated()) {
-    console.log('User not authenticated, redirecting to login');
     router.navigate(['/login']);
     return false;
   }
@@ -37,31 +36,25 @@ export const roleRedirectGuard: CanActivateFn = (route) => {
   }
   
   if (!currentUser) {
-    console.log('No user data found, redirecting to login');
     router.navigate(['/login']);
     return false;
   }
 
   const userRole = currentUser.role || 'PATIENT';
-  console.log('User role detected:', userRole);
 
   // Redirigir según el rol
   switch (userRole) {
     case 'DENTIST':
-      console.log('Redirecting to dentist dashboard');
       router.navigate(['/dentist']);
       return false;
     case 'PATIENT':
-      console.log('Redirecting to patient dashboard');
       router.navigate(['/patient']);
       return false;
     case 'ADMIN':
-      console.log('Redirecting to admin dashboard');
       router.navigate(['/admin']);
       return false;
     default:
       // Para roles no reconocidos, redirigir al dashboard de paciente por defecto
-      console.log('Unknown role, redirecting to patient dashboard');
       router.navigate(['/patient']);
       return false;
   }
