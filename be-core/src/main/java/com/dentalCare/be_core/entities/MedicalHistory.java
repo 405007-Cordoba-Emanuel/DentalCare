@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 @Getter
 @Setter
@@ -68,7 +70,9 @@ public class MedicalHistory {
             this.active = true;
         }
         if (this.entryDate == null) {
-            this.entryDate = LocalDate.now();
+            // Obtener la fecha actual en la zona horaria de Buenos Aires
+            ZoneId buenosAiresZone = ZoneId.of("America/Argentina/Buenos_Aires");
+            this.entryDate = ZonedDateTime.now(buenosAiresZone).toLocalDate();
         }
     }
 }

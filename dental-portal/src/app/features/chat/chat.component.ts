@@ -423,7 +423,27 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   formatTime(dateTime: string | undefined): string {
     if (!dateTime) return '';
-    const date = new Date(dateTime);
+    
+    // El servidor envía fechas en formato "yyyy-MM-dd HH:mm:ss" sin zona horaria
+    // El servidor Java usa LocalDateTime.now() que usa la zona horaria del sistema JVM
+    // Si el servidor JVM está en UTC, LocalDateTime.now() guardará en UTC
+    // Si el servidor JVM está en Buenos Aires, LocalDateTime.now() guardará en Buenos Aires
+    
+    // Solución más simple: extraer la hora directamente del string
+    // Si el servidor guarda en hora local de Buenos Aires, esto mostrará la hora correcta
+    // Si el servidor guarda en UTC, necesitaremos ajustar en el backend
+    
+    const normalizedDateTime = dateTime.replace('T', ' ').trim();
+    const parts = normalizedDateTime.split(' ');
+    
+    if (parts.length >= 2) {
+      const timePart = parts[1]; // "16:03:00"
+      const timeOnly = timePart.substring(0, 5); // "16:03"
+      return timeOnly;
+    }
+    
+    // Fallback: parsear como fecha
+    const date = new Date(dateTime.replace(' ', 'T'));
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
     return `${hours}:${minutes}`;

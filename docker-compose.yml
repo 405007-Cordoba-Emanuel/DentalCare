@@ -79,6 +79,7 @@ services:
     container_name: be-core-service
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - TZ=America/Argentina/Buenos_Aires
     ports:
       - "8082:8082"
     networks:

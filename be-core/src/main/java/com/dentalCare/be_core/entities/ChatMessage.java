@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 @Getter
 @Setter
@@ -53,7 +55,10 @@ public class ChatMessage {
 
     @PrePersist
     protected void onCreate() {
-        this.createdDatetime = LocalDateTime.now();
+        // Obtener la hora actual en la zona horaria de Buenos Aires
+        // Esto asegura que siempre guardemos en hora de Buenos Aires, independientemente de la zona horaria del servidor
+        ZoneId buenosAiresZone = ZoneId.of("America/Argentina/Buenos_Aires");
+        this.createdDatetime = ZonedDateTime.now(buenosAiresZone).toLocalDateTime();
         if (this.isActive == null) {
             this.isActive = true;
         }

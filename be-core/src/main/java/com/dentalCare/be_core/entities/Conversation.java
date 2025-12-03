@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 @Getter
 @Setter
@@ -53,7 +55,9 @@ public class Conversation {
 
     @PrePersist
     protected void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
+        // Obtener la hora actual en la zona horaria de Buenos Aires
+        ZoneId buenosAiresZone = ZoneId.of("America/Argentina/Buenos_Aires");
+        LocalDateTime now = ZonedDateTime.now(buenosAiresZone).toLocalDateTime();
         this.createdDatetime = now;
         this.lastUpdatedDatetime = now;
         if (this.isActive == null) {
@@ -69,7 +73,9 @@ public class Conversation {
 
     @PreUpdate
     protected void onUpdate() {
-        this.lastUpdatedDatetime = LocalDateTime.now();
+        // Obtener la hora actual en la zona horaria de Buenos Aires
+        ZoneId buenosAiresZone = ZoneId.of("America/Argentina/Buenos_Aires");
+        this.lastUpdatedDatetime = ZonedDateTime.now(buenosAiresZone).toLocalDateTime();
     }
 }
 
