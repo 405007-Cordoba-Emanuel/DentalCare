@@ -209,17 +209,15 @@
 }
 
 .dialog-actions {
-  padding: 16px 24px;
   display: flex;
   justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid #e2e8f0;
 }
 
-.close-action-button {
-  color: #64748b;
-}
-
-.close-action-button:hover {
-  background: #f1f5f9;
+.dialog-actions button {
+  min-width: 120px;
 }
 
 /* Responsive */

@@ -55,49 +55,48 @@ h2[mat-dialog-title] {
 
 .file-upload-section {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 12px;
+  margin-bottom: 8px;
 }
 
-.file-upload-label {
-  display: inline-block;
+.file-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.file-preview {
-  margin-top: 8px;
+.file-info {
+  flex: 1;
+  font-size: 0.875rem;
+  color: #475569;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.preview-container {
-  position: relative;
-  display: inline-block;
-  max-width: 100%;
-}
-
-.preview-image {
-  max-width: 100%;
-  max-height: 300px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-}
-
-.remove-file-btn {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  background-color: #f44336;
-  color: white;
-  width: 32px;
-  height: 32px;
-}
-
-.remove-file-btn:hover {
-  background-color: #d32f2f;
-}
-
-.file-name {
+.file-hint {
+  font-size: 0.75rem;
+  color: #64748b;
   margin: 8px 0 0;
-  font-size: 14px;
-  color: #666;
+}
+
+.image-preview {
+  margin-top: 16px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  max-width: 100%;
+}
+
+.image-preview img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.remove-file-button {
+  color: #ef4444;
 }
 
 .dialog-actions {
@@ -106,16 +105,4 @@ h2[mat-dialog-title] {
   gap: 8px;
 }
 
-.spinner-icon {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
 

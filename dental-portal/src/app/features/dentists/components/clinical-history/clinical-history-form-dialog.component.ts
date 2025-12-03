@@ -75,7 +75,8 @@ export class ClinicalHistoryFormDialogComponent implements OnInit {
         this.snackBar.open('Solo se permiten archivos de imagen', 'Cerrar', {
           duration: 3000,
           horizontalPosition: 'end',
-          verticalPosition: 'top'
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
         });
         return;
       }
@@ -85,7 +86,8 @@ export class ClinicalHistoryFormDialogComponent implements OnInit {
         this.snackBar.open('El archivo no debe exceder 5MB', 'Cerrar', {
           duration: 3000,
           horizontalPosition: 'end',
-          verticalPosition: 'top'
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
         });
         return;
       }
@@ -120,7 +122,8 @@ export class ClinicalHistoryFormDialogComponent implements OnInit {
       this.snackBar.open('Por favor, ingrese una descripción', 'Cerrar', {
         duration: 3000,
         horizontalPosition: 'end',
-        verticalPosition: 'top'
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
       });
       return;
     }
@@ -140,7 +143,8 @@ export class ClinicalHistoryFormDialogComponent implements OnInit {
           this.snackBar.open('Entrada actualizada exitosamente', 'Cerrar', {
             duration: 3000,
             horizontalPosition: 'end',
-            verticalPosition: 'top'
+            verticalPosition: 'top',
+            panelClass: ['success-snackbar']
           });
           this.dialogRef.close(true);
         },
@@ -149,7 +153,8 @@ export class ClinicalHistoryFormDialogComponent implements OnInit {
           this.snackBar.open('Error al actualizar la entrada', 'Cerrar', {
             duration: 3000,
             horizontalPosition: 'end',
-            verticalPosition: 'top'
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
           });
           this.isLoading = false;
         }
@@ -166,7 +171,8 @@ export class ClinicalHistoryFormDialogComponent implements OnInit {
           this.snackBar.open('Entrada creada exitosamente', 'Cerrar', {
             duration: 3000,
             horizontalPosition: 'end',
-            verticalPosition: 'top'
+            verticalPosition: 'top',
+            panelClass: ['success-snackbar']
           });
           this.dialogRef.close(true);
         },
@@ -175,7 +181,8 @@ export class ClinicalHistoryFormDialogComponent implements OnInit {
           this.snackBar.open('Error al crear la entrada', 'Cerrar', {
             duration: 3000,
             horizontalPosition: 'end',
-            verticalPosition: 'top'
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
           });
           this.isLoading = false;
         }
