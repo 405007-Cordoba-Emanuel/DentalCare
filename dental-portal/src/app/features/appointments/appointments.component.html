@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-6 w-full">
+<div class="flex flex-col gap-4 sm:gap-6 w-full">
   <!-- Spinner de carga -->
   <div *ngIf="isLoading" class="flex flex-col items-center justify-center min-h-[400px] gap-4">
     <mat-spinner diameter="50"></mat-spinner>
@@ -6,36 +6,36 @@
   </div>
 
   <!-- Contenido principal (solo visible cuando no está cargando) -->
-  <div *ngIf="!isLoading" class="flex flex-col gap-6 w-full">
+  <div *ngIf="!isLoading" class="flex flex-col gap-4 sm:gap-6 w-full">
     <!-- Barra superior: Navegación y acciones -->
-    <div class="flex flex-col lg:flex-row gap-4 w-full px-6 container mx-auto">
+    <div class="flex flex-col lg:flex-row gap-3 sm:gap-4 w-full px-3 sm:px-4 lg:px-6">
       
       <!-- Sección izquierda: Navegación de fecha -->
-      <div class="flex items-center gap-3 bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3">
+      <div class="flex items-center gap-2 sm:gap-3 bg-white rounded-xl shadow-sm border border-gray-200 px-2 sm:px-4 py-2 sm:py-3 w-full lg:w-auto">
         <button
-          class="flex items-center justify-center w-9 h-9 rounded-lg bg-white hover:bg-gray-100 border border-gray-300 transition-all duration-200 hover:shadow-md cursor-pointer group"
+          class="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-white hover:bg-gray-100 border border-gray-300 transition-all duration-200 hover:shadow-md cursor-pointer group flex-shrink-0"
           (click)="previous(calendarRef)"
           [title]="navigationLabel === 'día' ? 'Día anterior' : navigationLabel === 'semana' ? 'Semana anterior' : 'Mes anterior'"
         >
-          <mat-icon class="text-gray-600 group-hover:text-gray-800 text-xl">chevron_left</mat-icon>
+          <mat-icon class="text-gray-600 group-hover:text-gray-800 text-lg sm:text-xl">chevron_left</mat-icon>
         </button>
         
-        <div class="text-lg font-semibold text-gray-800 min-w-[280px] text-center">
-          {{ currentDateLabel }}
+        <div class="text-sm sm:text-base lg:text-lg font-semibold text-gray-800 text-center flex-1 min-w-0 px-1 sm:px-2">
+          <span class="truncate block">{{ currentDateLabel }}</span>
         </div>
         
         <button
-          class="flex items-center justify-center w-9 h-9 rounded-lg bg-white hover:bg-gray-100 border border-gray-300 transition-all duration-200 hover:shadow-md cursor-pointer group"
+          class="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-white hover:bg-gray-100 border border-gray-300 transition-all duration-200 hover:shadow-md cursor-pointer group flex-shrink-0"
           (click)="next(calendarRef)"
           [title]="navigationLabel === 'día' ? 'Día siguiente' : navigationLabel === 'semana' ? 'Semana siguiente' : 'Mes siguiente'"
         >
-          <mat-icon class="text-gray-600 group-hover:text-gray-800 text-xl">chevron_right</mat-icon>
+          <mat-icon class="text-gray-600 group-hover:text-gray-800 text-lg sm:text-xl">chevron_right</mat-icon>
         </button>
 
-        <div class="w-px h-8 bg-gray-300 mx-2"></div>
+        <div class="hidden sm:block w-px h-6 sm:h-8 bg-gray-300 mx-1 sm:mx-2"></div>
 
         <button
-          class="px-4 py-2 rounded-lg bg-white hover:bg-gray-100 border border-gray-300 font-medium text-gray-700 hover:text-gray-900 transition-all duration-200 hover:shadow-md cursor-pointer"
+          class="px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-white hover:bg-gray-100 border border-gray-300 font-medium text-gray-700 hover:text-gray-900 transition-all duration-200 hover:shadow-md cursor-pointer text-xs sm:text-sm flex-shrink-0"
           (click)="goToToday(calendarRef)"
         >
           Hoy
@@ -43,9 +43,9 @@
       </div>
 
       <!-- Sección central: Selector de vista -->
-      <div class="flex items-center gap-0 bg-white rounded-xl shadow-sm border border-gray-200 p-1.5">
+      <div class="flex items-center gap-0 bg-white rounded-xl shadow-sm border border-gray-200 p-1 sm:p-1.5 w-full lg:w-auto justify-center">
         <button
-          class="px-5 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer flex items-center gap-2"
+          class="px-2 sm:px-4 lg:px-5 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer flex items-center gap-1 sm:gap-2 flex-1 sm:flex-initial justify-center"
           [class.bg-blue-600]="currentView === 'timeGridDay'"
           [class.text-white]="currentView === 'timeGridDay'"
           [class.shadow-sm]="currentView === 'timeGridDay'"
@@ -54,12 +54,12 @@
           [class.hover:text-gray-800]="currentView !== 'timeGridDay'"
           (click)="changeView('timeGridDay', calendarRef)"
         >
-          <mat-icon class="text-xl">today</mat-icon>
-          <span>Diario</span>
+          <mat-icon class="text-lg sm:text-xl">today</mat-icon>
+          <span class="hidden sm:inline text-xs sm:text-sm lg:text-base">Diario</span>
         </button>
   
         <button
-          class="px-5 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer flex items-center gap-2"
+          class="px-2 sm:px-4 lg:px-5 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer flex items-center gap-1 sm:gap-2 flex-1 sm:flex-initial justify-center"
           [class.bg-blue-600]="currentView === 'timeGridWeek'"
           [class.text-white]="currentView === 'timeGridWeek'"
           [class.shadow-sm]="currentView === 'timeGridWeek'"
@@ -68,12 +68,12 @@
           [class.hover:text-gray-800]="currentView !== 'timeGridWeek'"
           (click)="changeView('timeGridWeek', calendarRef)"
         >
-          <mat-icon class="text-xl">view_week</mat-icon>
-          <span>Semanal</span>
+          <mat-icon class="text-lg sm:text-xl">view_week</mat-icon>
+          <span class="hidden sm:inline text-xs sm:text-sm lg:text-base">Semanal</span>
         </button>
   
         <button
-          class="px-5 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer flex items-center gap-2"
+          class="px-2 sm:px-4 lg:px-5 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer flex items-center gap-1 sm:gap-2 flex-1 sm:flex-initial justify-center"
           [class.bg-blue-600]="currentView === 'dayGridMonth'"
           [class.text-white]="currentView === 'dayGridMonth'"
           [class.shadow-sm]="currentView === 'dayGridMonth'"
@@ -82,19 +82,19 @@
           [class.hover:text-gray-800]="currentView !== 'dayGridMonth'"
           (click)="changeView('dayGridMonth', calendarRef)"
         >
-          <mat-icon class="text-xl">calendar_month</mat-icon>
-          <span>Mensual</span>
+          <mat-icon class="text-lg sm:text-xl">calendar_month</mat-icon>
+          <span class="hidden sm:inline text-xs sm:text-sm lg:text-base">Mensual</span>
         </button>
       </div>
 
       <!-- Sección derecha: Botón de acción -->
-      <div class="flex items-center ml-auto">
+      <div class="flex items-center w-full lg:w-auto lg:ml-auto">
         <button
           *ngIf="userRole === 'DENTIST'"
-          class="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-2.5 rounded-xl font-medium transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer"
+          class="flex items-center gap-1.5 sm:gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-3 sm:px-4 lg:px-6 py-2 sm:py-2.5 rounded-xl font-medium transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer text-sm sm:text-base w-full lg:w-auto justify-center"
           (click)="navigateToCreateAppointment()"
         >
-          <mat-icon class="text-xl">add_circle</mat-icon>
+          <mat-icon class="text-lg sm:text-xl">add_circle</mat-icon>
           <span>Nueva Cita</span>
         </button>
       </div>
@@ -103,7 +103,7 @@
   <full-calendar
     #calendarRef
     [options]="calendarOptions"
-    class="w-full bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-md container mx-auto"
+    class="w-full bg-white dark:bg-gray-900 p-3 sm:p-4 lg:p-6 rounded-xl sm:rounded-2xl shadow-md mx-auto"
   ></full-calendar>
   </div>
 </div>
