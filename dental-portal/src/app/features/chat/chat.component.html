@@ -59,7 +59,7 @@
       </div>
     </div>
 
-    <div class="flex-1 overflow-y-auto p-2 bg-gray-100 flex flex-col gap-2 scrollbar-thin scrollbar-track-slate-100 scrollbar-thumb-slate-300 hover:scrollbar-thumb-slate-400" style="min-height: 0; max-height: 100%;">
+    <div class="messages-container flex-1 overflow-y-auto p-2 bg-gray-100 flex flex-col gap-2 scrollbar-thin scrollbar-track-slate-100 scrollbar-thumb-slate-300 hover:scrollbar-thumb-slate-400" style="min-height: 0; max-height: 100%;">
       <div
         *ngFor="let message of messages"
         class="flex max-w-[75%] animate-[fadeIn_0.3s_ease-in-out]"
@@ -86,10 +86,10 @@
               <button
                 mat-button
                 color="primary"
-                (click)="downloadFile(message.fileUrl!, message.fileName || 'archivo')"
+                (click)="viewFile(message.fileUrl!, message.fileName || 'archivo', message.fileType)"
                 class="text-xs p-0 min-w-0 h-auto leading-tight"
               >
-                Descargar
+                Ver
               </button>
             </div>
           </div>

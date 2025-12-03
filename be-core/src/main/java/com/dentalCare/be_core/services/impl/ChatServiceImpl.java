@@ -271,12 +271,23 @@ public class ChatServiceImpl implements ChatService {
 
     private String uploadFileToCloudinary(MultipartFile file, Long conversationId) {
         try {
+            // Determinar el tipo de recurso según el tipo de archivo
+            String resourceType = "auto";
+            String contentType = file.getContentType();
+            
+            // Para PDFs, usar "raw" explícitamente para mejor compatibilidad
+            if (contentType != null && contentType.equals("application/pdf")) {
+                resourceType = "raw";
+            }
+            
             Map uploadResult = cloudinary.uploader().upload(
                     file.getBytes(),
                     ObjectUtils.asMap(
                             "folder", "dental-care/chat/conversation_" + conversationId,
                             "public_id", System.currentTimeMillis() + "_" + file.getOriginalFilename(),
-                            "resource_type", "auto"
+                            "resource_type", resourceType,
+                            "access_mode", "public", // Asegurar que los archivos sean públicos
+                            "invalidate", true // Invalidar caché para asegurar acceso inmediato
                     )
             );
             return uploadResult.get("secure_url").toString();
@@ -354,7 +365,12 @@ public class ChatServiceImpl implements ChatService {
         ConversationSummaryDto dto = new ConversationSummaryDto();
         dto.setId(conversation.getId());
         dto.setConversationId(conversation.getId());
-        dto.setContactName("Dr. " + dentistUser.getFirstName() + " " + dentistUser.getLastName());
+        String fullName = dentistUser.getFirstName() + " " + dentistUser.getLastName();
+        // Evitar duplicar "Dr." si ya está en el nombre
+        String contactName = fullName.trim().startsWith("Dr. ") || fullName.trim().startsWith("Dr.") 
+            ? fullName.trim() 
+            : "Dr. " + fullName.trim();
+        dto.setContactName(contactName);
         dto.setContactInitials(getInitials(dentistUser.getFirstName(), dentistUser.getLastName()));
         dto.setContactId(conversation.getDentist().getId());
         dto.setContactRole("DENTIST");
@@ -430,7 +446,12 @@ public class ChatServiceImpl implements ChatService {
             ConversationSummaryDto dto = new ConversationSummaryDto();
             dto.setId(null); // No hay conversación aún
             dto.setConversationId(null);
-            dto.setContactName("Dr. " + dentistUser.getFirstName() + " " + dentistUser.getLastName());
+            String fullName = dentistUser.getFirstName() + " " + dentistUser.getLastName();
+            // Evitar duplicar "Dr." si ya está en el nombre
+            String contactName = fullName.trim().startsWith("Dr. ") || fullName.trim().startsWith("Dr.") 
+                ? fullName.trim() 
+                : "Dr. " + fullName.trim();
+            dto.setContactName(contactName);
             dto.setContactInitials(getInitials(dentistUser.getFirstName(), dentistUser.getLastName()));
             dto.setContactId(dentist.getId());
             dto.setContactRole("DENTIST");

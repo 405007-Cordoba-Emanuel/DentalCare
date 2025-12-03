@@ -6,6 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ChatService } from '../../core/services/chat/chat.service';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { ConversationSummary, Conversation, ChatMessage } from '../../core/services/chat/chat.interfaces';
@@ -24,7 +25,8 @@ import { Subject, takeUntil } from 'rxjs';
     MatInputModule,
     MatButtonModule,
     MatBadgeModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatDialogModule
   ],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.css'
@@ -35,6 +37,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   private localStorage = inject(LocalStorageService);
   private dentistService = inject(DentistService);
   private patientService = inject(PatientService);
+  private dialog = inject(MatDialog);
   private destroy$ = new Subject<void>();
 
   conversations: ConversationSummary[] = [];
@@ -209,10 +212,11 @@ export class ChatComponent implements OnInit, OnDestroy {
             this.messages = conv.messages || [];
             // Suscribirse a la conversación
             this.subscribeToConversationIfConnected(conv.id);
-            this.scrollToBottom();
             this.isLoading = false;
             // Recargar la lista de conversaciones para actualizar el ID
             this.loadConversations();
+            // Scroll después de que el DOM se actualice
+            setTimeout(() => this.scrollToBottom(), 100);
           },
           error: (err) => {
             console.error('Error creating conversation:', err);
@@ -227,10 +231,11 @@ export class ChatComponent implements OnInit, OnDestroy {
             this.messages = conv.messages || [];
             // Suscribirse a la conversación
             this.subscribeToConversationIfConnected(conv.id);
-            this.scrollToBottom();
             this.isLoading = false;
             // Recargar la lista de conversaciones para actualizar el ID
             this.loadConversations();
+            // Scroll después de que el DOM se actualice
+            setTimeout(() => this.scrollToBottom(), 100);
           },
           error: (err) => {
             console.error('Error creating conversation:', err);
@@ -260,10 +265,11 @@ export class ChatComponent implements OnInit, OnDestroy {
             }
           }
         });
-        this.scrollToBottom();
         this.isLoading = false;
         // Recargar conversaciones para actualizar la lista
         this.loadConversations();
+        // Scroll después de que el DOM se actualice
+        setTimeout(() => this.scrollToBottom(), 100);
       },
       error: (err) => {
         console.error('Error loading conversation:', err);
@@ -350,8 +356,61 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.selectedFile = null;
   }
 
-  downloadFile(fileUrl: string, fileName: string): void {
-    window.open(fileUrl, '_blank');
+  viewFile(fileUrl: string, fileName: string, fileType?: string): void {
+    if (!fileUrl) {
+      console.error('File URL is not available');
+      return;
+    }
+
+    const isPdf = fileType === 'pdf' || fileName.toLowerCase().endsWith('.pdf') || fileUrl.toLowerCase().includes('.pdf');
+    const isImage = fileType === 'image' || fileUrl.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/i);
+
+    if (isPdf) {
+      // Para PDFs, abrir directamente en nueva pestaña
+      // Cloudinary debe tener habilitada la opción "PDF and ZIP files delivery"
+      try {
+        window.open(fileUrl, '_blank', 'noopener,noreferrer');
+      } catch (error) {
+        console.error('Error opening PDF:', error);
+        // Si falla, intentar con enlace temporal como fallback
+        const link = document.createElement('a');
+        link.href = fileUrl;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+          if (document.body.contains(link)) {
+            document.body.removeChild(link);
+          }
+        }, 100);
+      }
+    } else {
+      // Para imágenes y otros tipos, abrir directamente en nueva pestaña
+      window.open(fileUrl, '_blank', 'noopener,noreferrer');
+    }
+  }
+
+  private downloadFileDirectly(fileUrl: string, fileName: string): void {
+    // Crear un enlace temporal para descargar el archivo
+    // Usar un enfoque que evite problemas de CORS
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = fileName;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    
+    // Agregar al DOM, hacer click y remover
+    document.body.appendChild(link);
+    link.click();
+    
+    // Remover después de un pequeño delay para asegurar que el click se procese
+    setTimeout(() => {
+      if (document.body.contains(link)) {
+        document.body.removeChild(link);
+      }
+    }, 100);
   }
 
   getInitials(name: string): string {
@@ -375,12 +434,30 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   scrollToBottom(): void {
+    // Usar múltiples intentos para asegurar que el scroll funcione después del renderizado
+    // Esto es necesario porque Angular necesita tiempo para renderizar los mensajes en el DOM
     setTimeout(() => {
-      const messagesContainer = document.querySelector('.messages-container');
+      const messagesContainer = document.querySelector('.messages-container') as HTMLElement;
       if (messagesContainer) {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
       }
-    }, 100);
+    }, 50);
+    
+    // Segundo intento después de un delay mayor para asegurar que el DOM esté completamente renderizado
+    setTimeout(() => {
+      const messagesContainer = document.querySelector('.messages-container') as HTMLElement;
+      if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+    }, 200);
+    
+    // Tercer intento para casos donde hay muchos mensajes o imágenes que tardan en cargar
+    setTimeout(() => {
+      const messagesContainer = document.querySelector('.messages-container') as HTMLElement;
+      if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+    }, 500);
   }
 
   onSearchChange(): void {
