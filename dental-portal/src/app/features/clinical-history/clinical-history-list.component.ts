@@ -11,6 +11,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LocalStorageService } from '../../core/services/auth/local-storage.service';
 import { ClinicalHistoryService, ClinicalHistoryEntry } from '../../core/services/clinical-history.service';
 import { PatientService } from '../../core/services/patient.service';
@@ -38,7 +39,8 @@ import { TreatmentDetailResponse } from '../../features/dentists/interfaces/trea
     MatBadgeModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './clinical-history-list.component.html',
   styleUrl: './clinical-history-list.component.css'

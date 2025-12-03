@@ -26,7 +26,7 @@ export interface ConfirmDeleteOdontogramData {
           <mat-icon class="text-3xl text-red-600">delete_forever</mat-icon>
         </div>
         <div class="flex-1">
-          <h2 class="text-2xl font-bold text-gray-900 mb-1">
+          <h2 class="text-2xl font-bold text-blue-800 mb-1">
             Eliminar Odontograma
           </h2>
           <p class="text-gray-600 text-sm">

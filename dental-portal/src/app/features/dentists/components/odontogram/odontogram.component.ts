@@ -193,8 +193,13 @@ export class OdontogramComponent implements OnInit {
     this.isLoading = true;
     this.odontogramService.getOdontogramsByPatient(this.dentistId, this.patientId).subscribe({
       next: (odontograms: OdontogramResponseDto[]) => {
-        // El backend ya devuelve ordenado por fecha DESC (más reciente primero)
-        this.savedOdontograms = odontograms.map(dto => this.mapDtoToSavedOdontogram(dto));
+        // Ordenar por fecha DESC (más reciente primero) para asegurar que el badge "nuevo" esté en el primero
+        const sortedOdontograms = [...odontograms].sort((a, b) => {
+          const dateA = new Date(a.createdDatetime).getTime();
+          const dateB = new Date(b.createdDatetime).getTime();
+          return dateB - dateA; // DESC: más reciente primero
+        });
+        this.savedOdontograms = sortedOdontograms.map(dto => this.mapDtoToSavedOdontogram(dto));
         console.log('Odontogramas cargados (más reciente primero):', this.savedOdontograms);
         this.isLoading = false;
       },

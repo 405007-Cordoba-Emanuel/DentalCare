@@ -11,6 +11,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BadgeComponent } from '../../../shared/badge/badge.component';
 import { AppointmentService, Appointment, AppointmentStatus } from '../../../core/services/appointment.service';
 import { TreatmentService } from '../../../core/services/treatment.service';
@@ -63,6 +64,7 @@ interface PatientInfo {
     MatDividerModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
+    MatSnackBarModule,
   ],
   templateUrl: './patient-dashboard.component.html'
 })
@@ -73,6 +75,7 @@ export class PatientDashboardComponent implements OnInit, OnDestroy {
   private patientService = inject(PatientService);
   private chatService = inject(ChatService);
   private localStorage = inject(LocalStorageService);
+  private snackBar = inject(MatSnackBar);
   private destroy$ = new Subject<void>();
 
   user: User | null = null;
@@ -80,7 +83,6 @@ export class PatientDashboardComponent implements OnInit, OnDestroy {
   patient: Patient | null = null;
   
   isLoading = true;
-  errorMessage = '';
 
   patientInfo: PatientInfo = {
     name: '',
@@ -131,12 +133,16 @@ export class PatientDashboardComponent implements OnInit, OnDestroy {
 
   private loadData() {
     this.isLoading = true;
-    this.errorMessage = '';
 
     // Obtener usuario del localStorage
     const userDataString = this.localStorage.getUserData();
     if (!userDataString) {
-      this.errorMessage = 'No se encontró información del usuario';
+      this.snackBar.open('No se encontró información del usuario', 'Cerrar', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      });
       this.isLoading = false;
       return;
     }
@@ -160,17 +166,32 @@ export class PatientDashboardComponent implements OnInit, OnDestroy {
           },
           error: (error) => {
             console.error('Error al obtener patientId:', error);
-            this.errorMessage = 'Error al obtener información del paciente';
+            this.snackBar.open('Error al obtener información del paciente', 'Cerrar', {
+              duration: 3000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
+            });
             this.isLoading = false;
           }
         });
       } else {
-        this.errorMessage = 'No se encontró información del paciente';
+        this.snackBar.open('No se encontró información del paciente', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        });
         this.isLoading = false;
       }
     } catch (error) {
       console.error('Error al cargar datos:', error);
-      this.errorMessage = 'Error al cargar los datos';
+      this.snackBar.open('Error al cargar los datos', 'Cerrar', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      });
       this.isLoading = false;
     }
   }

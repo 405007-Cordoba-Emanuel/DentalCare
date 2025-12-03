@@ -4,7 +4,7 @@
     <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
+          <h1 class="text-2xl md:text-3xl font-bold text-blue-800 mb-2">
             Pacientes Disponibles para Asignar
           </h1>
           <p class="text-gray-600 text-lg">
@@ -25,12 +25,10 @@
     <!-- Loading overlay -->
     <div
       *ngIf="loading"
-      class="absolute inset-0 bg-white bg-opacity-60 flex items-center justify-center z-10 backdrop-blur-sm"
+      class="absolute inset-0 bg-white bg-opacity-60 flex flex-col items-center justify-center z-10 backdrop-blur-sm gap-4"
     >
-      <div class="bg-white rounded-lg shadow-lg p-4 flex items-center gap-3">
-        <mat-spinner diameter="30"></mat-spinner>
-        <span class="text-gray-700 font-medium">Cargando pacientes...</span>
-      </div>
+      <mat-spinner diameter="50"></mat-spinner>
+      <p class="text-slate-600 text-base m-0">Cargando pacientes...</p>
     </div>
 
     <!-- Header de la tabla -->
