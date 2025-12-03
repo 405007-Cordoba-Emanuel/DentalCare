@@ -1,6 +1,6 @@
 <div class="dialog-container">
   <div class="dialog-header">
-    <h2 class="dialog-title">Receta Médica - {{ prescription.patientName }}</h2>
+    <h2 class="dialog-title text-blue-800 font-bold">Receta Médica - {{ prescription.patientName }}</h2>
     <button mat-icon-button (click)="close()" class="close-button">
       <mat-icon>close</mat-icon>
     </button>
@@ -56,7 +56,7 @@
   </div>
 
   <div class="dialog-actions">
-    <button mat-raised-button color="primary" (click)="close()">
+    <button mat-button (click)="close()">
       Cerrar
     </button>
   </div>

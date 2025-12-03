@@ -12,6 +12,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 @MappedSuperclass
 @Data
@@ -63,7 +65,9 @@ public abstract class BaseEntity {
 	 */
 	@PrePersist
 	protected void onCreate() {
-		LocalDateTime now = LocalDateTime.now();
+		// Obtener la hora actual en la zona horaria de Buenos Aires
+		ZoneId buenosAiresZone = ZoneId.of("America/Argentina/Buenos_Aires");
+		LocalDateTime now = ZonedDateTime.now(buenosAiresZone).toLocalDateTime();
 		this.createdDatetime = now;
 		this.lastUpdatedDatetime = now;
 
@@ -78,7 +82,9 @@ public abstract class BaseEntity {
 	 */
 	@PreUpdate
 	protected void onUpdate() {
-		this.lastUpdatedDatetime = LocalDateTime.now();
+		// Obtener la hora actual en la zona horaria de Buenos Aires
+		ZoneId buenosAiresZone = ZoneId.of("America/Argentina/Buenos_Aires");
+		this.lastUpdatedDatetime = ZonedDateTime.now(buenosAiresZone).toLocalDateTime();
 	}
 
 	/**
@@ -90,7 +96,8 @@ public abstract class BaseEntity {
 	public void softDelete(Long userId) {
 		this.isActive = false;
 		this.lastUpdatedUser = userId;
-		this.lastUpdatedDatetime = LocalDateTime.now();
+		ZoneId buenosAiresZone = ZoneId.of("America/Argentina/Buenos_Aires");
+		this.lastUpdatedDatetime = ZonedDateTime.now(buenosAiresZone).toLocalDateTime();
 	}
 
 	/**
@@ -102,7 +109,8 @@ public abstract class BaseEntity {
 	public void activate(Long userId) {
 		this.isActive = true;
 		this.lastUpdatedUser = userId;
-		this.lastUpdatedDatetime = LocalDateTime.now();
+		ZoneId buenosAiresZone = ZoneId.of("America/Argentina/Buenos_Aires");
+		this.lastUpdatedDatetime = ZonedDateTime.now(buenosAiresZone).toLocalDateTime();
 	}
 
 	/**
@@ -123,4 +131,3 @@ public abstract class BaseEntity {
 		return !isActive();
 	}
 }
-

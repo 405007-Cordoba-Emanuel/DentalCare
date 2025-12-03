@@ -94,7 +94,7 @@ export class PatientDashboardComponent implements OnInit, OnDestroy {
 
   upcomingAppointments: AppointmentDisplay[] = [];
   treatmentHistory: TreatmentDisplay[] = [];
-  currentTreatment: TreatmentResponse | null = null;
+  currentTreatments: TreatmentResponse[] = [];
 
   recentMessages = [
     {
@@ -269,8 +269,8 @@ export class PatientDashboardComponent implements OnInit, OnDestroy {
       next: (treatments) => {
         this.treatmentHistory = treatments.map(treatment => this.mapTreatmentToDisplay(treatment));
         this.updateTreatmentProgress(treatments);
-        // Obtener el tratamiento en curso más reciente
-        this.currentTreatment = this.getCurrentTreatment(treatments);
+        // Obtener todos los tratamientos en curso
+        this.currentTreatments = this.getCurrentTreatments(treatments);
         treatmentsLoaded = true;
         checkComplete();
       },
@@ -499,17 +499,14 @@ export class PatientDashboardComponent implements OnInit, OnDestroy {
     this.appointmentsDropdownOpen = !this.appointmentsDropdownOpen;
   }
 
-  getCurrentTreatment(treatments: TreatmentResponse[]): TreatmentResponse | null {
+  getCurrentTreatments(treatments: TreatmentResponse[]): TreatmentResponse[] {
     const inProgressTreatments = treatments.filter(
       t => t.active && (t.status === 'EN_CURSO' || t.status === 'EN CURSO')
     );
-    if (inProgressTreatments.length === 0) {
-      return null;
-    }
-    // Ordenar por fecha descendente y tomar el más reciente
+    // Ordenar por fecha descendente (más reciente primero)
     return inProgressTreatments.sort((a, b) => 
       new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
-    )[0];
+    );
   }
 
   navigateToMessages() {

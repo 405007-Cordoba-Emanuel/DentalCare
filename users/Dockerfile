@@ -35,4 +35,7 @@ COPY --from=builder /build/target/*.jar app.jar
 
 EXPOSE 8081
 
-ENTRYPOINT ["java","-jar","app.jar"]
+# Configurar zona horaria de Buenos Aires
+ENV TZ=America/Argentina/Buenos_Aires
+
+ENTRYPOINT ["java","-Duser.timezone=America/Argentina/Buenos_Aires","-jar","app.jar"]

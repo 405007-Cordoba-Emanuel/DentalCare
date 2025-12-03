@@ -147,7 +147,7 @@ export class DentistDashboardComponent implements OnInit, OnDestroy {
   }
 
   navigateToMessages() {
-    this.router.navigate(['/messages']);
+    this.router.navigate(['/dentist/messages']);
   }
 
   // Acciones de pacientes
