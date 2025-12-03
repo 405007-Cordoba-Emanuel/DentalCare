@@ -11,7 +11,7 @@
         </div>
         <!-- Info del Paciente -->
         <div class="flex-1 min-w-0">
-          <h1 class="text-lg md:text-xl font-bold text-slate-800 m-0 mb-0.5 truncate">{{ patientInfo.firstName }} {{ patientInfo.lastName }}</h1>
+          <h1 class="text-lg md:text-xl font-bold text-blue-800 m-0 mb-0.5 truncate">{{ patientInfo.firstName }} {{ patientInfo.lastName }}</h1>
           <div class="flex flex-wrap items-center gap-2 md:gap-3 text-xs md:text-sm text-slate-600">
             <span class="flex items-center gap-1">
               <mat-icon class="!text-sm md:!text-base">badge</mat-icon>
@@ -29,7 +29,7 @@
     <!-- Card 1: Panel de Control -->
     <mat-card class="mb-6 bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden">
       <mat-card-header class="!bg-slate-50 !border-b !border-slate-200 !p-5 !mb-0">
-        <mat-card-title class="!text-lg !font-semibold !text-slate-800 !m-0">Panel de Control</mat-card-title>
+        <mat-card-title class="!text-lg !font-semibold !text-blue-800 !m-0">Panel de Control</mat-card-title>
       </mat-card-header>
       
       <mat-card-content class="!p-5">
@@ -123,7 +123,7 @@
     <!-- Card 2: Odontograma -->
     <mat-card class="mb-6 bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden">
       <mat-card-header class="!bg-slate-50 !border-b !border-slate-200 !p-5 !mb-0">
-        <mat-card-title class="!text-lg !font-semibold !text-slate-800 !m-0 text-center w-full">
+        <mat-card-title class="!text-lg !font-semibold !text-blue-800 !m-0 text-center w-full">
           Odontograma - {{ dentitionType === 'adult' ? 'Dentición Permanente' : 'Dentición Temporal' }}
         </mat-card-title>
       </mat-card-header>
@@ -189,7 +189,7 @@
     <!-- Card 3: Resumen del Estado Dental -->
     <mat-card class="mb-6 bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden">
       <mat-card-header class="!bg-slate-50 !border-b !border-slate-200 !p-5 !mb-0">
-        <mat-card-title class="!text-lg !font-semibold !text-slate-800 !m-0">
+        <mat-card-title class="!text-lg !font-semibold !text-blue-800 !m-0">
           Resumen del Estado Dental - {{ dentitionType === 'adult' ? 'Adulto' : 'Niño' }}
         </mat-card-title>
       </mat-card-header>

@@ -27,3 +27,21 @@
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+/* Asegurar que el contenedor de mensajes tenga altura correcta */
+.messages-container {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 100%;
+}
+
+/* Contenedor principal del chat - ocupa toda la altura disponible sin romper el layout */
+.chat-container {
+  display: flex;
+  height: calc(100vh - 150px); /* Altura total menos header (64px), padding y footer */
+  min-height: 500px;
+}
