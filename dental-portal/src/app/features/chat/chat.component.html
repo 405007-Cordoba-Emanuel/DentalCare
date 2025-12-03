@@ -1,6 +1,6 @@
 <div class="chat-container flex bg-gray-100">
   <!-- Panel izquierdo: Lista de conversaciones -->
-  <div class="bg-white border-r border-gray-300 flex flex-col">
+  <div class="bg-white border-r border-gray-300 flex flex-col w-72 min-w-[280px] flex-shrink-0">
     <div class="p-3 border-b border-gray-300">
       <h2 class="m-0 mb-3 text-lg font-semibold text-gray-800">Conversaciones</h2>
       <!-- Búsqueda solo para dentistas -->
@@ -25,17 +25,15 @@
         [class.border-l-blue-600]="selectedConversation?.id === conv.conversationId"
         (click)="selectConversation(conv)"
       >
-        <div class="flex-1 min-w-0">
-          <div class="flex justify-between items-center">
-            <span class="font-medium text-sm text-gray-800 truncate">{{ conv.contactName }}</span>
-            <span
-              *ngIf="conv.unreadCount > 0"
-              [matBadge]="conv.unreadCount"
-              [matBadgeHidden]="conv.unreadCount === 0"
-              matBadgeColor="warn"
-              class="ml-2"
-            ></span>
-          </div>
+        <div class="flex-1 min-w-0 flex items-center justify-between gap-2">
+          <span class="font-medium text-sm text-gray-800 truncate flex-1 min-w-0">{{ conv.contactName }}</span>
+          <span
+            *ngIf="conv.unreadCount > 0"
+            [matBadge]="conv.unreadCount"
+            [matBadgeHidden]="conv.unreadCount === 0"
+            matBadgeColor="warn"
+            class="flex-shrink-0"
+          ></span>
         </div>
       </div>
       <div *ngIf="conversations.length === 0" class="flex flex-col items-center justify-center p-10 text-gray-500">
