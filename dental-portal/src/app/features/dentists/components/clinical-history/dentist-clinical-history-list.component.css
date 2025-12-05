@@ -45,7 +45,7 @@
   font-size: 1.875rem;
   font-weight: 700;
   color: #000000;
-  margin: 0 0 8px;
+  margin: 0 0 12px;
   letter-spacing: -0.5px;
 }
 
@@ -500,11 +500,19 @@
 /* Responsive */
 @media (max-width: 768px) {
   .clinical-history-container {
-    padding: 20px;
+    padding: 16px;
+  }
+  
+  .header-section {
+    margin-bottom: 24px;
   }
 
   .main-title {
     font-size: 1.5rem;
+  }
+  
+  .subtitle {
+    font-size: 0.9rem;
   }
 
   .patient-header-info {
