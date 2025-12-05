@@ -1,7 +1,7 @@
 <div class="dialog-container">
   <div class="dialog-header">
     <h2 class="dialog-title text-blue-800 font-bold">
-      Agregar Sesión - {{ data.treatmentName }}
+      Agregar sesión - {{ data.treatmentName }}
     </h2>
     <button mat-icon-button (click)="onCancel()" class="close-button">
       <mat-icon>close</mat-icon>
@@ -87,7 +87,7 @@
     >
       <mat-icon *ngIf="!isLoading">add</mat-icon>
       <span *ngIf="isLoading">Guardando...</span>
-      <span *ngIf="!isLoading">Agregar Sesión</span>
+      <span *ngIf="!isLoading">Agregar sesión</span>
     </button>
   </div>
 </div>

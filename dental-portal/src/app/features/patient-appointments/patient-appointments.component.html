@@ -1,6 +1,9 @@
 <div class="appointments-container">
-  <div class="appointments-header">
-    <h1 class="page-title">Mis Citas</h1>
+  <div class="header-section">
+    <div class="title-section">
+      <h1 class="main-title">Mis Citas</h1>
+      <p class="subtitle">Visualiza tus pasadas, presentes y futuras citas</p>
+    </div>
   </div>
 
   @if (isLoading) {
@@ -16,7 +19,7 @@
   } @else {
     <!-- Próxima Cita -->
     <div class="section">
-      <h2 class="section-title">Próxima Cita</h2>
+      <h2 class="section-title">Próxima cita</h2>
       
       @if (nextAppointment) {
         <mat-card class="next-appointment-card">

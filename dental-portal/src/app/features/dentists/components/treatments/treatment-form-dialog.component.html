@@ -1,7 +1,7 @@
 <div class="dialog-container">
   <div class="dialog-header">
     <h2 class="dialog-title text-blue-800 font-bold">
-      {{ isEditMode ? 'Editar Tratamiento' : 'Nuevo Tratamiento' }} - {{ data.patientName }}
+      {{ isEditMode ? 'Editar tratamiento' : 'Nuevo tratamiento' }} - {{ data.patientName }}
     </h2>
     <button mat-icon-button (click)="onCancel()" class="close-button">
       <mat-icon>close</mat-icon>
@@ -139,7 +139,7 @@
     >
       <mat-icon *ngIf="!isLoading">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
       <span *ngIf="isLoading">Guardando...</span>
-      <span *ngIf="!isLoading">{{ isEditMode ? 'Guardar Cambios' : 'Crear Tratamiento' }}</span>
+      <span *ngIf="!isLoading">{{ isEditMode ? 'Guardar cambios' : 'Crear tratamiento' }}</span>
     </button>
   </div>
 </div>

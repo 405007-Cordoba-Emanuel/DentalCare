@@ -275,7 +275,7 @@ export class DentistTreatmentListComponent implements OnInit {
       width: '500px',
       maxWidth: '90vw',
       data: {
-        title: 'Eliminar Tratamiento',
+        title: 'Eliminar tratamiento',
         message: '¿Está seguro de eliminar este tratamiento?',
         itemName: 'Tratamiento',
         itemDetails: {

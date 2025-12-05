@@ -27,7 +27,7 @@ export interface ConfirmDeleteOdontogramData {
         </div>
         <div class="flex-1">
           <h2 class="text-2xl font-bold text-blue-800 mb-1">
-            Eliminar Odontograma
+            Eliminar odontograma
           </h2>
           <p class="text-gray-600 text-sm">
             Esta acción no se puede deshacer

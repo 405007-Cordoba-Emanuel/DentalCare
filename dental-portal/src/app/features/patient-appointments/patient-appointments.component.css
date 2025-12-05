@@ -1,17 +1,28 @@
 .appointments-container {
-  padding: 24px;
+  padding: 32px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.appointments-header {
+.header-section {
   margin-bottom: 32px;
 }
 
-.page-title {
+.title-section {
+  margin-bottom: 24px;
+}
+
+.main-title {
   font-size: 1.875rem;
   font-weight: 700;
   color: #000000;
+  margin: 0 0 12px;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  color: #64748b;
+  font-size: 1rem;
   margin: 0;
 }
 
@@ -188,7 +199,7 @@
     padding: 16px;
   }
 
-  .page-title {
+  .main-title {
     font-size: 1.875rem;
   }
 

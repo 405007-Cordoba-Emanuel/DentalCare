@@ -1,6 +1,6 @@
 <div class="prescription-form-dialog">
   <h2 mat-dialog-title class="text-blue-800 font-bold">
-    {{ isEditMode ? 'Editar Entrada' : 'Nueva Entrada a la Historia Clínica' }}
+    {{ isEditMode ? 'Editar entrada' : 'Nueva entrada a la historia clínica' }}
   </h2>
 
   <mat-dialog-content class="dialog-content">
@@ -70,7 +70,7 @@
     <button mat-raised-button color="primary" (click)="onSave()" [disabled]="isLoading || !description.trim()">
       <mat-icon *ngIf="!isLoading">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
       <span *ngIf="isLoading">Guardando...</span>
-      <span *ngIf="!isLoading">{{ isEditMode ? 'Guardar Cambios' : 'Guardar' }}</span>
+      <span *ngIf="!isLoading">{{ isEditMode ? 'Guardar cambios' : 'Guardar' }}</span>
     </button>
   </mat-dialog-actions>
 </div>

@@ -269,7 +269,7 @@ export class DentistPrescriptionListComponent implements OnInit {
       width: '500px',
       maxWidth: '90vw',
       data: {
-        title: 'Eliminar Receta',
+        title: 'Eliminar receta',
         message: '¿Está seguro de eliminar este registro?',
         itemName: 'Receta',
         itemDetails: {

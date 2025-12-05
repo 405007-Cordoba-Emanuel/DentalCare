@@ -8,16 +8,21 @@
   margin-bottom: 32px;
 }
 
-.page-title {
+.title-section {
+  margin-bottom: 24px;
+}
+
+.main-title {
   font-size: 1.875rem;
   font-weight: 700;
   color: #000000;
-  margin: 0 0 8px 0;
+  margin: 0 0 12px;
+  letter-spacing: -0.5px;
 }
 
-.page-subtitle {
-  font-size: 1.125rem;
+.subtitle {
   color: #64748b;
+  font-size: 1rem;
   margin: 0;
 }
 
@@ -289,11 +294,11 @@
     padding: 20px;
   }
 
-  .page-title {
+  .main-title {
     font-size: 1.875rem;
   }
 
-  .page-subtitle {
+  .subtitle {
     font-size: 1rem;
   }
 

@@ -4,14 +4,25 @@
   padding: 32px;
 }
 
-.profile-header {
+.header-section {
   margin-bottom: 32px;
 }
 
-.profile-title {
-  font-size: 2rem;
+.title-section {
+  margin-bottom: 24px;
+}
+
+.main-title {
+  font-size: 1.875rem;
   font-weight: 700;
-  color: #1e293b;
+  color: #000000;
+  margin: 0 0 12px;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  color: #64748b;
+  font-size: 1rem;
   margin: 0;
 }
 
@@ -170,7 +181,7 @@
     padding: 16px;
   }
 
-  .profile-title {
+  .main-title {
     font-size: 1.5rem;
   }
 

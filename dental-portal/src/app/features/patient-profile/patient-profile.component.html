@@ -1,6 +1,9 @@
 <div class="profile-container">
-  <div class="profile-header">
-    <h1 class="profile-title">Mi Perfil</h1>
+  <div class="header-section">
+    <div class="title-section">
+      <h1 class="main-title">Mi Perfil</h1>
+      <p class="subtitle">Gestiona tu información personal</p>
+    </div>
   </div>
 
   <mat-card class="profile-card">
@@ -15,7 +18,7 @@
         <app-generic-form
           [fields]="formFields"
           [formTitle]="'Información Personal'"
-          [submitText]="'Guardar Cambios'"
+          [submitText]="'Guardar cambios'"
           [initialData]="formData"
           [readonly]="!isEditing"
           [disabledFields]="['email']"
@@ -33,7 +36,7 @@
           class="action-button"
         >
           <mat-icon>edit</mat-icon>
-          Editar Información
+          Editar información
         </button>
 
         <button
