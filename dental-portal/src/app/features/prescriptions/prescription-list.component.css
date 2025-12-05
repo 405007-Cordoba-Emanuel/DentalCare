@@ -299,9 +299,18 @@
   .prescription-container {
     padding: 16px;
   }
-
+  
+  .header-section {
+    margin-bottom: 24px;
+  }
+  
   .kpi-section {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .kpi-card {
+    padding: 16px;
   }
 
   .prescription-header {

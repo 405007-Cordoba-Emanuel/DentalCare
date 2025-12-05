@@ -102,6 +102,10 @@
 
 /* Responsive */
 @media (max-width: 600px) {
+  .dialog-container {
+    max-width: 95vw;
+  }
+  
   .dialog-header {
     padding: 16px;
   }

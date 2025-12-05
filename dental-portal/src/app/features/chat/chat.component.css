@@ -45,3 +45,28 @@
   height: calc(100vh - 150px); /* Altura total menos header (64px), padding y footer */
   min-height: 500px;
 }
+
+/* Responsive - Mobile */
+@media (max-width: 768px) {
+  .chat-container {
+    height: calc(100vh - 120px);
+    min-height: 400px;
+    flex-direction: column;
+  }
+  
+  /* Panel de conversaciones en móvil */
+  .chat-container > .bg-white.border-r {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #d1d5db;
+    max-height: 40vh;
+  }
+  
+  /* Panel de chat en móvil */
+  .chat-container > .flex-1.flex.flex-col.bg-white {
+    width: 100%;
+    min-width: 100%;
+  }
+}
