@@ -4,13 +4,15 @@ import { Observable } from 'rxjs';
 import { UserDetailResponse } from '../interfaces/user-detail.interface';
 import { CreateDentistRequest, CreateDentistResponse } from '../interfaces/create-dentist.interface';
 import { PagedResponse } from '../interfaces/paginated-response.interface';
+import { ApiConfig } from '../../../core/config/api.config';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminService {
   private http = inject(HttpClient);
-  private usersApiUrl = 'http://localhost:8081/api/users';
+  private apiConfig = inject(ApiConfig);
+  private usersApiUrl = this.apiConfig.usersApiUrl;
 
   // Obtener todos los usuarios paginado (solo ADMIN)
   getAllUsers(page: number = 0, size: number = 10, sortBy: string = 'id', sortDir: string = 'ASC'): Observable<PagedResponse<UserDetailResponse>> {

@@ -1,10 +1,6 @@
 package dental.core.users.modules.auth.services.impl;
 
 import dental.core.users.configs.security.JwtUtil;
-import dental.core.users.dto.CreateDentistFromUserRequest;
-import dental.core.users.dto.CreatePatientFromUserRequest;
-import dental.core.users.dto.DentistResponse;
-import dental.core.users.dto.PatientResponse;
 import dental.core.users.entities.Role;
 import dental.core.users.entities.UserEntity;
 import dental.core.users.mail.models.EmailRequest;
@@ -62,7 +58,6 @@ class AuthServiceImplTest {
 	private static final String TEST_EMAIL = "test@example.com";
 	private static final String TEST_PASSWORD = "password123";
 	private static final String ENCODED_PASSWORD = "encodedPassword123";
-	private static final String JWT_TOKEN = "jwt.token.here";
 	private static final String FRONTEND_URL = "http://localhost:4200";
 
 	@BeforeEach

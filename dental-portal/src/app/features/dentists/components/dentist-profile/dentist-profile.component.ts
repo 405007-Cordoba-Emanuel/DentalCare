@@ -86,6 +86,7 @@ export class DentistProfileComponent implements OnInit {
       type: 'date',
       validators: [Validators.required],
       fullWidth: true,
+      allowPastDates: true, // Permitir fechas pasadas para fecha de nacimiento
     },
   ]);
 

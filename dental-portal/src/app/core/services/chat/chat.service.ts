@@ -5,6 +5,7 @@ import { Client, IMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { ChatMessage, Conversation, ConversationSummary, ChatMessageRequest, UnreadCountResponse } from './chat.interfaces';
 import { AuthService } from '../auth/auth.service';
+import { ApiConfig } from '../../config/api.config';
 
 @Injectable({
   providedIn: 'root'
@@ -12,8 +13,9 @@ import { AuthService } from '../auth/auth.service';
 export class ChatService {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
-  private apiUrl = 'http://localhost:8082/api/core/chat';
-  private wsUrl = 'http://localhost:8082/ws';
+  private apiConfig = inject(ApiConfig);
+  private apiUrl = this.apiConfig.coreChatUrl;
+  private wsUrl = this.apiConfig.webSocketUrl;
   
   private stompClient: Client | null = null;
   private connected = false;

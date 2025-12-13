@@ -5,13 +5,15 @@ import { DentistResponse, DentistUpdateRequest } from '../../features/dentists/i
 import { DentistPatientsResponse, PatientInfo, PatientRequest, PatientResponse } from '../../features/dentists/interfaces/patient.interface';
 import { AppointmentRequest, AppointmentResponse, AppointmentUpdateRequest } from '../../features/dentists/interfaces/appointment.interface';
 import { PagedResponse } from '../../features/dentists/interfaces/paged-response.interface';
+import { ApiConfig } from '../config/api.config';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DentistService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8082/api/core/dentist';
+  private apiConfig = inject(ApiConfig);
+  private apiUrl = this.apiConfig.coreDentistUrl;
 
   // Obtener datos del odontólogo por ID
   getDentistById(id: number): Observable<DentistResponse> {

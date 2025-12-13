@@ -1,6 +1,5 @@
 package dental.core.users.modules.auth.services.impl;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import dental.core.users.entities.UserEntity;
 import dental.core.users.modules.auth.repositories.UserRepository;
 import dental.core.users.modules.auth.services.UserService;
@@ -9,12 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;

@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthResponse, EmailAuthRequest, EmailRegisterRequest } from '../../../interfaces/auth/auth-response.interface';
 import { BaseAuthService } from './base-auth.service';
+import { ApiConfig } from '../../config/api.config';
 
 export interface ForgotPasswordRequest {
   email: string;
@@ -21,7 +22,8 @@ export interface MessageResponse {
   providedIn: 'root',
 })
 export class AuthService extends BaseAuthService {
-  private apiUrl: string = 'http://localhost:8081/api/users/auth';
+  private apiConfig = inject(ApiConfig);
+  private apiUrl: string = this.apiConfig.usersAuthUrl;
 
   login(loginRequest: EmailAuthRequest): Observable<AuthResponse> {
     return this.handleAuthRequest(

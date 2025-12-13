@@ -2,13 +2,15 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { TreatmentResponse, TreatmentDetailResponse } from '../interfaces/treatment.interface';
+import { ApiConfig } from '../../../core/config/api.config';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TreatmentService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8082/api/core/dentist';
+  private apiConfig = inject(ApiConfig);
+  private apiUrl = this.apiConfig.coreDentistUrl;
 
   // Obtener tratamientos de un paciente específico
   getTreatmentsByPatient(dentistId: number, patientId: number): Observable<TreatmentResponse[]> {
