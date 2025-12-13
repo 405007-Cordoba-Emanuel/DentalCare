@@ -116,17 +116,16 @@ export class AppointmentDetailDialogComponent implements OnInit {
   }
 
   private initFormData() {
-    // Extraer fecha y hora del startDateTime y endDateTime
-    const startDateTime = this.appointment.startDateTime || `${this.appointment.date}T${this.appointment.startTime}`;
-    const endDateTime = this.appointment.endDateTime || `${this.appointment.date}T${this.appointment.endTime}`;
-
-    const startDate = new Date(startDateTime);
-    const endDate = new Date(endDateTime);
+    // Parsear fecha y hora manualmente para evitar problemas de zona horaria
+    // Usar directamente los valores que vienen del backend sin convertir a Date
+    const date = this.appointment.date || '';
+    const startTime = this.appointment.startTime || '';
+    const endTime = this.appointment.endTime || '';
 
     this.initialFormData = {
-      date: this.formatDate(startDate),
-      startTime: this.formatTime(startDate),
-      endTime: this.formatTime(endDate),
+      date: date, // Usar directamente la fecha que viene del backend
+      startTime: startTime, // Usar directamente la hora que viene del backend
+      endTime: endTime, // Usar directamente la hora que viene del backend
       reason: this.appointment.reason || '',
       notes: this.appointment.notes || '',
       status: this.appointment.status
@@ -165,15 +164,19 @@ export class AppointmentDetailDialogComponent implements OnInit {
 
     this.isSaving = true;
 
-    const date = new Date(formValue.date);
+    // Parsear la fecha manualmente para evitar problemas de zona horaria
+    // El input type="date" devuelve formato YYYY-MM-DD
+    const dateParts = formValue.date.split('-');
+    const year = parseInt(dateParts[0], 10);
+    const month = parseInt(dateParts[1], 10) - 1; // Los meses son 0-indexados
+    const day = parseInt(dateParts[2], 10);
+
     const [startHours, startMinutes] = formValue.startTime.split(':');
     const [endHours, endMinutes] = formValue.endTime.split(':');
 
-    const startDateTime = new Date(date);
-    startDateTime.setHours(parseInt(startHours), parseInt(startMinutes), 0, 0);
-
-    const endDateTime = new Date(date);
-    endDateTime.setHours(parseInt(endHours), parseInt(endMinutes), 0, 0);
+    // Crear fechas en zona horaria local (Argentina)
+    const startDateTime = new Date(year, month, day, parseInt(startHours), parseInt(startMinutes), 0, 0);
+    const endDateTime = new Date(year, month, day, parseInt(endHours), parseInt(endMinutes), 0, 0);
 
     // Validar que la hora de inicio sea antes que la de fin
     if (startDateTime >= endDateTime) {

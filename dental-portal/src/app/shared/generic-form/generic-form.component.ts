@@ -187,13 +187,14 @@ export class GenericFormComponent implements OnInit {
 
     const field = this.fields().find((f) => f.name === fieldName);
 
-    // Para fechas (date), formatear
+    // Para fechas (date), formatear con zona horaria de Buenos Aires
     if (field?.type === 'date' && value) {
-      const date = new Date(value);
-      return date.toLocaleDateString('es-ES', {
+      const date = new Date(value + 'T00:00:00'); // Agregar hora para evitar problemas de UTC
+      return date.toLocaleDateString('es-AR', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
+        timeZone: 'America/Argentina/Buenos_Aires'
       });
     }
 

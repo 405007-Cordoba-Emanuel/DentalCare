@@ -88,7 +88,7 @@ public class AuthServiceImpl implements AuthService {
             return buildAuthResponse(user, dentistId, patientId);
 
         } catch (AuthenticationException e) {
-            throw new CustomAuthenticationException("Invalid email or password");
+            throw new CustomAuthenticationException("Credenciales inválidas");
         }
     }
 

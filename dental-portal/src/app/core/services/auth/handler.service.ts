@@ -42,23 +42,22 @@ export class HandlerService {
       // Error del lado del servidor
       switch (error.status) {
         case 400:
-          errorMessage = error.error.message || 'Datos de entrada inválidos';
+          errorMessage = error.error?.message || 'Datos de entrada inválidos';
           break;
         case 401:
           errorMessage = 'Credenciales inválidas';
           break;
         case 409:
-          errorMessage = 'El usuario ya existe con este email';
+          errorMessage = error.error?.message || 'El usuario ya existe con este email';
           break;
         case 422:
-          errorMessage =
-            error.error.message || 'Datos de validación incorrectos';
+          errorMessage = error.error?.message || 'Datos de validación incorrectos';
           break;
         case 500:
           errorMessage = 'Error interno del servidor';
           break;
         default:
-          errorMessage = error.error.message || 'Error del servidor';
+          errorMessage = error.error?.message || 'Error del servidor';
       }
     }
 
