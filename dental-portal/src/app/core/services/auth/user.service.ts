@@ -1,14 +1,16 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { inject } from '@angular/core';
 import { UserProfileRequest, UserProfileUpdateRequest } from '../../../interfaces/user/user.interface';
 import { Observable } from 'rxjs';
+import { ApiConfig } from '../../config/api.config';
+
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8081/api/users';
+  private apiConfig = inject(ApiConfig);
+  private apiUrl = this.apiConfig.usersApiUrl;
 
   getUser(): Observable<UserProfileRequest> {
     return this.http.get<UserProfileRequest>(`${this.apiUrl}/profile`);

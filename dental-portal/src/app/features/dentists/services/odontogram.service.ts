@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { ApiConfig } from '../../../core/config/api.config';
 
 export interface ToothData {
   number: number;
@@ -26,9 +27,9 @@ export interface OdontogramResponseDto {
   providedIn: 'root'
 })
 export class OdontogramService {
-  private apiUrl = 'http://localhost:8082/api/core/dentist';
-
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
+  private apiConfig = inject(ApiConfig);
+  private apiUrl = this.apiConfig.coreDentistUrl;
 
   /**
    * Crear un nuevo odontograma

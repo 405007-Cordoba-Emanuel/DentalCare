@@ -24,6 +24,7 @@ export interface FormField {
   options?: { label: string; value: any }[];
   validators?: any[];
   fullWidth?: boolean;
+  allowPastDates?: boolean; // Permite fechas pasadas (útil para fechas de nacimiento)
 }
 
 @Component({
@@ -108,12 +109,17 @@ export class GenericFormComponent implements OnInit {
       
       // Agregar validadores automáticos según el tipo de campo
       if (field.type === 'date') {
-        validators.push(this.minDateValidator());
+        if (!field.allowPastDates) {
+          validators.push(this.minDateValidator());
+        } else {
+          // Para fechas de nacimiento, validar que no sean futuras
+          validators.push(this.maxDateValidator());
+        }
       }
       if (field.type === 'time') {
         validators.push(this.timeRangeValidator());
       }
-      if (field.type === 'datetime-local') {
+      if (field.type === 'datetime-local' && !field.allowPastDates) {
         validators.push(this.minDateValidator());
         validators.push(this.dateTimeRangeValidator());
       }
@@ -252,6 +258,9 @@ export class GenericFormComponent implements OnInit {
     if (control.errors['minDate']) {
       return control.errors['minDate'].message || 'No se pueden seleccionar fechas pasadas';
     }
+    if (control.errors['maxDate']) {
+      return control.errors['maxDate'].message || 'La fecha no puede ser futura';
+    }
     if (control.errors['timeRange']) {
       return control.errors['timeRange'].message || 'El horario debe estar entre 7:00 y 22:00';
     }
@@ -285,6 +294,23 @@ export class GenericFormComponent implements OnInit {
       
       if (inputDate < today) {
         return { minDate: { value: control.value, message: 'No se pueden seleccionar fechas pasadas' } };
+      }
+      
+      return null;
+    };
+  }
+
+  // Validador para fecha máxima (hoy) - para fechas de nacimiento
+  private maxDateValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) return null;
+      
+      const inputDate = new Date(control.value);
+      const today = new Date();
+      today.setHours(23, 59, 59, 999); // Fin del día de hoy
+      
+      if (inputDate > today) {
+        return { maxDate: { value: control.value, message: 'La fecha no puede ser futura' } };
       }
       
       return null;

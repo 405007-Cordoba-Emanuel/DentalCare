@@ -119,7 +119,8 @@
               type="date"
               [id]="'date-' + field.name"
               [formControlName]="field.name"
-              [min]="getMinDate()"
+              [min]="field.allowPastDates ? undefined : getMinDate()"
+              [max]="field.allowPastDates ? getMinDate() : undefined"
               [placeholder]="field.placeholder || 'dd/mm/aaaa'"
             />
             <mat-icon

@@ -1,11 +1,9 @@
 package dental.core.users.modules.auth.services.impl;
 
 import dental.core.users.dto.CreateDentistFromUserRequest;
-import dental.core.users.dto.DentistResponse;
 import dental.core.users.entities.Role;
 import dental.core.users.entities.UserEntity;
 import dental.core.users.modules.auth.dto.CreateDentistAdminRequest;
-import dental.core.users.modules.auth.dto.CreateDentistAdminResponse;
 import dental.core.users.modules.auth.dto.UserDetailResponse;
 import dental.core.users.modules.auth.dto.UserProfileRequest;
 import dental.core.users.modules.auth.exceptions.UserException;
@@ -13,7 +11,6 @@ import dental.core.users.modules.auth.repositories.UserRepository;
 import dental.core.users.services.CoreServiceClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -24,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;

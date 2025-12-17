@@ -69,7 +69,7 @@ export class PatientProfileComponent implements OnInit {
           lastName: userData.lastName || '',
           phone: userData.phone || '',
           birthDate: userData.birthDate
-            ? new Date(userData.birthDate).toISOString().slice(0, 16)
+            ? new Date(userData.birthDate).toISOString().split('T')[0]
             : '',
           address: userData.address || '',
           dni: '',
@@ -138,8 +138,9 @@ export class PatientProfileComponent implements OnInit {
       {
         name: 'birthDate',
         label: 'Fecha de Nacimiento',
-        type: 'datetime-local',
+        type: 'date',
         placeholder: 'Seleccione su fecha de nacimiento',
+        allowPastDates: true, // Permitir fechas pasadas para fecha de nacimiento
       },
     ];
 
@@ -180,7 +181,11 @@ export class PatientProfileComponent implements OnInit {
       lastName: formValue.lastName,
       phone: formValue.phone,
       address: formValue.address,
-      ...(formValue.birthDate && { birthDate: new Date(formValue.birthDate) }),
+      ...(formValue.birthDate && { 
+        birthDate: formValue.birthDate.includes('T') 
+          ? new Date(formValue.birthDate) 
+          : new Date(formValue.birthDate + 'T00:00:00')
+      }),
     };
 
     this.userService.updateUserProfile(userUpdate).subscribe({

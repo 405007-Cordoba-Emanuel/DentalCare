@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ApiConfig } from '../config/api.config';
 
 export interface Prescription {
   id: number;
@@ -24,7 +25,8 @@ export interface Prescription {
 })
 export class PrescriptionService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8082/api/core/patient';
+  private apiConfig = inject(ApiConfig);
+  private apiUrl = this.apiConfig.corePatientUrl;
 
   /**
    * Obtiene todas las recetas de un paciente
@@ -49,7 +51,7 @@ export class PrescriptionService {
 
   // ========== MÉTODOS PARA DENTISTA ==========
 
-  private dentistApiUrl = 'http://localhost:8082/api/core/dentist';
+  private dentistApiUrl = this.apiConfig.coreDentistUrl;
 
   /**
    * Obtiene todas las recetas de un paciente específico para un dentista

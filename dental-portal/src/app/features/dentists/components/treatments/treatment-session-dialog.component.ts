@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -10,6 +10,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DentistClinicalHistoryService } from '../../services/clinical-history.service';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { ApiConfig } from '../../../../core/config/api.config';
 
 export interface TreatmentSessionFormData {
   dentistId: number;
@@ -40,7 +41,8 @@ export class TreatmentSessionDialogComponent implements OnInit {
   selectedFile: File | null = null;
   previewUrl: string | null = null;
 
-  private apiUrl = 'http://localhost:8082/api/core/dentist';
+  private apiConfig = inject(ApiConfig);
+  private apiUrl = this.apiConfig.coreDentistUrl;
 
   constructor(
     public dialogRef: MatDialogRef<TreatmentSessionDialogComponent>,

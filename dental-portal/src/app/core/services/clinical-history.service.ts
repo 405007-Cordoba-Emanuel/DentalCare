@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { ApiConfig } from '../config/api.config';
 
 export interface ClinicalHistoryEntry {
   id: number;
@@ -32,9 +33,9 @@ export interface ClinicalHistoryCount {
   providedIn: 'root'
 })
 export class ClinicalHistoryService {
-  private apiUrl = 'http://localhost:8082/api/core/patient';
-
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
+  private apiConfig = inject(ApiConfig);
+  private apiUrl = this.apiConfig.corePatientUrl;
 
   getClinicalHistoryByPatientId(patientId: number): Observable<ClinicalHistoryEntry[]> {
     return this.http.get<ClinicalHistoryEntry[]>(`${this.apiUrl}/${patientId}/clinical-history`);

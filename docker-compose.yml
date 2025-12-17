@@ -89,6 +89,23 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  # ============================================
+  # Frontend - Angular Application
+  # ============================================
+  frontend:
+    build:
+      context: ./dental-portal
+      dockerfile: Dockerfile
+    container_name: dental-portal-frontend
+    ports:
+      - "4200:80"
+    networks:
+      - dental-network
+    depends_on:
+      - users-service
+      - be-core-service
+    restart: unless-stopped
+
 volumes:
   mysql_users_data:
   mysql_core_data:

@@ -1,7 +1,5 @@
 package dental.core.users.modules.auth.services.impl;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import dental.core.users.configs.security.JwtUtil;
 import dental.core.users.entities.Role;
 import dental.core.users.entities.UserEntity;
@@ -41,7 +39,6 @@ class GoogleAuthServiceImplTest {
 
 	private static final String CLIENT_ID = "test-client-id";
 	private static final String CLIENT_SECRET = "test-client-secret";
-	private static final String TEST_EMAIL = "user@test.com";
 	private static final String TEST_TOKEN = "test-jwt-token";
 
 	@BeforeEach

@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AppointmentResponse } from '../../features/dentists/interfaces/appointment.interface';
+import { ApiConfig } from '../config/api.config';
 
 export interface Patient {
   id: number;
@@ -25,7 +26,8 @@ export interface PatientUpdateRequest {
 })
 export class PatientService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8082/api/core/patient';
+  private apiConfig = inject(ApiConfig);
+  private apiUrl = this.apiConfig.corePatientUrl;
 
   getPatientById(patientId: number): Observable<Patient> {
     return this.http.get<Patient>(`${this.apiUrl}/getById/${patientId}`);
