@@ -13,6 +13,7 @@ export interface Patient {
   phone: string;
   address: string;
   dni: string;
+  birthDate?: string; // Fecha de nacimiento en formato YYYY-MM-DD
   active: boolean;
 }
 

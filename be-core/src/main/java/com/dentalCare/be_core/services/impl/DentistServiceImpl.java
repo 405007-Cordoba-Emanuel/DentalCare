@@ -157,6 +157,7 @@ public class DentistServiceImpl implements DentistService {
                     dto.setPhone(user.getPhone());
                     dto.setAddress(user.getAddress());
                     dto.setDni(patient.getDni());
+                    dto.setBirthDate(user.getBirthDate());
                     dto.setActive(patient.getActive());
                     return dto;
                 })
@@ -208,6 +209,7 @@ public class DentistServiceImpl implements DentistService {
                     dto.setPhone(user.getPhone());
                     dto.setAddress(user.getAddress());
                     dto.setDni(patient.getDni());
+                    dto.setBirthDate(user.getBirthDate());
                     dto.setActive(patient.getActive());
                     return dto;
                 })
@@ -440,6 +442,7 @@ public class DentistServiceImpl implements DentistService {
         dto.setPhone(user.getPhone());
         dto.setAddress(user.getAddress());
         dto.setDni(patient.getDni());
+        dto.setBirthDate(user.getBirthDate());
         dto.setActive(patient.getActive());
         return dto;
     }

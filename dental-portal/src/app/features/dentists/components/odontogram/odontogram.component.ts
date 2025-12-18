@@ -14,6 +14,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { OdontogramService, OdontogramResponseDto } from '../../services/odontogram.service';
 import { LocalStorageService } from '../../../../core/services/auth/local-storage.service';
+import { PatientService, Patient } from '../../../../core/services/patient.service';
 import { ConfirmDeleteOdontogramDialogComponent, ConfirmDeleteOdontogramData } from './confirm-delete-odontogram-dialog.component';
 
 type ToothStatus =
@@ -140,7 +141,8 @@ export class OdontogramComponent implements OnInit {
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
     private odontogramService: OdontogramService,
-    private localStorageService: LocalStorageService
+    private localStorageService: LocalStorageService,
+    private patientService: PatientService
   ) {}
 
   ngOnInit(): void {
@@ -177,14 +179,56 @@ export class OdontogramComponent implements OnInit {
   }
 
   loadPatientInfo(): void {
-    // TODO: Cargar info del paciente desde el backend
-    // Por ahora usar datos mock basados en patientId
-    this.patientInfo = {
-      firstName: 'María',
-      lastName: 'González',
-      dni: '12345678',
-      age: 30
-    };
+    if (!this.patientId) {
+      return;
+    }
+
+    this.isLoading = true;
+    this.patientService.getPatientById(this.patientId).subscribe({
+      next: (patient: Patient) => {
+        this.patientInfo = {
+          firstName: patient.firstName,
+          lastName: patient.lastName,
+          dni: patient.dni,
+          age: this.calculateAge(patient) // Calcular edad si hay fecha de nacimiento disponible
+        };
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar información del paciente:', error);
+        this.isLoading = false;
+        this.snackBar.open('Error al cargar información del paciente', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top'
+        });
+        // Valores por defecto en caso de error
+        this.patientInfo = {
+          firstName: 'Paciente',
+          lastName: '',
+          dni: '...',
+          age: 0
+        };
+      }
+    });
+  }
+
+  private calculateAge(patient: Patient): number {
+    if (!patient.birthDate) {
+      return 0;
+    }
+
+    const birthDate = new Date(patient.birthDate);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    // Si aún no ha cumplido años este año, restar 1
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
   }
 
   loadSavedOdontograms(): void {

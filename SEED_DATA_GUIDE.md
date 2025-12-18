@@ -24,147 +24,119 @@ spring.sql.init.continue-on-error=true
 
 ### **Microservicio Users (`users/src/main/resources/data.sql`)**
 - ✅ **1 Administrador** (admin@dentalcare.com)
-- ✅ **5 Dentistas** (IDs: 101-105)
-- ✅ **15 Pacientes** (IDs: 201-215)
-  - 5 vinculados a dentistas (201-205)
-  - 10 disponibles sin dentista (206-215)
+- ✅ **1 Dentista** (ID: 2)
+- ✅ **8 Pacientes** (IDs: 3-10) - Todos vinculados al mismo dentista
 
 ### **Microservicio Core (`be-core/src/main/resources/data.sql`)**
-- ✅ **5 Dentistas** vinculados a usuarios (IDs: 1-5, user_id: 101-105)
-- ✅ **15 Pacientes**:
-  - 5 ya vinculados a dentistas (IDs: 1-5, user_id: 201-205)
-  - 10 disponibles sin dentista (IDs: 6-15, user_id: 206-215)
-- ✅ **12 Tratamientos**:
-  - 4 completados
-  - 8 en progreso
-- ✅ **20 Citas médicas**:
-  - Estados variados: PROGRAMADO, CONFIRMADO, COMPLETADO, CANCELADO
-  - Distribuidas en diferentes fechas
-- ✅ **25 Entradas de Historia Clínica**:
-  - 10 vinculadas a tratamientos (sesiones)
-  - 5 vinculadas a recetas
-  - 10 entradas independientes
-  - Descripciones detalladas para búsqueda
-- ✅ **20 Recetas médicas**:
-  - 10 históricas (enero-noviembre 2024)
-  - 10 del mes actual (diciembre 2024) - Para probar KPIs
+- ✅ **1 Dentista** vinculado a usuario (ID: 1, user_id: 2)
+- ✅ **8 Pacientes** todos vinculados al mismo dentista (IDs: 1-8, user_id: 3-10)
+- ✅ **24 Tratamientos**: 3 por paciente
+  - 1 completado por paciente
+  - 1 abandonado por paciente
+  - 1 en curso por paciente (aparece en dashboard del paciente)
+- ✅ **109 Citas/Turnos médicos**:
+  - Distribuidas en noviembre (pasados), diciembre y enero (futuros)
+  - Incluye días completos para probar visualización
+  - Todos los estados: PROGRAMADO, CONFIRMADO, COMPLETADO, CANCELADO, AUSENTE
+- ✅ **80 Recetas médicas**: 10 por paciente
+  - Algunas vinculadas a tratamientos/citas
+  - Otras independientes
+  - Distribuidas en varios meses (septiembre-diciembre) para probar filtros
+- ✅ **32 Odontogramas**: 4 por paciente
+  - Evolución a lo largo del tiempo
+- ✅ **80 Entradas de Historia Clínica**: 10 por paciente
+  - Algunas vinculadas a tratamientos/recetas
+  - Otras independientes
+  - Para probar búsqueda y filtrado
+- ✅ **8 Conversaciones de Chat**
+- ✅ **80 Mensajes de Chat**: 10 por conversación (tipo consulta)
 
 ## 🎯 Datos de Prueba Incluidos
 
-### **Usuarios Disponibles para Testing:**
+### **Usuarios Disponibles para Demostración:**
 ```bash
-# Administrador
+# ============================================
+# ADMINISTRADOR
+# ============================================
 Email: admin@dentalcare.com
 Password: 123456
 User ID: 1, Role: ADMIN
+Nombre: Carlos Administrador
 
-# Dentista 1
+# ============================================
+# DENTISTA
+# ============================================
 Email: maria.gonzalez@dentalcare.com
 Password: 123456
-Dentist ID: 1, User ID: 101, Nombre: Dr. María González
+Dentist ID: 1, User ID: 2
+Nombre: Dra. María González
+Especialidad: Odontología General
+Matrícula: DENT-001-MED
 
-# Dentista 2
-Email: juan.lopez@dentalcare.com
-Password: 123456
-Dentist ID: 2, User ID: 102, Nombre: Dr. Juan Carlos López
-
-# Dentista 3
-Email: ana.martinez@dentalcare.com
-Password: 123456
-Dentist ID: 3, User ID: 103, Nombre: Dra. Ana Martínez
-
-# Dentista 4
-Email: roberto.fernandez@dentalcare.com
-Password: 123456
-Dentist ID: 4, User ID: 104, Nombre: Dr. Roberto Fernández
-
-# Dentista 5
-Email: laura.rodriguez@dentalcare.com
-Password: 123456
-Dentist ID: 5, User ID: 105, Nombre: Dra. Laura Rodríguez
-
-# Paciente Vinculado 1 (con dentista asignado)
+# ============================================
+# PACIENTES (todos vinculados al dentista)
+# ============================================
+# Paciente 1
 Email: maria.perez@email.com
 Password: 123456
-Patient ID: 1, User ID: 201, Dentist ID: 1
+Patient ID: 1, User ID: 3, Dentist ID: 1
 Nombre: María Elena Pérez
+DNI: 12345678
 
-# Paciente Vinculado 2 (con dentista asignado)
+# Paciente 2
 Email: carlos.garcia@email.com
 Password: 123456
-Patient ID: 2, User ID: 202, Dentist ID: 1
+Patient ID: 2, User ID: 4, Dentist ID: 1
 Nombre: Carlos Alberto García
+DNI: 23456789
 
-# Paciente Vinculado 3 (con dentista asignado)
+# Paciente 3
 Email: ana.silva@email.com
 Password: 123456
-Patient ID: 3, User ID: 203, Dentist ID: 2
+Patient ID: 3, User ID: 5, Dentist ID: 1
 Nombre: Ana Beatriz Silva
+DNI: 34567890
 
-# Paciente Vinculado 4 (con dentista asignado)
+# Paciente 4
 Email: roberto.morales@email.com
 Password: 123456
-Patient ID: 4, User ID: 204, Dentist ID: 3
+Patient ID: 4, User ID: 6, Dentist ID: 1
 Nombre: Roberto Carlos Morales
+DNI: 45678901
 
-# Paciente Vinculado 5 (con dentista asignado)
+# Paciente 5
 Email: laura.vargas@email.com
 Password: 123456
-Patient ID: 5, User ID: 205, Dentist ID: 4
+Patient ID: 5, User ID: 7, Dentist ID: 1
 Nombre: Laura Patricia Vargas
+DNI: 56789012
 
-# Paciente Disponible 1 (aparece en endpoint de disponibles)
+# Paciente 6
 Email: diego.torres@email.com
 Password: 123456
-Patient ID: 6, User ID: 206, Dentist ID: NULL
+Patient ID: 6, User ID: 8, Dentist ID: 1
 Nombre: Diego Alejandro Torres
+DNI: 67890123
 
-# Paciente Disponible 2 (aparece en endpoint de disponibles)
+# Paciente 7
 Email: valentina.jimenez@email.com
 Password: 123456
-Patient ID: 7, User ID: 207, Dentist ID: NULL
+Patient ID: 7, User ID: 9, Dentist ID: 1
 Nombre: Valentina Jiménez
+DNI: 78901234
 
-# Paciente Disponible 3
+# Paciente 8
 Email: fernando.herrera@email.com
 Password: 123456
-Patient ID: 8, User ID: 208, Dentist ID: NULL
-
-# Paciente Disponible 4
-Email: camila.ruiz@email.com
-Password: 123456
-Patient ID: 9, User ID: 209, Dentist ID: NULL
-
-# Paciente Disponible 5
-Email: sebastian.mendoza@email.com
-Password: 123456
-Patient ID: 10, User ID: 210, Dentist ID: NULL
-
-# Paciente Disponible 6
-Email: sofia.morales@email.com
-Password: 123456
-Patient ID: 11, User ID: 211, Dentist ID: NULL
-
-# Paciente Disponible 7
-Email: lucas.gonzalez@email.com
-Password: 123456
-Patient ID: 12, User ID: 212, Dentist ID: NULL
-
-# Paciente Disponible 8
-Email: martina.lopez@email.com
-Password: 123456
-Patient ID: 13, User ID: 213, Dentist ID: NULL
-
-# Paciente Disponible 9
-Email: nicolas.fernandez@email.com
-Password: 123456
-Patient ID: 14, User ID: 214, Dentist ID: NULL
-
-# Paciente Disponible 10
-Email: isabella.rodriguez@email.com
-Password: 123456
-Patient ID: 15, User ID: 215, Dentist ID: NULL
+Patient ID: 8, User ID: 10, Dentist ID: 1
+Nombre: Fernando Herrera
+DNI: 89012345
 ```
+
+**⚠️ IMPORTANTE:** 
+- Todos los usuarios (admin, dentista y pacientes) usan la misma contraseña de prueba: `123456`
+- **TODOS los emails y contraseñas listados arriba coinciden exactamente con los datos en `users/src/main/resources/data.sql`**
+- Si tienes problemas de login, verifica que estés usando el email exacto (respeta mayúsculas/minúsculas)
 
 **⚠️ IMPORTANTE:** 
 - Todos los usuarios (admin, dentistas y pacientes) usan la misma contraseña de prueba: `123456`
