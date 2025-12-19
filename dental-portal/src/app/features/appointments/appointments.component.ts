@@ -67,14 +67,106 @@ import { AppointmentDetailDialogComponent } from './appointment-detail-dialog/ap
         border: none !important;
         color: #fff !important;
         border-radius: 0.5rem !important;
-        padding: 4px 6px !important;
+        padding: 8px 10px !important;
         font-size: 0.875rem !important;
         transition: all 0.2s;
+        min-height: auto !important;
+        height: auto !important;
+        overflow: visible !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        line-height: 1.4 !important;
+      }
+
+      /* Título del evento - permitir múltiples líneas */
+      :host ::ng-deep .fc-event-title {
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        overflow: visible !important;
+        line-height: 1.4 !important;
+        display: block !important;
+      }
+
+      /* Contenedor del evento en vista de tiempo */
+      :host ::ng-deep .fc-time-grid-event {
+        min-height: 50px !important;
+        height: auto !important;
+        overflow: visible !important;
+      }
+
+      /* Eventos en la vista de tiempo - asegurar altura mínima */
+      :host ::ng-deep .fc-timegrid-event {
+        min-height: 50px !important;
+        height: auto !important;
+      }
+
+      /* Asegurar que el contenido del evento sea visible */
+      :host ::ng-deep .fc-event-main {
+        padding: 4px 6px !important;
+        overflow: visible !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+      }
+
+      /* Vista diaria - slots más altos para mostrar contenido completo */
+      :host ::ng-deep .fc-timegrid-slot {
+        height: 60px !important;
+        min-height: 60px !important;
+      }
+
+      :host ::ng-deep .fc-timegrid-slot-label {
+        height: 60px !important;
+      }
+
+      /* Asegurar que los eventos no se corten en la vista diaria */
+      :host ::ng-deep .fc-timegrid-event-harness {
+        overflow: visible !important;
+      }
+
+      :host ::ng-deep .fc-timegrid-event-harness-inset {
+        overflow: visible !important;
+      }
+
+      /* Tiempo del evento */
+      :host ::ng-deep .fc-event-time {
+        white-space: normal !important;
+        display: block !important;
+        margin-bottom: 2px !important;
+        font-weight: 600 !important;
+      }
+
+      /* Estructura completa del evento */
+      :host ::ng-deep .fc-event-main-frame {
+        overflow: visible !important;
+        white-space: normal !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      /* Celdas de tiempo en vista diaria - más espacio */
+      :host ::ng-deep .fc-timegrid-col {
+        min-width: 0 !important;
+      }
+
+      :host ::ng-deep .fc-timegrid-col-frame {
+        overflow: visible !important;
+      }
+
+      /* Asegurar que el cuerpo del calendario permita overflow */
+      :host ::ng-deep .fc-timegrid-body {
+        overflow: visible !important;
+      }
+
+      :host ::ng-deep .fc-scroller {
+        overflow-y: auto !important;
+        overflow-x: visible !important;
       }
 
       :host ::ng-deep .fc-event:hover {
         background-color: #1d4ed8 !important; /* blue-700 */
         transform: scale(1.02);
+        z-index: 10 !important;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
       }
 
       /* Sábado y domingo */
@@ -111,6 +203,8 @@ export class AppointmentsComponent implements OnInit {
     headerToolbar: false,
     slotMinTime: '09:00:00',
     slotMaxTime: '20:00:00',
+    slotDuration: '00:30:00',
+    slotLabelInterval: '01:00:00',
     slotLabelFormat: {
       hour: '2-digit',
       minute: '2-digit',
@@ -122,6 +216,12 @@ export class AppointmentsComponent implements OnInit {
     eventClick: this.handleEventClick.bind(this),
     height: 'auto',
     expandRows: true,
+    eventDisplay: 'block',
+    eventTimeFormat: {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    },
   };
 
   ngOnInit() {
