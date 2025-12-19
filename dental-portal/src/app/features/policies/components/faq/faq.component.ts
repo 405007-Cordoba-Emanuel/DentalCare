@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
+import { LocalStorageService } from '../../../../core/services/auth/local-storage.service';
+import { User } from '../../../../interfaces/user/user.interface';
 
 interface FAQItem {
   question: string;
@@ -11,11 +13,14 @@ interface FAQItem {
 @Component({
   selector: 'app-faq',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './faq.component.html',
   styleUrls: ['./faq.component.css']
 })
 export class FaqComponent {
+  private router = inject(Router);
+  private localStorage = inject(LocalStorageService);
+
   selectedCategory = 'general';
   openItems: Set<number> = new Set();
 
@@ -123,5 +128,32 @@ export class FaqComponent {
   setCategory(category: string): void {
     this.selectedCategory = category;
     this.openItems.clear();
+  }
+
+  getDashboardRoute(): string {
+    const userDataString = this.localStorage.getUserData();
+    if (!userDataString) {
+      return '/dashboard'; // Fallback a la ruta genérica
+    }
+
+    try {
+      const userData = JSON.parse(userDataString) as User;
+      const role = userData.role;
+
+      if (role === 'DENTIST') {
+        return '/dentist';
+      } else if (role === 'PATIENT') {
+        return '/patient';
+      } else {
+        return '/dashboard'; // Fallback
+      }
+    } catch (error) {
+      console.error('Error parsing user data:', error);
+      return '/dashboard'; // Fallback
+    }
+  }
+
+  navigateToDashboard(): void {
+    this.router.navigate([this.getDashboardRoute()]);
   }
 }

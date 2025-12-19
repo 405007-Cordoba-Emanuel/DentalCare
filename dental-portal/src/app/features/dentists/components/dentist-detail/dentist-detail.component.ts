@@ -45,7 +45,7 @@ export class DentistDetailComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/dentist-dashboard']);
+    this.router.navigate(['/dashboard']);
   }
 
   getStatusColor(active: boolean): string {
